@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习中心 - 市场数据分析AI伴学平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <style>
+    .learn-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      height: calc(100vh - 64px);
+    }
+    
+    .chat-container {
+      position: relative;
+      height: 100%;
+    }
+    
+    .chat-messages {
+      height: calc(100% - 140px);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .chat-input-area {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 8px;
+    }
+    
+    .lesson-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .markdown-content {
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .markdown-content h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .markdown-content h2 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .markdown-content h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .markdown-content p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    
+    .markdown-content ul, .markdown-content ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    
+    .markdown-content li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .markdown-content blockquote {
+      border-left: 3px solid var(--accent-blue);
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+      color: var(--text-secondary);
+    }
+    
+    .markdown-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    
+    .markdown-content th, .markdown-content td {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+    
+    .markdown-content th {
+      background: var(--bg-tertiary);
+      font-weight: 600;
+    }
+    
+    .markdown-content code {
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.875em;
+    }
+    
+    .markdown-content pre {
+      background: var(--bg-tertiary);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    
+    .markdown-content pre code {
+      background: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen" style="background: var(--bg-primary);">
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="flex items-center gap-4">
+      <button onclick="window.location.href='dashboard.html'" class="btn btn-ghost">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        返回
+      </button>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium" id="stage-title">加载中...</span>
+        <span style="color: var(--text-tertiary);">/</span>
+        <span class="text-sm" id="lesson-title">--</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="agent-mode-indicator" id="agent-mode">
+          <span class="agent-mode-icon">🤖</span>
+          <span class="agent-mode-badge" id="mode-badge">加载中</span>
+        </span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='settings.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="learn-layout">
+    <!-- Left: Learning Content -->
+    <div class="learn-content" id="learn-content">
+      <!-- Lesson Navigation -->
+      <div class="lesson-nav">
+        <button class="btn btn-ghost btn-sm" id="prev-btn" onclick="navigateLesson(-1)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <span class="text-sm" id="lesson-nav-info">1/6</span>
+        <button class="btn btn-ghost btn-sm" id="next-btn" onclick="navigateLesson(1)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+        <div class="flex-1"></div>
+        <button class="btn btn-primary btn-sm" id="complete-btn" onclick="markComplete()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          完成
+        </button>
+      </div>
+      
+      <!-- Content Area -->
+      <div class="markdown-content" id="content-area">
+        <div class="text-center py-12">
+          <div class="loading-spinner mx-auto mb-4"></div>
+          <p style="color: var(--text-secondary);">加载课程内容...</p>
+        </div>
+      </div>
+      
+      <!-- Submission Area (for practice types) -->
+      <div class="submission-area hidden" id="submission-area" style="padding: 0 24px 24px;">
+        <div class="submission-box">
+          <div class="submission-header">
+            <span class="submission-title">提交你的答案</span>
+            <span class="text-sm" style="color: var(--text-tertiary);" id="submission-status"></span>
+          </div>
+          <textarea class="form-textarea" id="submission-input" rows="6" 
+                    placeholder="请在这里输入你的答案或分析..."></textarea>
+          <div class="flex justify-between items-center mt-3">
+            <label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);">
+              <input type="checkbox" id="own-work-checkbox">
+              我已独立完成，没有参考AI回复
+            </label>
+            <button class="btn btn-primary" onclick="submitAnswer()">
+              提交给李主管审核
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: AI Chat -->
+    <div class="learn-sidebar">
+      <div class="chat-container" id="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-avatar">李</div>
+          <div class="chat-info">
+            <h4>李主管</h4>
+            <div class="chat-mode" id="chat-mode">数据助手</div>
+          </div>
+          <div class="flex-1"></div>
+          <button class="btn btn-ghost btn-sm" onclick="clearChat()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages">
+          <!-- Messages will be rendered here -->
+        </div>
+        
+        <!-- Chat Locked Overlay -->
+        <div class="chat-locked-overlay hidden" id="chat-locked">
+          <div class="lock-icon">🔒</div>
+          <p style="color: var(--text-secondary); font-size: 0.875rem;">当前环节AI不可用</p>
+          <p style="color: var(--text-tertiary); font-size: 0.75rem;">请独立完成此环节</p>
+        </div>
+        
+        <!-- Chat Input -->
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="chat-input" 
+                 placeholder="输入你的问题..." onkeypress="handleChatKeypress(event)">
+          <button class="btn btn-primary" id="send-btn" onclick="sendMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../js/db.js"></script>
+  <script src="../js/ai.js"></script>
+  <script src="../js/agent.js"></script>
+  <script src="../js/course-engine.js"></script>
+  <script>
+    // ==================== State ====================
+    let currentStage = null;
+    let currentLesson = null;
+    let currentMode = 'knowledge';
+    let sessionId = '';
+    let isStreaming = false;
+    let currentStreamController = null;
+
+    // ==================== Initialization ====================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Get URL parameters
+      const params = new URLSearchParams(window.location.search);
+      const stageId = params.get('stage');
+      const lessonId = params.get('lesson');
+      
+      // Initialize database
+      await DB.init();
+      
+      // Start session
+      sessionId = await CourseEngine.startSession();
+      
+      // Load content
+      await loadLessonContent(stageId, lessonId);
+      
+      // Initialize chat
+      await initializeChat();
+    });
+
+    // ==================== Load Course Content ====================
+    async function loadLessonContent(stageId, lessonId) {
+      const stages = await CourseEngine.getAllStages();
+      
+      if (!stageId && stages.length > 0) {
+        stageId = stages[0].id;
+      }
+      
+      currentStage = stages.find(s => s.id === stageId);
+      
+      if (!currentStage) {
+        showError('课程内容加载失败');
+        return;
+      }
+      
+      // Find or set lesson
+      if (!lessonId && currentStage.lessons && currentStage.lessons.length > 0) {
+        lessonId = currentStage.lessons[0].id;
+      }
+      
+      currentLesson = currentStage.lessons?.find(l => l.id === lessonId);
+      
+      if (!currentLesson) {
+        showError('课时内容加载失败');
+        return;
+      }
+      
+      // Update UI
+      document.getElementById('stage-title').textContent = currentStage.title;
+      document.getElementById('lesson-title').textContent = currentLesson.title;
+      
+      // Get lesson type and mode
+      const lessonType = currentLesson.type || 'content-reading';
+      currentMode = currentLesson.agentMode || 'knowledge';
+      
+      // Update mode badge
+      const modeInfo = Agent.getModeInfo(currentMode);
+      const modeBadge = document.getElementById('mode-badge');
+      modeBadge.textContent = modeInfo.name;
+      modeBadge.className = `agent-mode-badge ${modeInfo.badgeClass}`;
+      document.getElementById('chat-mode').textContent = modeInfo.name;
+      
+      // Update navigation
+      updateNavigation();
+      
+      // Render content based on type
+      await renderLessonContent(lessonType);
+      
+      // Update chat locked state
+      updateChatLockedState();
+      
+      // Save last lesson
+      await DB.settings.set('lastLesson', {
+        stageId: currentStage.id,
+        lessonId: currentLesson.id
+      });
+    }
+
+    // ==================== Render Lesson Content ====================
+    async function renderLessonContent(lessonType) {
+      const contentArea = document.getElementById('content-area');
+      const submissionArea = document.getElementById('submission-area');
+      
+      // Hide submission area by default
+      submissionArea.classList.add('hidden');
+      
+      switch (lessonType) {
+        case 'ai-dialog':
+          await renderAIDialog();
+          break;
+        case 'content-reading':
+          await renderContentReading();
+          break;
+        case 'practice':
+        case 'variant':
+          await renderContentReading();
+          submissionArea.classList.remove('hidden');
+          break;
+        case 'hands-on':
+          await renderHandsOn();
+          submissionArea.classList.remove('hidden');
+          break;
+        case 'test':
+          await renderTest();
+          break;
+        default:
+          await renderContentReading();
+      }
+    }
+
+    // Render AI Dialog content
+    async function renderAIDialog() {
+      const contentArea = document.getElementById('content-area');
+      const content = currentLesson.content || {};
+      
+      let html = `<div class="markdown-content">`;
+      
+      if (content.intro) {
+        html += `<div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <p style="color: var(--text-primary); font-weight: 500;">${content.intro}</p>
+        </div>`;
+      }
+      
+      if (content.markdown) {
+        html += renderMarkdown(content.markdown);
+      }
+      
+      // Show understanding questions
+      if (content.understandingQuestions && content.understandingQuestions.length > 0) {
+        html += `<div style="margin-top: 2rem; padding: 1rem; background: rgba(88, 166, 255, 0.1); border-left: 3px solid var(--accent-blue); border-radius: 4px;">
+          <h4 style="margin-bottom: 0.5rem;">请思考：</h4>
+          <ul>`;
+        content.understandingQuestions.forEach(q => {
+          html += `<li style="margin-bottom: 0.5rem;">${q}</li>`;
+        });
+        html += `</ul></div>`;
+      }
+      
+      html += `</div>`;
+      contentArea.innerHTML = html;
+    }
+
+    // Render Content Reading
+    async function renderContentReading() {
+      const contentArea = document.getElementById('content-area');
+      const content = currentLesson.content || {};
+      
+      if (content.markdown) {
+        contentArea.innerHTML = `<div class="markdown-content">${renderMarkdown(content.markdown)}</div>`;
+      } else {
+        contentArea.innerHTML = `<div class="markdown-content"><p>暂无内容</p></div>`;
+      }
+    }
+
+    // Render Hands-on content (placeholder for now)
+    async function renderHandsOn() {
+      const contentArea = document.getElementById('content-area');
+      const content = currentLesson.content || {};
+      
+      let html = `<div class="markdown-content">`;
+      
+      if (content.markdown) {
+        html += renderMarkdown(content.markdown);
+      }
+      
+      html += `<div style="margin-top: 2rem; padding: 2rem; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+        <p style="color: var(--text-secondary);">在线实操功能 - 表格编辑器</p>
+        <p class="text-sm mt-2" style="color: var(--text-tertiary);">将在下一阶段集成</p>
+      </div>`;
+      
+      html += `</div>`;
+      contentArea.innerHTML = html;
+    }
+
+    // Render Test content
+    async function renderTest() {
+      const contentArea = document.getElementById('content-area');
+      
+      contentArea.innerHTML = `<div class="markdown-content">
+        <h2>阶段测试</h2>
+        <p style="color: var(--text-secondary);">正在加载测试题目...</p>
+        <div class="text-center py-8">
+          <div class="loading-spinner mx-auto"></div>
+        </div>
+      </div>`;
+      
+      // Redirect to test page
+      setTimeout(() => {
+        window.location.href = `test.html?stage=${currentStage.id}`;
+      }, 1000);
+    }
+
+    // Simple Markdown Renderer
+    function renderMarkdown(md) {
+      if (!md) return '';
+      
+      return md
+        // Headers
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        // Bold
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Code blocks
+        .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        // Inline code
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        // Lists
+        .replace(/^\- (.*$)/gim, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        // Tables (basic)
+        .replace(/\|(.+)\|/g, (match) => {
+          const cells = match.split('|').filter(c => c.trim());
+          if (cells.some(c => /^-+$/.test(c.trim()))) {
+            return '';
+          }
+          return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+        })
+        // Paragraphs
+        .replace(/\n\n/g, '</p><p>')
+        // Line breaks
+        .replace(/\n/g, '<br>')
+        // Wrap in paragraph
+        .replace(/^(.+)$/s, '<p>$1</p>')
+        // Clean up
+        .replace(/<p><\/p>/g, '')
+        .replace(/<p>(<h[1-3]>)/g, '$1')
+        .replace(/(<\/h[1-3]>)<\/p>/g, '$1')
+        .replace(/<p>(<ul>)/g, '$1')
+        .replace(/(<\/ul>)<\/p>/g, '$1')
+        .replace(/<p>(<pre>)/g, '$1')
+        .replace(/(<\/pre>)<\/p>/g, '$1');
+    }
+
+    // ==================== Navigation ====================
+    function updateNavigation() {
+      const lessons = currentStage.lessons || [];
+      const currentIndex = lessons.findIndex(l => l.id === currentLesson?.id);
+      
+      document.getElementById('lesson-nav-info').textContent = `${currentIndex + 1}/${lessons.length}`;
+      document.getElementById('prev-btn').disabled = currentIndex === 0;
+      document.getElementById('next-btn').disabled = currentIndex === lessons.length - 1;
+    }
+
+    function navigateLesson(direction) {
+      const lessons = currentStage.lessons || [];
+      const currentIndex = lessons.findIndex(l => l.id === currentLesson?.id);
+      const newIndex = currentIndex + direction;
+      
+      if (newIndex >= 0 && newIndex < lessons.length) {
+        const newLesson = lessons[newIndex];
+        window.location.href = `learn.html?stage=${currentStage.id}&lesson=${newLesson.id}`;
+      }
+    }
+
+    // ==================== Chat Functions ====================
+    async function initializeChat() {
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = '';
+      
+      // Load existing conversations
+      const conversations = await DB.conversations.get(sessionId);
+      
+      if (conversations && conversations.length > 0) {
+        conversations.forEach(conv => addMessageToUI(conv));
+      } else {
+        // Add initial message based on mode
+        const initialMsg = Agent.getInitialMessage(currentMode, currentLesson?.content || {});
+        if (initialMsg) {
+          addMessageToUI({
+            role: 'agent',
+            content: initialMsg,
+            timestamp: Date.now()
+          });
+        }
+      }
+      
+      scrollChatToBottom();
+    }
+
+    function addMessageToUI(message) {
+      const chatMessages = document.getElementById('chat-messages');
+      const isAgent = message.role === 'agent' || message.role === 'assistant';
+      
+      const time = new Date(message.timestamp || Date.now()).toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      const div = document.createElement('div');
+      div.className = `message ${isAgent ? 'agent' : 'student'}`;
+      div.innerHTML = `
+        ${escapeHtml(message.content)}
+        <div class="message-time">${time}</div>
+      `;
+      
+      chatMessages.appendChild(div);
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      
+      if (!message || isStreaming) return;
+      
+      // Check if AI is enabled
+      if (!currentLesson?.aiEnabled) {
+        showToast('warning', 'AI已禁用', '当前环节需要独立完成');
+        return;
+      }
+      
+      // Add user message
+      input.value = '';
+      addMessageToUI({
+        role: 'student',
+        content: message,
+        timestamp: Date.now()
+      });
+      
+      // Save to DB
+      await DB.conversations.save({
+        sessionId,
+        stageId: currentStage?.id,
+        lessonId: currentLesson?.id,
+        role: 'student',
+        content: message,
+        timestamp: Date.now(),
+        mode: currentMode
+      });
+      
+      // Check for help requests in socratic mode
+      if (currentMode === 'socratic' && Agent.isHelpRequest(message)) {
+        const count = Agent.incrementHelpRequest(sessionId);
+        if (count >= 3) {
+          // Will trigger guided mode in system prompt
+        }
+      }
+      
+      scrollChatToBottom();
+      
+      // Get response
+      await getAIResponse(message);
+    }
+
+    async function getAIResponse(userMessage) {
+      const sendBtn = document.getElementById('send-btn');
+      sendBtn.disabled = true;
+      isStreaming = true;
+      
+      // Add thinking indicator
+      const chatMessages = document.getElementById('chat-messages');
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.className = 'message agent';
+      thinkingDiv.id = 'thinking-indicator';
+      thinkingDiv.innerHTML = `<div class="loading-dots"><span></span><span></span><span></span></div>`;
+      chatMessages.appendChild(thinkingDiv);
+      scrollChatToBottom();
+      
+      try {
+        // Build messages array
+        const conversations = await DB.conversations.get(sessionId, 20);
+        const history = Agent.formatConversationHistory(conversations);
+        
+        const systemPrompt = Agent.getSystemPrompt(currentMode, {
+          stage: currentStage?.title,
+          taskDescription: currentLesson?.title,
+          relevantContext: ''
+        });
+        
+        const messages = [
+          { role: 'system', content: systemPrompt },
+          ...history
+        ];
+        
+        // Create streaming response container
+        let fullResponse = '';
+        const responseDiv = document.createElement('div');
+        responseDiv.className = 'message agent';
+        responseDiv.id = 'stream-response';
+        chatMessages.appendChild(responseDiv);
+        
+        // Remove thinking indicator
+        thinkingDiv.remove();
+        
+        // Stream response
+        await AI.sendChatRequestStream(
+          messages,
+          {
+            onChunk: (chunk, full) => {
+              fullResponse = full;
+              responseDiv.innerHTML = `
+                ${escapeHtml(fullResponse)}
+                <div class="message-time" style="opacity: 0.5;">输入中...</div>
+              `;
+              scrollChatToBottom();
+            },
+            onComplete: async (full) => {
+              fullResponse = full;
+              responseDiv.innerHTML = `
+                ${escapeHtml(fullResponse)}
+                <div class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</div>
+              `;
+              
+              // Save to DB
+              await DB.conversations.save({
+                sessionId,
+                stageId: currentStage?.id,
+                lessonId: currentLesson?.id,
+                role: 'agent',
+                content: fullResponse,
+                timestamp: Date.now(),
+                mode: currentMode
+              });
+              
+              sendBtn.disabled = false;
+              isStreaming = false;
+              scrollChatToBottom();
+            },
+            onError: (error) => {
+              thinkingDiv.remove();
+              responseDiv.remove();
+              
+              if (error.code !== 'ABORTED') {
+                showToast('error', 'AI响应错误', error.message);
+              }
+              
+              sendBtn.disabled = false;
+              isStreaming = false;
+            }
+          }
+        );
+        
+      } catch (error) {
+        thinkingDiv.remove();
+        
+        if (error.code !== 'ABORTED') {
+          showToast('error', '请求失败', error.message);
+        }
+        
+        sendBtn.disabled = false;
+        isStreaming = false;
+      }
+    }
+
+    function handleChatKeypress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function clearChat() {
+      if (confirm('确定要清空对话记录吗？')) {
+        DB.conversations.clear(sessionId);
+        document.getElementById('chat-messages').innerHTML = '';
+        initializeChat();
+      }
+    }
+
+    function scrollChatToBottom() {
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ==================== Chat Locked State ====================
+    function updateChatLockedState() {
+      const chatLocked = document.getElementById('chat-locked');
+      const chatInput = document.getElementById('chat-input');
+      const sendBtn = document.getElementById('send-btn');
+      
+      if (!currentLesson?.aiEnabled) {
+        chatLocked.classList.remove('hidden');
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+      } else {
+        chatLocked.classList.add('hidden');
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    // ==================== Submission ====================
+    async function submitAnswer() {
+      const input = document.getElementById('submission-input');
+      const content = input.value.trim();
+      const ownWork = document.getElementById('own-work-checkbox').checked;
+      
+      if (!content) {
+        showToast('warning', '请输入答案', '');
+        return;
+      }
+      
+      // Save submission
+      await DB.submissions.save({
+        stageId: currentStage?.id,
+        lessonId: currentLesson?.id,
+        content,
+        ownWork,
+        timestamp: Date.now()
+      });
+      
+      showToast('success', '提交成功', '李主管将审核你的答案');
+      
+      // If in reviewer mode, show feedback
+      if (currentMode === 'reviewer') {
+        // Generate feedback
+        const feedback = Agent.validateSubmission(content, currentLesson?.rubric);
+        addMessageToUI({
+          role: 'agent',
+          content: `收到你的提交！\n\n评分：${feedback.score}分\n\n${feedback.feedback.join('\n')}`,
+          timestamp: Date.now()
+        });
+      }
+    }
+
+    // ==================== Complete Lesson ====================
+    async function markComplete() {
+      if (!currentLesson) return;
+      
+      await CourseEngine.markLessonCompleted(currentStage?.id, currentLesson.id, {
+        completedAt: Date.now()
+      });
+      
+      showToast('success', '已完成', '课时进度已保存');
+      
+      // Navigate to next lesson or dashboard
+      const nextLesson = await CourseEngine.getNextLesson(currentStage?.id, currentLesson.id);
+      if (nextLesson) {
+        setTimeout(() => {
+          window.location.href = `learn.html?stage=${currentStage.id}&lesson=${nextLesson.id}`;
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1000);
+      }
+    }
+
+    // ==================== Utilities ====================
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showError(message) {
+      document.getElementById('content-area').innerHTML = `
+        <div class="text-center py-12">
+          <p style="color: var(--accent-red);">${message}</p>
+        </div>
+      `;
+    }
+
+    function showToast(type, title, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+      };
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

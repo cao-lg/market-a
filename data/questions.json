@@ -1,0 +1,659 @@
+{
+  "tests": {
+    "stage-1-test": {
+      "title": "阶段1测试 - 入职培训与项目启动",
+      "timeLimitMinutes": 15,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s1q1",
+          "type": "single-choice",
+          "question": "以下哪项属于电商数据分析中'流量类'核心指标？",
+          "options": ["客单价", "UV（独立访客）", "复购率", "ROI"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s1q2",
+          "type": "single-choice",
+          "question": "杭州悦享家居用品有限公司的主营平台是？",
+          "options": ["京东+拼多多", "天猫+抖音", "淘宝+快手", "唯品会+小红书"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s1q3",
+          "type": "single-choice",
+          "question": "电商数据分析全流程的第一步是什么？",
+          "options": ["指标核算", "数据采集", "数据清洗", "报告撰写"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s1q4",
+          "type": "single-choice",
+          "question": "数据清洗的主要目的是？",
+          "options": ["增加数据量", "确保数据准确完整一致", "美化数据展示", "加快数据加载"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s1q5",
+          "type": "single-choice",
+          "question": "月度分析报告的核心构成不包括以下哪项？",
+          "options": ["核心数据概览", "流量分析", "竞品详细对比", "改进建议"],
+          "answer": 2,
+          "score": 10
+        },
+        {
+          "id": "s1q6",
+          "type": "multi-choice",
+          "question": "电商数据分析的主要数据来源包括？",
+          "options": ["平台数据（生意参谋等）", "第三方工具（蝉妈妈等）", "个人猜测", "内部系统（ERP、客服等）"],
+          "answer": [0, 1, 3],
+          "score": 10
+        },
+        {
+          "id": "s1q7",
+          "type": "single-choice",
+          "question": "以下哪种图表最适合展示渠道流量占比？",
+          "options": ["折线图", "柱状图", "饼图", "散点图"],
+          "answer": 2,
+          "score": 10
+        },
+        {
+          "id": "s1q8",
+          "type": "fill-blank",
+          "question": "数据分析报告的第一步应该是（请填写核心结论/执行摘要）",
+          "answer": "结论先行",
+          "score": 10
+        },
+        {
+          "id": "s1q9",
+          "type": "single-choice",
+          "question": "9月GMV环比下滑12%，其中'环比'是指与哪个周期对比？",
+          "options": ["去年同期", "上月", "上周", "昨天"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s1q10",
+          "type": "single-choice",
+          "question": "李主管沟通风格的特点是？",
+          "options": ["直接给答案", "通过提问引导思考", "只批评不表扬", "只讲理论不实践"],
+          "answer": 1,
+          "score": 10
+        }
+      ]
+    },
+    "stage-2-test": {
+      "title": "阶段2测试 - 数据采集与标准化清洗",
+      "timeLimitMinutes": 20,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s2q1",
+          "type": "single-choice",
+          "question": "以下哪种情况属于'无效数据'？",
+          "options": ["金额为80元的正常订单", "订单状态为'已发货'的订单", "订单状态为'已取消'的测试单", "使用了优惠券的订单"],
+          "answer": 2,
+          "score": 8
+        },
+        {
+          "id": "s2q2",
+          "type": "single-choice",
+          "question": "数据清洗中，处理'重复数据'的第一步是？",
+          "options": ["直接删除所有重复", "识别重复标准", "修改重复数据", "忽略重复数据"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q3",
+          "type": "single-choice",
+          "question": "订单金额0.01元，最可能的来源是？",
+          "options": ["大额批发", "测试单", "正常零售", "限时特卖"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q4",
+          "type": "single-choice",
+          "question": "有效订单的支付时间应该？",
+          "options": ["早于下单时间", "晚于下单时间", "等于下单时间", "无限制"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q5",
+          "type": "multi-choice",
+          "question": "以下哪些是数据清洗中的常见问题类型？",
+          "options": ["重复数据", "缺失值", "异常值", "数据加密"],
+          "answer": [0, 1, 2],
+          "score": 8
+        },
+        {
+          "id": "s2q6",
+          "type": "single-choice",
+          "question": "如果某个字段的缺失率超过30%，建议的处理方式是？",
+          "options": ["全部填充为0", "直接删除该字段", "评估该字段是否关键后决定", "忽略缺失继续分析"],
+          "answer": 2,
+          "score": 8
+        },
+        {
+          "id": "s2q7",
+          "type": "fill-blank",
+          "question": "在数据清洗中，应当始终保留原始数据，这个原则叫做（请填写）",
+          "answer": "保留原始数据",
+          "score": 8
+        },
+        {
+          "id": "s2q8",
+          "type": "single-choice",
+          "question": "订单金额500元以上的订单应该？",
+          "options": ["直接排除", "标记为'大额订单'并核实", "全部视为刷单", "修改为正常金额"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q9",
+          "type": "single-choice",
+          "question": "数据清洗完成后，需要输出的文档是？",
+          "options": ["数据清洗报告", "销售报告", "竞品分析", "用户画像"],
+          "answer": 0,
+          "score": 8
+        },
+        {
+          "id": "s2q10",
+          "type": "single-choice",
+          "question": "批处理数据清洗的原则是？",
+          "options": ["逐条修改", "统一规则，一次处理", "随机修改", "只修关键的"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q11",
+          "type": "single-choice",
+          "question": "判断订单是否为刷单的主要依据是？",
+          "options": ["订单金额越高越好", "IP/设备重复且客单价异常低", "收货地址详细", "下单时间集中在白天"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s2q12",
+          "type": "fill-blank",
+          "question": "数据质量的四个维度是：完整性、准确性、一致性和（请填写第四个）",
+          "answer": "时效性",
+          "score": 8
+        }
+      ]
+    },
+    "stage-3-test": {
+      "title": "阶段3测试 - 电商指标核算与分析",
+      "timeLimitMinutes": 20,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s3q1",
+          "type": "single-choice",
+          "question": "UV是指什么？",
+          "options": ["页面浏览量", "独立访客数", "订单总数", "成交金额"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s3q2",
+          "type": "single-choice",
+          "question": "转化率的计算公式是？",
+          "options": ["UV / 订单数", "订单数 / UV", "GMV / UV", "UV * 客单价"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s3q3",
+          "type": "single-choice",
+          "question": "客单价的计算公式是？",
+          "options": ["GMV * 订单数", "GMV / 订单数", "订单数 / GMV", "GMV + 订单数"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s3q4",
+          "type": "single-choice",
+          "question": "ROI为2.5意味着什么？",
+          "options": ["投入100元，带来250元销售额", "投入250元，带来100元销售额", "投入100元，带来25元销售额", "投入25元，带来100元销售额"],
+          "answer": 0,
+          "score": 8
+        },
+        {
+          "id": "s3q5",
+          "type": "multi-choice",
+          "question": "电商四大核心指标类别包括？",
+          "options": ["流量指标", "价格指标", "转化指标", "交易指标", "用户指标"],
+          "answer": [0, 2, 3, 4],
+          "score": 8
+        },
+        {
+          "id": "s3q6",
+          "type": "single-choice",
+          "question": "跳失率的计算公式是？",
+          "options": ["跳失访问数 / 总访问数", "总访问数 / 跳失访问数", "UV / PV", "PV / UV"],
+          "answer": 0,
+          "score": 8
+        },
+        {
+          "id": "s3q7",
+          "type": "fill-blank",
+          "question": "复购率的定义是：在一定周期内（请填写）的客户比例",
+          "answer": "重复购买",
+          "score": 8
+        },
+        {
+          "id": "s3q8",
+          "type": "single-choice",
+          "question": "新客占比下降，老客复购稳定，说明什么？",
+          "options": ["获客能力强", "获客能力下降，需关注增长", "说明运营很成功", "应该降低复购活动"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s3q9",
+          "type": "single-choice",
+          "question": "GMV环比下降，但UV环比上升，说明什么？",
+          "options": ["流量增加了，但转化率下降了", "流量减少了", "客单价上升了", "数据计算错误"],
+          "answer": 0,
+          "score": 8
+        },
+        {
+          "id": "s3q10",
+          "type": "single-choice",
+          "question": "退款率超过多少被视为需要警惕？",
+          "options": ["5%", "10%", "15%", "20%"],
+          "answer": 1,
+          "score": 8
+        },
+        {
+          "id": "s3q11",
+          "type": "single-choice",
+          "question": "RFM模型中的'R'代表什么？",
+          "options": ["消费金额", "消费频率", "最近一次消费距今时间", "客户年龄"],
+          "answer": 2,
+          "score": 8
+        },
+        {
+          "id": "s3q12",
+          "type": "fill-blank",
+          "question": "同比是与（请填写）同一周期进行对比",
+          "answer": "去年",
+          "score": 8
+        }
+      ]
+    },
+    "stage-4-test": {
+      "title": "阶段4测试 - 深度分析与诊断",
+      "timeLimitMinutes": 25,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s4q1",
+          "type": "single-choice",
+          "question": "末次触点归因模型的特点是？",
+          "options": ["功劳归第一个渠道", "功劳归最后一个渠道", "平均分配给所有渠道", "只归因付费渠道"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q2",
+          "type": "single-choice",
+          "question": "RFM分层中，'重要价值'客户的特点是？",
+          "options": ["R小+F小+M大", "R小+F大+M大", "R大+F大+M小", "R大+F小+M小"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q3",
+          "type": "single-choice",
+          "question": "竞品分析中选择直接竞品的标准是？",
+          "options": ["同一平台", "同品类、同价位", "规模最大", "成立时间最长"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q4",
+          "type": "single-choice",
+          "question": "活动复盘时，目标完成率的计算公式是？",
+          "options": ["实际/目标*100%", "目标/实际*100%", "(实际-目标)/目标*100%", "(目标-实际)/实际*100%"],
+          "answer": 0,
+          "score": 6
+        },
+        {
+          "id": "s4q5",
+          "type": "multi-choice",
+          "question": "SWOT分析包括哪些维度？",
+          "options": ["优势", "劣势", "机会", "威胁", "建议"],
+          "answer": [0, 1, 2, 3],
+          "score": 6
+        },
+        {
+          "id": "s4q6",
+          "type": "single-choice",
+          "question": "5W2H分析方法中，'How much'代表什么？",
+          "options": ["怎么发生的", "在哪里发生的", "影响多大", "谁造成的"],
+          "answer": 2,
+          "score": 6
+        },
+        {
+          "id": "s4q7",
+          "type": "fill-blank",
+          "question": "流量归因的常用模型包括首次触点、末次触点、线性归因和时间衰减，请再写出一种：（请填写）",
+          "answer": "自定义归因",
+          "score": 6
+        },
+        {
+          "id": "s4q8",
+          "type": "single-choice",
+          "question": "分析报告写作的核心原则是？",
+          "options": ["文字越多越好", "结论先行", "数据越多越好", "图表越复杂越好"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q9",
+          "type": "single-choice",
+          "question": "如果转化率下降但UV上升，说明什么？",
+          "options": ["流量质量下降", "产品页面吸引力下降", "价格过高", "以上都可能"],
+          "answer": 3,
+          "score": 6
+        },
+        {
+          "id": "s4q10",
+          "type": "single-choice",
+          "question": "大促复盘报告中不需要包含以下哪项？",
+          "options": ["目标达成情况", "成功因素", "员工个人评价", "改进建议"],
+          "answer": 2,
+          "score": 6
+        },
+        {
+          "id": "s4q11",
+          "type": "single-choice",
+          "question": "RFM模型中，对于'R大+F小+M大'的客户，应该采取什么策略？",
+          "options": ["VIP服务", "防止流失/挽留", "提升F", "培育发展"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q12",
+          "type": "single-choice",
+          "question": "在分析GMV下降时，拆解分析的目的是？",
+          "options": ["让报告更长", "找出各因素贡献度", "展示计算能力", "应付领导"],
+          "answer": 1,
+          "score": 6
+        },
+        {
+          "id": "s4q13",
+          "type": "fill-blank",
+          "question": "对标竞品分析时，分析维度包括产品维度、运营维度和（请填写）",
+          "answer": "营销维度",
+          "score": 6
+        },
+        {
+          "id": "s4q14",
+          "type": "single-choice",
+          "question": "复盘报告和普通分析报告的主要区别是？",
+          "options": ["复盘报告不需要数据", "复盘报告更侧重结果导向和经验总结", "复盘报告可以虚构", "复盘报告不需要建议"],
+          "answer": 1,
+          "score": 6
+        }
+      ]
+    },
+    "stage-5-test": {
+      "title": "阶段5测试 - 报告撰写与看板搭建",
+      "timeLimitMinutes": 15,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s5q1",
+          "type": "single-choice",
+          "question": "数据分析报告的核心原则是？",
+          "options": ["文字越多越好", "结论先行", "数据越多越好", "图表越复杂越好"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q2",
+          "type": "single-choice",
+          "question": "PPT汇报的KISS原则是指？",
+          "options": ["保持微笑", "保持简洁", "保持安静", "保持紧张"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q3",
+          "type": "single-choice",
+          "question": "数据看板主要用于？",
+          "options": ["娱乐", "日常监控和问题预警", "存储数据", "设计美观"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q4",
+          "type": "single-choice",
+          "question": "趋势图最适合用以下哪种图表展示？",
+          "options": ["饼图", "折线图", "散点图", "雷达图"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q5",
+          "type": "multi-choice",
+          "question": "月度报告的标准结构包括？",
+          "options": ["核心结论", "数据概览", "详细分析", "建议与计划", "个人心得"],
+          "answer": [0, 1, 2, 3],
+          "score": 10
+        },
+        {
+          "id": "s5q6",
+          "type": "single-choice",
+          "question": "报告中的建议应该具备什么特点？",
+          "options": ["模糊笼统", "具体可落地", "越多越好", "无需量化"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q7",
+          "type": "fill-blank",
+          "question": "看板的三大定位是：日常监控、问题预警和（请填写）",
+          "answer": "沟通工具",
+          "score": 10
+        },
+        {
+          "id": "s5q8",
+          "type": "single-choice",
+          "question": "PPT每页应该遵循什么原则？",
+          "options": ["内容越多越好", "一页多主题", "一页一主题", "不需要主题"],
+          "answer": 2,
+          "score": 10
+        },
+        {
+          "id": "s5q9",
+          "type": "single-choice",
+          "question": "汇报时被问到自己不确定的问题，正确的做法是？",
+          "options": ["随便回答", "坦诚说明需要核实", "沉默不语", "转移话题"],
+          "answer": 1,
+          "score": 10
+        },
+        {
+          "id": "s5q10",
+          "type": "single-choice",
+          "question": "看板指标选择的优先级是？",
+          "options": ["越多越好", "核心KPI优先", "随便选择", "选择复杂的"],
+          "answer": 1,
+          "score": 10
+        }
+      ]
+    },
+    "stage-6-test": {
+      "title": "阶段6测试 - 综合考核",
+      "timeLimitMinutes": 30,
+      "passingScore": 60,
+      "questions": [
+        {
+          "id": "s6q1",
+          "type": "single-choice",
+          "question": "完整的电商数据分析流程是？",
+          "options": ["采集→清洗→核算→分析→报告", "采集→核算→清洗→分析→报告", "清洗→采集→核算→分析→报告", "报告→分析→核算→清洗→采集"],
+          "answer": 0,
+          "score": 5
+        },
+        {
+          "id": "s6q2",
+          "type": "single-choice",
+          "question": "如果GMV下降，UV上升，转化率下降，应该重点关注什么？",
+          "options": ["流量渠道问题", "产品页面和转化环节", "价格策略", "库存问题"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q3",
+          "type": "single-choice",
+          "question": "大促前期的核心准备工作是？",
+          "options": ["随便准备", "备货计划、流量储备、内容准备", "降低价格", "减少库存"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q4",
+          "type": "multi-choice",
+          "question": "转正答辩中可能遇到的问题类型包括？",
+          "options": ["数据来源质疑", "分析逻辑质疑", "建议可行性质疑", "私人生活问题"],
+          "answer": [0, 1, 2],
+          "score": 5
+        },
+        {
+          "id": "s6q5",
+          "type": "single-choice",
+          "question": "综合分析报告的核心是？",
+          "options": ["文字优美", "数据准确、分析深入、建议可行", "图表漂亮", "页数多"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q6",
+          "type": "fill-blank",
+          "question": "双十一大促的目标设定应该遵循SMART原则，即具体、可衡量、可达成、相关性和（请填写）",
+          "answer": "有时限",
+          "score": 5
+        },
+        {
+          "id": "s6q7",
+          "type": "single-choice",
+          "question": "答辩汇报时间通常控制在多少分钟内？",
+          "options": ["30分钟", "20分钟", "10分钟", "5分钟"],
+          "answer": 2,
+          "score": 5
+        },
+        {
+          "id": "s6q8",
+          "type": "single-choice",
+          "question": "被问到自己分析中的不足时，正确的回应是？",
+          "options": ["否认不足", "坦诚承认并说明改进计划", "归咎于他人", "转移话题"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q9",
+          "type": "single-choice",
+          "question": "大促复盘的核心目的是？",
+          "options": ["追究责任", "总结经验教训", "批评团队", "展示权力"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q10",
+          "type": "single-choice",
+          "question": "数据分析的价值最终体现在？",
+          "options": ["数据漂亮", "报告精美", "支持决策、推动业务", "获得表扬"],
+          "answer": 2,
+          "score": 5
+        },
+        {
+          "id": "s6q11",
+          "type": "single-choice",
+          "question": "对于RFM模型中的'一般挽留'客户，正确的策略是？",
+          "options": ["全力投入", "激活或考虑放弃", "VIP服务", "无条件信任"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q12",
+          "type": "multi-choice",
+          "question": "双十一大促前的数据分析准备应包括？",
+          "options": ["历史数据分析", "竞品分析", "目标设定", "随机设定目标"],
+          "answer": [0, 1, 2],
+          "score": 5
+        },
+        {
+          "id": "s6q13",
+          "type": "single-choice",
+          "question": "项目汇报中，数据可视化的目的是？",
+          "options": ["让图表更漂亮", "让数据更直观易懂", "展示技术能力", "增加页数"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q14",
+          "type": "fill-blank",
+          "question": "分析问题的常用框架包括5W2H、拆分法、对比法和（请填写）",
+          "answer": "SWOT",
+          "score": 5
+        },
+        {
+          "id": "s6q15",
+          "type": "single-choice",
+          "question": "如果答辩时被问到一个你没有考虑到的分析角度，正确的做法是？",
+          "options": ["坚持自己没错", "承认遗漏并记录后续研究", "否定问题的重要性", "转移话题"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q16",
+          "type": "single-choice",
+          "question": "资源配置时优先考虑什么？",
+          "options": ["随意分配", "ROI最高的方案", "最省钱的方案", "最大规模的方案"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q17",
+          "type": "single-choice",
+          "question": "数据分析报告的建议部分应该？",
+          "options": ["空洞口号", "具体可执行、有时间节点", "越多越好", "模糊描述"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q18",
+          "type": "single-choice",
+          "question": "作为数据分析师，与业务团队沟通时应该？",
+          "options": ["使用专业术语越多越好", "用业务语言讲述数据故事", "只给数据不解释", "完全听从业务意见"],
+          "answer": 1,
+          "score": 5
+        },
+        {
+          "id": "s6q19",
+          "type": "fill-blank",
+          "question": "数据分析师的核心竞争力是：发现问题、解决问题和（请填写）",
+          "answer": "推动落地",
+          "score": 5
+        },
+        {
+          "id": "s6q20",
+          "type": "single-choice",
+          "question": "试用期转正考核主要考察的是？",
+          "options": ["PPT做得漂亮", "分析能力、工作态度、成长潜力", "加班时间最长", "学历最高"],
+          "answer": 1,
+          "score": 5
+        }
+      ]
+    }
+  }
+}

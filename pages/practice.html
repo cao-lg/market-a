@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线实操 - 市场数据分析AI伴学平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <!-- Handsontable CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@12/dist/handsontable.min.css">
+</head>
+<body class="min-h-screen" style="background: var(--bg-primary);">
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="flex items-center gap-4">
+      <button onclick="window.location.href='learn.html'" class="btn btn-ghost">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        返回
+      </button>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">在线实操</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="btn btn-secondary btn-sm" onclick="loadSampleData()">
+        加载样本数据
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="saveWork()">
+        保存
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    <!-- Tool Bar -->
+    <div class="card mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <span class="text-sm" style="color: var(--text-secondary);">数据操作：</span>
+          <button class="btn btn-ghost btn-sm" onclick="deduplicate()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            去重
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="fillMissing()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            补全缺失值
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="calculateStats()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            统计计算
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="filterData()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            筛选
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm" id="row-count" style="color: var(--text-tertiary);">0 行</span>
+          <span class="text-sm" style="color: var(--text-tertiary);">|</span>
+          <span class="text-sm" id="col-count" style="color: var(--text-tertiary);">0 列</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card">
+      <div id="data-table" style="width: 100%; height: 500px; overflow: hidden;"></div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="card mt-4" id="stats-panel" style="display: none;">
+      <div class="card-header">
+        <h3 class="card-title">统计结果</h3>
+      </div>
+      <div class="card-body" id="stats-content">
+        <!-- Stats will be rendered here -->
+      </div>
+    </div>
+
+    <!-- AI Assistant Panel -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="card-title flex items-center gap-2">
+          <span>🔧</span>
+          AI数据助手
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="flex gap-4">
+          <input type="text" class="form-input flex-1" id="ai-command" 
+                 placeholder="输入数据操作指令，如：计算GMV总和、筛选退款订单等">
+          <button class="btn btn-primary" onclick="sendAICommand()">
+            执行
+          </button>
+        </div>
+        <div class="mt-3 text-sm" style="color: var(--text-tertiary);">
+          提示：你可以用自然语言描述数据操作，AI助手会帮你执行
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Handsontable JS -->
+  <script src="https://cdn.jsdelivr.net/npm/handsontable@12/dist/handsontable.min.js"></script>
+  
+  <script src="../js/db.js"></script>
+  <script src="../js/ai.js"></script>
+  <script src="../js/agent.js"></script>
+  <script src="../js/course-engine.js"></script>
+  <script>
+    // Global variables
+    let hot = null;
+    let currentData = [];
+
+    // Initialize Handsontable
+    document.addEventListener('DOMContentLoaded', () => {
+      initTable();
+      
+      // Check for data parameter in URL
+      const params = new URLSearchParams(window.location.search);
+      const dataSource = params.get('data');
+      if (dataSource) {
+        loadDataFromSource(decodeURIComponent(dataSource));
+      }
+    });
+
+    function initTable() {
+      const container = document.getElementById('data-table');
+      
+      hot = new Handsontable(container, {
+        data: [],
+        rowHeaders: true,
+        colHeaders: true,
+        filters: true,
+        dropdownMenu: true,
+        contextMenu: true,
+        manualRowMove: true,
+        manualColumnMove: true,
+        stretchH: 'all',
+        height: 500,
+        licenseKey: 'non-commercial-and-evaluation',
+        afterChange: (changes, source) => {
+          if (source !== 'loadData') {
+            updateCounts();
+          }
+        },
+        afterAddRow: () => updateCounts(),
+        afterRemoveRow: () => updateCounts()
+      });
+      
+      updateCounts();
+    }
+
+    function updateCounts() {
+      if (hot) {
+        const data = hot.getData();
+        document.getElementById('row-count').textContent = `${data.length} 行`;
+        document.getElementById('col-count').textContent = `${hot.countCols()} 列`;
+      }
+    }
+
+    // Load sample data
+    async function loadSampleData() {
+      const sampleDataOptions = [
+        { name: 'orders-200.json (200条样本订单)', file: '../data/sample-data/orders-200.json' },
+        { name: 'orders-full.json (9月全量订单)', file: '../data/sample-data/orders-full.json' },
+        { name: 'traffic-full.json (流量数据)', file: '../data/sample-data/traffic-full.json' },
+        { name: 'users-full.json (用户数据)', file: '../data/sample-data/users-full.json' },
+        { name: 'competitors.json (竞品数据)', file: '../data/sample-data/competitors.json' }
+      ];
+      
+      const choice = prompt(
+        '请选择要加载的数据：\n' + 
+        sampleDataOptions.map((opt, i) => `${i + 1}. ${opt.name}`).join('\n') +
+        '\n\n输入数字或直接输入文件路径'
+      );
+      
+      let filePath;
+      const num = parseInt(choice);
+      if (num >= 1 && num <= sampleDataOptions.length) {
+        filePath = sampleDataOptions[num - 1].file;
+      } else {
+        filePath = choice;
+      }
+      
+      try {
+        const response = await fetch(filePath);
+        const data = await response.json();
+        loadDataIntoTable(data);
+        showToast('success', '加载成功', `已加载 ${data.length || (data.records ? data.records.length : 0)} 条数据`);
+      } catch (error) {
+        showToast('error', '加载失败', error.message);
+      }
+    }
+
+    function loadDataFromSource(source) {
+      fetch(source)
+        .then(res => res.json())
+        .then(data => {
+          loadDataIntoTable(data);
+          showToast('success', '加载成功', '样本数据已加载');
+        })
+        .catch(err => {
+          showToast('error', '加载失败', err.message);
+        });
+    }
+
+    function loadDataIntoTable(data) {
+      let tableData = [];
+      let headers = [];
+      
+      if (Array.isArray(data)) {
+        if (data.length > 0) {
+          // Check if array of objects or arrays
+          if (typeof data[0] === 'object' && !Array.isArray(data[0])) {
+            headers = Object.keys(data[0]);
+            tableData = data.map(row => headers.map(h => row[h]));
+          } else {
+            tableData = data;
+          }
+        }
+      } else if (data.records) {
+        // Handle nested data
+        if (data.records.length > 0) {
+          headers = Object.keys(data.records[0]);
+          tableData = data.records.map(row => headers.map(h => row[h]));
+        }
+      }
+      
+      if (headers.length > 0) {
+        hot.updateSettings({
+          colHeaders: headers
+        });
+      }
+      
+      hot.loadData(tableData);
+      updateCounts();
+    }
+
+    // Data operations
+    function deduplicate() {
+      const data = hot.getData();
+      const seen = new Set();
+      const uniqueData = [];
+      const duplicateRows = [];
+      
+      data.forEach((row, index) => {
+        const key = JSON.stringify(row);
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueData.push(row);
+        } else {
+          duplicateRows.push(index);
+        }
+      });
+      
+      if (duplicateRows.length > 0) {
+        hot.loadData(uniqueData);
+        showToast('success', '去重完成', `删除了 ${duplicateRows.length} 条重复记录`);
+      } else {
+        showToast('info', '去重完成', '没有发现重复记录');
+      }
+      
+      updateCounts();
+    }
+
+    function fillMissing() {
+      const data = hot.getData();
+      let filledCount = 0;
+      
+      // Fill empty strings with '未知' or 0 for numeric columns
+      const numericColumns = detectNumericColumns();
+      
+      data.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          if (cell === '' || cell === null || cell === undefined) {
+            if (numericColumns.includes(colIndex)) {
+              hot.setDataAtCell(rowIndex, colIndex, 0);
+            } else {
+              hot.setDataAtCell(rowIndex, colIndex, '未知');
+            }
+            filledCount++;
+          }
+        });
+      });
+      
+      if (filledCount > 0) {
+        showToast('success', '补全完成', `补全了 ${filledCount} 个缺失值`);
+      } else {
+        showToast('info', '补全完成', '没有发现缺失值');
+      }
+    }
+
+    function detectNumericColumns() {
+      const data = hot.getData();
+      if (data.length === 0) return [];
+      
+      const numericCols = [];
+      const numRows = Math.min(10, data.length);
+      
+      for (let col = 0; col < hot.countCols(); col++) {
+        let numericCount = 0;
+        for (let row = 0; row < numRows; row++) {
+          const val = data[row][col];
+          if (val !== '' && val !== null && val !== undefined && !isNaN(parseFloat(val))) {
+            numericCount++;
+          }
+        }
+        if (numericCount / numRows > 0.8) {
+          numericCols.push(col);
+        }
+      }
+      
+      return numericCols;
+    }
+
+    function calculateStats() {
+      const data = hot.getData();
+      const numericCols = detectNumericColumns();
+      const stats = {};
+      
+      numericCols.forEach(col => {
+        const header = hot.getHeader(col);
+        const values = data.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+        
+        if (values.length > 0) {
+          const sum = values.reduce((a, b) => a + b, 0);
+          const avg = sum / values.length;
+          const max = Math.max(...values);
+          const min = Math.min(...values);
+          
+          stats[header] = {
+            sum: sum.toFixed(2),
+            avg: avg.toFixed(2),
+            max: max.toFixed(2),
+            min: min.toFixed(2),
+            count: values.length
+          };
+        }
+      });
+      
+      // Show stats panel
+      const panel = document.getElementById('stats-panel');
+      const content = document.getElementById('stats-content');
+      
+      if (Object.keys(stats).length > 0) {
+        content.innerHTML = `
+          <div class="grid grid-cols-${Object.keys(stats).length} gap-4">
+            ${Object.entries(stats).map(([col, s]) => `
+              <div class="p-4 rounded-lg" style="background: var(--bg-tertiary);">
+                <h4 class="font-medium mb-2">${col}</h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <div>总和: <strong>${s.sum}</strong></div>
+                  <div>均值: <strong>${s.avg}</strong></div>
+                  <div>最大: <strong>${s.max}</strong></div>
+                  <div>最小: <strong>${s.min}</strong></div>
+                  <div class="col-span-2">计数: <strong>${s.count}</strong></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        panel.style.display = 'block';
+      } else {
+        content.innerHTML = '<p style="color: var(--text-tertiary);">未能检测到数值列</p>';
+        panel.style.display = 'block';
+      }
+    }
+
+    function filterData() {
+      // Handsontable has built-in filters, just show a message
+      showToast('info', '筛选提示', '使用列标题下的筛选器进行数据筛选');
+    }
+
+    // AI Command
+    async function sendAICommand() {
+      const command = document.getElementById('ai-command').value.trim();
+      if (!command) {
+        showToast('warning', '请输入指令', '');
+        return;
+      }
+      
+      showToast('info', '执行中', 'AI助手正在处理...');
+      
+      // Simple AI command parsing (in production, this would call the AI)
+      const data = hot.getData();
+      
+      // Detect intent from command
+      if (command.includes('求和') || command.includes('总和') || command.includes('sum')) {
+        const numericCols = detectNumericColumns();
+        if (numericCols.length > 0) {
+          let result = '数值列求和结果：\n';
+          numericCols.forEach(col => {
+            const header = hot.getHeader(col);
+            const sum = data.reduce((acc, row) => acc + (parseFloat(row[col]) || 0), 0);
+            result += `${header}: ${sum.toFixed(2)}\n`;
+          });
+          showToast('success', '计算完成', result);
+        }
+      } else if (command.includes('平均') || command.includes('avg')) {
+        const numericCols = detectNumericColumns();
+        if (numericCols.length > 0) {
+          let result = '数值列平均值：\n';
+          numericCols.forEach(col => {
+            const header = hot.getHeader(col);
+            const values = data.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            result += `${header}: ${avg.toFixed(2)}\n`;
+          });
+          showToast('success', '计算完成', result);
+        }
+      } else if (command.includes('计数') || command.includes('count')) {
+        showToast('success', '统计完成', `当前数据共有 ${data.length} 行`);
+      } else if (command.includes('筛选') || command.includes('filter')) {
+        showToast('info', '提示', '请使用表格列标题下的筛选器');
+      } else {
+        showToast('info', '提示', '支持的指令：求和、平均、计数、筛选');
+      }
+    }
+
+    // Save work
+    function saveWork() {
+      const data = hot.getData();
+      const headers = [];
+      
+      for (let i = 0; i < hot.countCols(); i++) {
+        headers.push(hot.getHeader(i));
+      }
+      
+      const savedData = {
+        headers,
+        data,
+        savedAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('practiceData', JSON.stringify(savedData));
+      showToast('success', '保存成功', '数据已保存到浏览器');
+    }
+
+    // Toast notification
+    function showToast(type, title, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      };
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message" style="white-space: pre-wrap;">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

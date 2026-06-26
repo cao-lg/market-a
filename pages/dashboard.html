@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习仪表盘 - 市场数据分析AI伴学平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+<body class="min-h-screen" style="background: var(--bg-primary);">
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <span class="font-semibold">学习仪表盘</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-sm" style="color: var(--text-tertiary);">学生ID:</span>
+        <span class="text-sm font-mono" id="student-id" style="color: var(--text-secondary);"></span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='settings.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        设置
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="exportRecord()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        导出
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    <div class="dashboard-grid">
+      <!-- Main Content Area -->
+      <div class="main-content">
+        
+        <!-- Overview Stats -->
+        <div class="stats-overview mb-6">
+          <div class="stat-item">
+            <div class="stat-value" id="overall-progress">0%</div>
+            <div class="stat-label">总体进度</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="completed-hours">0/54</div>
+            <div class="stat-label">已完成课时</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="test-passed">0</div>
+            <div class="stat-label">测试通过</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="total-score">--</div>
+            <div class="stat-label">平均成绩</div>
+          </div>
+        </div>
+
+        <!-- Stage Cards -->
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold mb-4">学习阶段</h2>
+          <div class="stage-grid" id="stage-grid">
+            <!-- Stage cards will be rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">快速继续</h3>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary w-full mb-3" id="continue-btn" onclick="continueLastLesson()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              继续学习
+            </button>
+            <button class="btn btn-secondary w-full" onclick="window.location.href='learn.html'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              学习中心
+            </button>
+          </div>
+        </div>
+
+        <!-- Behavior Metrics -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">学习行为</h3>
+          </div>
+          <div class="card-body">
+            <div class="metrics-grid" style="grid-template-columns: 1fr;">
+              <div class="metric-card">
+                <div class="metric-label">AI依赖指数</div>
+                <div class="metric-value" id="ai-dependency">0.00</div>
+                <div class="progress mt-2">
+                  <div class="progress-bar" id="ai-dependency-bar" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">自我纠正率</div>
+                <div class="metric-value" id="self-correction">0%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">总学习时长</div>
+                <div class="metric-value" id="total-time">0分钟</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">会话次数</div>
+                <div class="metric-value" id="session-count">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">最近活动</h3>
+          </div>
+          <div class="card-body" id="recent-activity">
+            <p class="text-sm text-center" style="color: var(--text-tertiary);">暂无最近活动</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../js/db.js"></script>
+  <script src="../js/course-engine.js"></script>
+  <script src="../js/export.js"></script>
+  <script>
+    // Current student ID
+    let studentId = '';
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      studentId = localStorage.getItem('studentId') || 'unknown';
+      document.getElementById('student-id').textContent = studentId.slice(0, 8) + '...';
+      
+      await renderDashboard();
+    });
+
+    // Render entire dashboard
+    async function renderDashboard() {
+      await renderStats();
+      await renderStageGrid();
+      await renderBehaviorMetrics();
+      await renderRecentActivity();
+    }
+
+    // Render overview stats
+    async function renderStats() {
+      const progress = await CourseEngine.calculateOverallProgress();
+      const assessments = await DB.assessments.getAll();
+      const passedTests = assessments.filter(a => a.passed).length;
+      
+      let totalScore = 0;
+      let scoreCount = 0;
+      for (const a of assessments) {
+        if (a.score !== undefined) {
+          totalScore += a.score;
+          scoreCount++;
+        }
+      }
+      const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : null;
+
+      document.getElementById('overall-progress').textContent = progress.percentage + '%';
+      document.getElementById('completed-hours').textContent = `${progress.completedHours}/${progress.totalHours}`;
+      document.getElementById('test-passed').textContent = passedTests;
+      document.getElementById('total-score').textContent = avgScore !== null ? avgScore : '--';
+    }
+
+    // Render stage cards
+    async function renderStageGrid() {
+      const stages = await CourseEngine.getAllStages();
+      const grid = document.getElementById('stage-grid');
+      
+      grid.innerHTML = stages.map((stage, index) => {
+        const status = stageStatuses[stage.id] || { status: 'not-started', completedLessons: 0 };
+        
+        let statusClass = '';
+        let statusText = '';
+        let statusBadge = '';
+        
+        switch (status.status) {
+          case 'completed':
+            statusClass = 'completed';
+            statusText = '已完成';
+            statusBadge = '<span class="badge badge-success">已完成</span>';
+            break;
+          case 'in-progress':
+            statusClass = 'in-progress';
+            statusText = '进行中';
+            statusBadge = '<span class="badge badge-primary">进行中</span>';
+            break;
+          case 'test-passed':
+            statusClass = 'completed';
+            statusText = '测试已通过';
+            statusBadge = '<span class="badge badge-success">测试通过</span>';
+            break;
+          case 'locked':
+            statusClass = 'locked';
+            statusText = '已锁定';
+            statusBadge = '<span class="badge badge-warning">已锁定</span>';
+            break;
+          default:
+            statusText = '未开始';
+            statusBadge = '<span class="badge" style="background: var(--bg-tertiary); color: var(--text-tertiary);">未开始</span>';
+        }
+        
+        return `
+          <div class="stage-card ${statusClass}" onclick="${status.status !== 'locked' ? `navigateToStage('${stage.id}')` : ''}">
+            <div class="stage-card-header">
+              <div class="stage-number">${index + 1}</div>
+              <div class="stage-info">
+                <h3>${stage.title}</h3>
+                <div class="stage-meta">${stage.totalLessons}课时</div>
+              </div>
+            </div>
+            <div class="stage-card-footer">
+              <div class="stage-lessons">
+                <span>${status.completedLessons}/${stage.totalLessons}</span> 课时完成
+              </div>
+              ${statusBadge}
+            </div>
+            ${status.testScore !== undefined ? `<div class="mt-2 text-sm" style="color: var(--accent-green);">测试成绩: ${status.testScore}分</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Stage status cache
+    const stageStatuses = {};
+
+    // Load all stage statuses
+    async function loadStageStatuses() {
+      const stages = await CourseEngine.getAllStages();
+      for (const stage of stages) {
+        stageStatuses[stage.id] = await CourseEngine.getStageStatus(stage.id);
+      }
+    }
+
+    // Navigate to stage
+    function navigateToStage(stageId) {
+      window.location.href = `learn.html?stage=${stageId}`;
+    }
+
+    // Continue last lesson
+    async function continueLastLesson() {
+      const lastLesson = await DB.settings.get('lastLesson');
+      if (lastLesson) {
+        window.location.href = `learn.html?stage=${lastLesson.stageId}&lesson=${lastLesson.lessonId}`;
+      } else {
+        // Find first incomplete lesson
+        const stages = await CourseEngine.getAllStages();
+        for (const stage of stages) {
+          const status = await CourseEngine.getStageStatus(stage.id);
+          if (status.status !== 'locked' && stage.lessons && stage.lessons.length > 0) {
+            for (const lesson of stage.lessons) {
+              const completed = await CourseEngine.isLessonCompleted(stage.id, lesson.id);
+              if (!completed) {
+                window.location.href = `learn.html?stage=${stage.id}&lesson=${lesson.id}`;
+                return;
+              }
+            }
+          }
+        }
+        // All completed, go to dashboard
+        window.location.href = 'learn.html';
+      }
+    }
+
+    // Render behavior metrics
+    async function renderBehaviorMetrics() {
+      const behavior = await CourseEngine.getBehaviorOverview();
+      
+      document.getElementById('ai-dependency').textContent = behavior.aiDependencyIndex.toFixed(2);
+      document.getElementById('ai-dependency-bar').style.width = `${behavior.aiDependencyIndex * 100}%`;
+      document.getElementById('self-correction').textContent = `${Math.round(behavior.selfCorrectionRate * 100)}%`;
+      document.getElementById('total-time').textContent = CourseEngine.formatDuration(behavior.totalLearningMinutes);
+      document.getElementById('session-count').textContent = behavior.totalSessions;
+    }
+
+    // Render recent activity
+    async function renderRecentActivity() {
+      const conversations = await DB.conversations.getAll?.() || [];
+      const submissions = await DB.submissions.getAll() || [];
+      
+      // Combine and sort by timestamp
+      const activities = [
+        ...conversations.map(c => ({ type: 'chat', ...c })),
+        ...submissions.map(s => ({ type: 'submission', ...s }))
+      ].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 5);
+      
+      const container = document.getElementById('recent-activity');
+      
+      if (activities.length === 0) {
+        container.innerHTML = '<p class="text-sm text-center" style="color: var(--text-tertiary);">暂无最近活动</p>';
+        return;
+      }
+      
+      container.innerHTML = activities.map(activity => {
+        const time = new Date(activity.timestamp).toLocaleString('zh-CN', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        if (activity.type === 'chat') {
+          return `
+            <div class="flex items-start gap-3 mb-3 pb-3" style="border-bottom: 1px solid var(--border-color);">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--bg-tertiary);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm truncate" style="color: var(--text-primary);">AI对话</div>
+                <div class="text-xs truncate" style="color: var(--text-tertiary);">${activity.content?.slice(0, 30) || ''}...</div>
+              </div>
+              <div class="text-xs" style="color: var(--text-tertiary);">${time}</div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="flex items-start gap-3 mb-3 pb-3" style="border-bottom: 1px solid var(--border-color);">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--bg-tertiary);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2">
+                  <polyline points="9 11 12 14 22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm truncate" style="color: var(--text-primary);">提交作业</div>
+                <div class="text-xs truncate" style="color: var(--text-tertiary);">${activity.lessonId}</div>
+              </div>
+              <div class="text-xs" style="color: var(--text-tertiary);">${time}</div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    // Export record
+    async function exportRecord() {
+      try {
+        const data = await Export.learningRecordToJSON();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `学习记录_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('success', '导出成功', '学习记录已导出');
+      } catch (error) {
+        showToast('error', '导出失败', error.message);
+      }
+    }
+
+    // Toast notification
+    function showToast(type, title, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+      };
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Load all stage statuses on page load
+    loadStageStatuses();
+  </script>
+</body>
+</html>

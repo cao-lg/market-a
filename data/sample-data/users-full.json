@@ -1,0 +1,12 @@
+[
+  {"user_id": "KH00001", "name": "张伟", "phone": "138****1234", "total_orders": 5, "total_amount": 458, "first_order_date": "2023-06-15", "last_order_date": "2023-09-01", "avg_order_value": 91.6, "rfm_r": 5, "rfm_f": 4, "rfm_m": 3, "customer_type": "重要价值"},
+  {"user_id": "KH00002", "name": "李娜", "phone": "139****5678", "total_orders": 8, "total_amount": 892, "first_order_date": "2023-03-20", "last_order_date": "2023-09-01", "avg_order_value": 111.5, "rfm_r": 5, "rfm_f": 5, "rfm_m": 4, "customer_type": "重要价值"},
+  {"user_id": "KH00003", "name": "王强", "phone": "137****9012", "total_orders": 2, "total_amount": 118, "first_order_date": "2023-08-10", "last_order_date": "2023-09-01", "avg_order_value": 59, "rfm_r": 5, "rfm_f": 2, "rfm_m": 2, "customer_type": "一般发展"},
+  {"user_id": "KH00004", "name": "赵丽", "phone": "136****3456", "total_orders": 3, "total_amount": 237, "first_order_date": "2023-07-05", "last_order_date": "2023-08-20", "avg_order_value": 79, "rfm_r": 2, "rfm_f": 3, "rfm_m": 2, "customer_type": "一般保持"},
+  {"user_id": "KH00005", "name": "钱明", "phone": "135****7890", "total_orders": 1, "total_amount": 159, "first_order_date": "2023-09-01", "last_order_date": "2023-09-01", "avg_order_value": 159, "rfm_r": 5, "rfm_f": 1, "rfm_m": 4, "customer_type": "重要发展"},
+  {"user_id": "KH00006", "name": "孙静", "phone": "133****2345", "total_orders": 6, "total_amount": 534, "first_order_date": "2023-05-12", "last_order_date": "2023-08-15", "avg_order_value": 89, "rfm_r": 1, "rfm_f": 4, "rfm_m": 3, "customer_type": "重要挽留"},
+  {"user_id": "KH00007", "name": "周杰", "phone": "132****6789", "total_orders": 4, "total_amount": 316, "first_order_date": "2023-06-28", "last_order_date": "2023-08-25", "avg_order_value": 79, "rfm_r": 1, "rfm_f": 3, "rfm_m": 3, "customer_type": "重要挽留"},
+  {"user_id": "KH00008", "name": "吴芳", "phone": "131****0123", "total_orders": 2, "total_amount": 128, "first_order_date": "2023-08-01", "last_order_date": "2023-09-01", "avg_order_value": 64, "rfm_r": 5, "rfm_f": 2, "rfm_m": 2, "customer_type": "一般发展"},
+  {"user_id": "KH00009", "name": "郑浩", "phone": "130****4567", "total_orders": 7, "total_amount": 923, "first_order_date": "2023-04-18", "last_order_date": "2023-09-01", "avg_order_value": 131.86, "rfm_r": 5, "rfm_f": 5, "rfm_m": 5, "customer_type": "重要价值"},
+  {"user_id": "KH00010", "name": "王秀英", "phone": "189****8901", "total_orders": 1, "total_amount": 69, "first_order_date": "2023-07-22", "last_order_date": "2023-07-22", "avg_order_value": 69, "rfm_r": 0, "rfm_f": 1, "rfm_m": 1, "customer_type": "一般挽留"}
+]

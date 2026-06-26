@@ -1,0 +1,7 @@
+[
+  {"order_id": "VAR20230901001", "customer_id": "VAR001", "product_name": "食品保鲜盒套装", "amount": 89, "status": "已完成", "province": "广东省", "city": "深圳市", "create_time": "2023-09-01 08:00:00", "pay_time": "2023-09-01 08:05:00"},
+  {"order_id": "VAR20230901002", "customer_id": "VAR002", "product_name": "厨房调料盒", "amount": 45, "status": "已发货", "province": "浙江省", "city": "杭州市", "create_time": "2023-09-01 09:30:00", "pay_time": "2023-09-01 09:35:00"},
+  {"order_id": "VAR20230901003", "customer_id": "VAR003", "product_name": "冰箱收纳盒", "amount": 69, "status": "已完成", "province": "江苏省", "city": "苏州市", "create_time": "2023-09-01 10:00:00", "pay_time": "2023-09-01 10:03:00"},
+  {"order_id": "VAR20230901004", "customer_id": "VAR004", "product_name": "桌面收纳盒", "amount": 35, "status": "已完成", "province": "上海市", "city": "上海市", "create_time": "2023-09-01 11:00:00", "pay_time": "2023-09-01 11:02:00"},
+  {"order_id": "VAR20230901005", "customer_id": "VAR005", "product_name": "首饰收纳盒", "amount": 99, "status": "已发货", "province": "北京市", "city": "北京市", "create_time": "2023-09-01 12:30:00", "pay_time": "2023-09-01 12:35:00"}
+]

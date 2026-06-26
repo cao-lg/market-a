@@ -1,0 +1,12 @@
+[
+  {"session_id": "S20230901001", "visitor_id": "V00001", "source": "直通车", "medium": "cpc", "landing_page": "/product/detail/1001", "duration": 125, "page_views": 5, "bounce": 0},
+  {"session_id": "S20230901002", "visitor_id": "V00002", "source": "超级推荐", "medium": "cpm", "landing_page": "/category/收纳盒", "duration": 45, "page_views": 2, "bounce": 1},
+  {"session_id": "S20230901003", "visitor_id": "V00003", "source": "自然搜索", "medium": "organic", "landing_page": "/product/detail/1002", "duration": 230, "page_views": 8, "bounce": 0},
+  {"session_id": "S20230901004", "visitor_id": "V00004", "source": "直通车", "medium": "cpc", "landing_page": "/home", "duration": 15, "page_views": 1, "bounce": 1},
+  {"session_id": "S20230901005", "visitor_id": "V00005", "source": "抖音", "medium": "content", "landing_page": "/product/detail/1001", "duration": 320, "page_views": 12, "bounce": 0},
+  {"session_id": "S20230901006", "visitor_id": "V00006", "source": "超级推荐", "medium": "cpm", "landing_page": "/category/收纳架", "duration": 88, "page_views": 4, "bounce": 0},
+  {"session_id": "S20230901007", "visitor_id": "V00007", "source": "自主访问", "medium": "direct", "landing_page": "/home", "duration": 450, "page_views": 15, "bounce": 0},
+  {"session_id": "S20230901008", "visitor_id": "V00008", "source": "自然搜索", "medium": "organic", "landing_page": "/product/detail/1003", "duration": 180, "page_views": 6, "bounce": 0},
+  {"session_id": "S20230901009", "visitor_id": "V00009", "source": "直通车", "medium": "cpc", "landing_page": "/search", "duration": 65, "page_views": 3, "bounce": 0},
+  {"session_id": "S20230901010", "visitor_id": "V00010", "source": "直播", "medium": "live", "landing_page": "/live/room1", "duration": 890, "page_views": 22, "bounce": 0}
+]

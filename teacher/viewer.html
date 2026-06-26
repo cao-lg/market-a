@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习记录查看 - 教师视图</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <!-- ECharts for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body class="min-h-screen" style="background: var(--bg-primary);">
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="flex items-center gap-4">
+      <button onclick="window.location.href='index.html'" class="btn btn-ghost">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        返回
+      </button>
+      <h1 class="text-lg font-semibold">学生学习记录</h1>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-sm" id="student-id" style="color: var(--text-secondary);">--</span>
+      <span class="badge badge-primary" id="export-date">--</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    
+    <!-- Overview Cards -->
+    <div class="stats-overview mb-6">
+      <div class="stat-item">
+        <div class="stat-value" id="overall-progress">--%</div>
+        <div class="stat-label">总体进度</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="completed-hours">--/54</div>
+        <div class="stat-label">已完成课时</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="test-passed">--</div>
+        <div class="stat-label">测试通过</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="avg-score">--</div>
+        <div class="stat-label">平均成绩</div>
+      </div>
+    </div>
+
+    <!-- Behavior Metrics -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">学习行为分析</h2>
+      </div>
+      <div class="card-body">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">AI依赖指数</div>
+            <div class="metric-value" id="ai-dependency">--</div>
+            <div class="progress mt-2">
+              <div class="progress-bar" id="ai-dependency-bar" style="width: 0%;"></div>
+            </div>
+            <div class="text-xs mt-2" id="ai-dependency-warning" style="color: var(--accent-red);"></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">自我纠正率</div>
+            <div class="metric-value" id="self-correction">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">总学习时长</div>
+            <div class="metric-value" id="total-time">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">会话次数</div>
+            <div class="metric-value" id="session-count">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Progress -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">阶段进度</h2>
+      </div>
+      <div class="card-body">
+        <div id="stage-progress-chart" style="height: 300px;"></div>
+      </div>
+    </div>
+
+    <!-- Test Scores -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">测试成绩</h2>
+      </div>
+      <div class="card-body">
+        <div id="test-scores-chart" style="height: 250px;"></div>
+      </div>
+    </div>
+
+    <!-- AI Dependency Analysis -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">AI依赖分析</h2>
+      </div>
+      <div class="card-body">
+        <div id="ai-analysis-chart" style="height: 250px;"></div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">学习轨迹</h2>
+      </div>
+      <div class="card-body">
+        <div id="timeline" class="space-y-4">
+          <!-- Timeline items will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Panel -->
+    <div class="card mb-6" id="alert-panel" style="display: none;">
+      <div class="card-header">
+        <h2 class="card-title flex items-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          异常预警
+        </h2>
+      </div>
+      <div class="card-body" id="alert-content">
+        <!-- Alerts will be rendered here -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Current record data
+    let record = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load record from session storage
+      const recordData = sessionStorage.getItem('teacherRecord');
+      
+      if (!recordData) {
+        alert('未找到学习记录，请先上传文件');
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      try {
+        record = JSON.parse(recordData);
+        renderReport();
+      } catch (e) {
+        alert('数据解析失败');
+        window.location.href = 'index.html';
+      }
+    });
+
+    function renderReport() {
+      // Header info
+      document.getElementById('student-id').textContent = record.studentId.slice(0, 8) + '...';
+      document.getElementById('export-date').textContent = new Date(record.exportDate).toLocaleDateString('zh-CN');
+      
+      // Overview stats
+      const courseInfo = record.courseInfo || {};
+      document.getElementById('overall-progress').textContent = 
+        Math.round((courseInfo.completedHours || 0) / (courseInfo.totalHours || 54) * 100) + '%';
+      document.getElementById('completed-hours').textContent = 
+        `${courseInfo.completedHours || 0}/${courseInfo.totalHours || 54}`;
+      
+      // Test scores
+      const assessments = record.assessments || [];
+      const passedTests = assessments.filter(a => a.passed).length;
+      document.getElementById('test-passed').textContent = `${passedTests}/6`;
+      
+      if (assessments.length > 0) {
+        const avgScore = assessments.reduce((sum, a) => sum + (a.score / a.totalScore * 100), 0) / assessments.length;
+        document.getElementById('avg-score').textContent = Math.round(avgScore) + '%';
+      }
+      
+      // Behavior metrics
+      const behaviors = record.learning_behaviors || {};
+      const aiDep = behaviors.ai_dependency_index || 0;
+      document.getElementById('ai-dependency').textContent = aiDep.toFixed(2);
+      document.getElementById('ai-dependency-bar').style.width = `${aiDep * 100}%`;
+      
+      if (aiDep > 0.5) {
+        document.getElementById('ai-dependency-warning').textContent = '⚠️ AI依赖过高';
+      }
+      
+      document.getElementById('self-correction').textContent = 
+        Math.round((behaviors.self_correction_rate || 0) * 100) + '%';
+      document.getElementById('total-time').textContent = formatDuration(behaviors.totalLearningMinutes || 0);
+      document.getElementById('session-count').textContent = behaviors.totalSessions || 0;
+      
+      // Render charts
+      renderStageProgressChart();
+      renderTestScoresChart();
+      renderAIAnalysisChart();
+      
+      // Render timeline
+      renderTimeline();
+      
+      // Check alerts
+      checkAlerts();
+    }
+
+    function renderStageProgressChart() {
+      const chart = echarts.init(document.getElementById('stage-progress-chart'));
+      
+      const stages = record.stages || [];
+      const stageNames = stages.map(s => s.stageId.replace('stage-', '阶段'));
+      const completedCounts = stages.map(s => s.lessons?.length || 0);
+      
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: stageNames },
+        yAxis: { type: 'value', max: 15, name: '完成课时' },
+        series: [{
+          type: 'bar',
+          data: completedCounts,
+          itemStyle: {
+            color: (params) => {
+              const maxLessons = [6, 10, 10, 14, 8, 6]; // Expected lessons per stage
+              return params.value >= maxLessons[params.dataIndex] ? '#3fb950' : '#58a6ff';
+            }
+          }
+        }]
+      });
+    }
+
+    function renderTestScoresChart() {
+      const chart = echarts.init(document.getElementById('test-scores-chart'));
+      
+      const assessments = record.assessments || [];
+      const testNames = assessments.map(a => a.testId.replace('-test', '').replace('stage-', 'S'));
+      const scores = assessments.map(a => Math.round(a.score / a.totalScore * 100));
+      
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: testNames },
+        yAxis: { type: 'value', max: 100, name: '分数' },
+        series: [{
+          type: 'bar',
+          data: scores,
+          itemStyle: {
+            color: (params) => params.value >= 60 ? '#3fb950' : '#f85149'
+          },
+          label: { show: true, position: 'top', formatter: '{c}%' }
+        }]
+      });
+    }
+
+    function renderAIAnalysisChart() {
+      const chart = echarts.init(document.getElementById('ai-analysis-chart'));
+      
+      const behaviors = record.learning_behaviors || {};
+      const convSummary = record.conversations_summary || {};
+      
+      // Data by stage
+      const byStage = convSummary.by_stage || {};
+      const stageNames = Object.keys(byStage).map(k => k.replace('stage-', 'S'));
+      const convCounts = Object.values(byStage);
+      
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: stageNames, name: '阶段' },
+        yAxis: { type: 'value', name: '对话数' },
+        series: [{
+          type: 'line',
+          data: convCounts,
+          areaStyle: {},
+          smooth: true
+        }]
+      });
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timeline');
+      const stages = record.stages || [];
+      
+      let html = '';
+      
+      stages.forEach((stage, index) => {
+        const statusClass = stage.testScore >= 60 ? 'badge-success' : 'badge-warning';
+        const statusText = stage.testScore >= 60 ? '通过' : '未通过';
+        
+        html += `
+          <div class="flex items-start gap-4 pb-4" style="border-bottom: 1px solid var(--border-color);">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-medium"
+                 style="background: ${stage.testScore >= 60 ? 'var(--accent-green)' : 'var(--accent-orange)'}; color: white;">
+              ${index + 1}
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-medium">${stage.stageId}</h4>
+                <div class="flex items-center gap-2">
+                  <span class="badge ${statusClass}">${statusText}</span>
+                  ${stage.testScore ? `<span class="text-sm">${stage.testScore}分</span>` : ''}
+                </div>
+              </div>
+              <div class="text-sm" style="color: var(--text-secondary);">
+                完成${stage.lessons?.length || 0}个课时 | 
+                学习时长: ${formatDuration(stage.durationMinutes || 0)}
+              </div>
+              ${stage.lessons && stage.lessons.length > 0 ? `
+                <div class="mt-2 text-xs" style="color: var(--text-tertiary);">
+                  最后活动: ${new Date(stage.lessons[stage.lessons.length - 1].completedAt).toLocaleDateString('zh-CN')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html || '<p style="color: var(--text-tertiary);">暂无学习记录</p>';
+    }
+
+    function checkAlerts() {
+      const alerts = [];
+      const behaviors = record.learning_behaviors || {};
+      const assessments = record.assessments || [];
+      
+      // AI dependency check
+      if (behaviors.ai_dependency_index > 0.5) {
+        alerts.push({
+          type: 'danger',
+          title: 'AI依赖指数过高',
+          message: `学生AI依赖指数为${behaviors.ai_dependency_index.toFixed(2)}，超过0.5阈值。可能存在过度依赖AI完成作业的情况。`
+        });
+      }
+      
+      // Low scores check
+      const lowScores = assessments.filter(a => a.score / a.totalScore < 0.6);
+      if (lowScores.length > 0) {
+        alerts.push({
+          type: 'warning',
+          title: '存在不及格测试',
+          message: `学生有${lowScores.length}个测试未达到及格线，需要关注。`
+        });
+      }
+      
+      // Progress check
+      const courseInfo = record.courseInfo || {};
+      if (courseInfo.completedHours < 20) {
+        alerts.push({
+          type: 'warning',
+          title: '学习进度较慢',
+          message: `学生仅完成${courseInfo.completedHours}课时，进度过半，需要跟进。`
+        });
+      }
+      
+      // Show alerts panel
+      if (alerts.length > 0) {
+        const panel = document.getElementById('alert-panel');
+        const content = document.getElementById('alert-content');
+        
+        content.innerHTML = alerts.map(alert => `
+          <div class="p-4 rounded-lg mb-3" style="background: ${alert.type === 'danger' ? 'rgba(248, 81, 73, 0.1)' : 'rgba(210, 153, 34, 0.1)'}; border: 1px solid ${alert.type === 'danger' ? 'rgba(248, 81, 73, 0.3)' : 'rgba(210, 153, 34, 0.3)'};">
+            <div class="font-medium mb-1" style="color: ${alert.type === 'danger' ? 'var(--accent-red)' : 'var(--accent-orange)'};">
+              ${alert.title}
+            </div>
+            <div class="text-sm" style="color: var(--text-secondary);">${alert.message}</div>
+          </div>
+        `).join('');
+        
+        panel.style.display = 'block';
+      }
+    }
+
+    function formatDuration(minutes) {
+      if (!minutes) return '0分钟';
+      if (minutes < 60) return `${minutes}分钟`;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours}小时${mins}分钟` : `${hours}小时`;
+    }
+  </script>
+</body>
+</html>

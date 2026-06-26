@@ -1,0 +1,59 @@
+[
+  {
+    "competitor_id": "COMP001",
+    "competitor_name": "优品收纳旗舰店",
+    "platform": "天猫",
+    "sku_count": 35,
+    "price_range": "29-199",
+    "avg_price": 89,
+    "monthly_sales": 12500,
+    "monthly_gmv": 1112500,
+    "avg_conversion_rate": 4.8,
+    "return_rate": 6.5,
+    "main_products": [
+      {"name": "透明收纳盒", "price": 49, "monthly_sales": 3500},
+      {"name": "布艺收纳柜", "price": 159, "monthly_sales": 1800},
+      {"name": "塑料收纳箱", "price": 79, "monthly_sales": 2800}
+    ],
+    "advantages": ["价格优势明显", "SKU丰富", "新品上新快"],
+    "disadvantages": ["品牌认知度低", "详情页质量一般"]
+  },
+  {
+    "competitor_id": "COMP002",
+    "competitor_name": "乐扣家居旗舰店",
+    "platform": "天猫",
+    "sku_count": 52,
+    "price_range": "39-299",
+    "avg_price": 119,
+    "monthly_sales": 18200,
+    "monthly_gmv": 2165800,
+    "avg_conversion_rate": 5.2,
+    "return_rate": 5.8,
+    "main_products": [
+      {"name": "塑料收纳盒", "price": 99, "monthly_sales": 5200},
+      {"name": "保温饭盒", "price": 149, "monthly_sales": 3800},
+      {"name": "储物柜", "price": 299, "monthly_sales": 1200}
+    ],
+    "advantages": ["品牌知名度高", "产品质量好", "客服服务优"],
+    "disadvantages": ["价格偏高", "活动力度小"]
+  },
+  {
+    "competitor_id": "COMP003",
+    "competitor_name": "抖音-收纳小能手",
+    "platform": "抖音",
+    "sku_count": 18,
+    "price_range": "19-99",
+    "avg_price": 49,
+    "monthly_sales": 45000,
+    "monthly_gmv": 2205000,
+    "avg_conversion_rate": 8.5,
+    "return_rate": 12.3,
+    "main_products": [
+      {"name": "真空压缩袋", "price": 29, "monthly_sales": 18000},
+      {"name": "衣物收纳袋", "price": 39, "monthly_sales": 12000},
+      {"name": "被子收纳袋", "price": 49, "monthly_sales": 8000}
+    ],
+    "advantages": ["直播带货强", "价格低", "内容营销好"],
+    "disadvantages": ["退货率高", "产品单价低"]
+  }
+]
