@@ -435,15 +435,97 @@ function showResultModal(result) {
         <div class="text-sm" style="color: var(--text-secondary);">
           用时: ${formatTime(getTimeUsed())}
         </div>
+        <div class="mt-4 p-3 rounded-lg text-left" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
+          <div class="flex items-center gap-2 mb-2">
+            <span style="font-size: 1.2em;">💡</span>
+            <span class="font-medium">AI答疑已解锁</span>
+          </div>
+          <p class="text-sm" style="color: var(--text-secondary);">
+            点击"AI答疑"可以向李主管请教错题，他会帮你分析解题思路。
+          </p>
+        </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="flex-wrap: wrap; gap: 8px;">
         <button class="btn btn-secondary" onclick="reviewAnswers()">回顾答案</button>
+        <button class="btn btn-outline" onclick="openAIQa()" style="flex: 1;">
+          <span style="margin-right: 4px;">🤔</span> AI答疑
+        </button>
         <button class="btn btn-primary" onclick="returnToDashboard()">返回仪表盘</button>
       </div>
     </div>
   `;
   
   document.body.appendChild(overlay);
+}
+
+// Open AI Q&A for test review
+function openAIQa() {
+  // Remove modal
+  document.querySelector('.modal-overlay')?.remove();
+  
+  // Prepare wrong answers info for AI
+  const wrongAnswersInfo = prepareWrongAnswersInfo();
+  
+  // Encode info and navigate to learn page with examiner mode
+  const stageId = currentTestId.replace('-test', '');
+  const params = new URLSearchParams({
+    stage: stageId,
+    mode: 'examiner',
+    examinerState: 'reviewing',
+    wrongAnswers: encodeURIComponent(JSON.stringify(wrongAnswersInfo))
+  });
+  
+  window.location.href = `learn.html?${params.toString()}`;
+}
+
+// Prepare wrong answers info for AI context
+function prepareWrongAnswersInfo() {
+  const wrongAnswers = [];
+  
+  for (const q of currentTest.questions) {
+    const userAnswer = testAnswers[q.id];
+    let isCorrect = false;
+    
+    switch (q.type) {
+      case 'single-choice':
+        isCorrect = userAnswer === q.answer;
+        break;
+      case 'multi-choice':
+        if (Array.isArray(userAnswer) && Array.isArray(q.answer)) {
+          const sortedUser = [...userAnswer].sort();
+          const sortedCorrect = [...q.answer].sort();
+          isCorrect = JSON.stringify(sortedUser) === JSON.stringify(sortedCorrect);
+        }
+        break;
+      case 'fill-blank':
+        isCorrect = userAnswer?.toLowerCase().trim() === q.answer?.toLowerCase().trim();
+        break;
+    }
+    
+    if (!isCorrect) {
+      const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+      let correctAnswerStr = '';
+      
+      if (q.type === 'single-choice') {
+        correctAnswerStr = letters[q.answer];
+      } else if (q.type === 'multi-choice') {
+        correctAnswerStr = q.answer.map(i => letters[i]).join('、');
+      } else {
+        correctAnswerStr = q.answer;
+      }
+      
+      wrongAnswers.push({
+        questionId: q.id,
+        question: q.question,
+        type: q.type,
+        yourAnswer: userAnswer,
+        correctAnswer: correctAnswerStr,
+        explanation: q.explanation || '暂无解析'
+      });
+    }
+  }
+  
+  return wrongAnswers;
 }
 
 function reviewAnswers() {

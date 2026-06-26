@@ -101,6 +101,13 @@
               </svg>
               学习中心
             </button>
+            <button class="btn btn-outline w-full mt-2" onclick="startSimulatedTest()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              模拟测试
+            </button>
           </div>
         </div>
 
@@ -172,7 +179,13 @@
       await renderBehaviorMetrics();
       await renderRecentActivity();
     }
-
+    
+    // Start simulated test mode
+    function startSimulatedTest() {
+      // Navigate to learn page with simulated test mode
+      window.location.href = 'learn.html?mode=simulatedTest';
+    }
+    
     // Render overview stats
     async function renderStats() {
       const progress = await CourseEngine.calculateOverallProgress();
