@@ -285,6 +285,9 @@
     let sessionId = '';
     let isStreaming = false;
     let currentStreamController = null;
+    let sessionStartTime = null;
+    let interactionCount = 0;
+    let helpRequestCount = 0;
 
     // ==================== Initialization ====================
     document.addEventListener('DOMContentLoaded', async () => {
@@ -296,14 +299,20 @@
       // Initialize database
       await DB.init();
       
-      // Start session
+      // Start session and record start time
       sessionId = await CourseEngine.startSession();
+      sessionStartTime = Date.now();
+      interactionCount = 0;
+      helpRequestCount = 0;
       
       // Load content
       await loadLessonContent(stageId, lessonId);
       
       // Initialize chat
       await initializeChat();
+      
+      // Track lesson start
+      trackLessonStart();
     });
 
     // ==================== Load Course Content ====================
@@ -599,6 +608,9 @@
         return;
       }
       
+      // Track if this is a help request
+      const isHelpReq = Agent.isHelpRequest(message);
+      
       // Add user message
       input.value = '';
       addMessageToUI({
@@ -606,6 +618,9 @@
         content: message,
         timestamp: Date.now()
       });
+      
+      // Track interaction
+      trackInteraction(isHelpReq);
       
       // Save to DB
       await DB.conversations.save({
@@ -615,14 +630,16 @@
         role: 'student',
         content: message,
         timestamp: Date.now(),
-        mode: currentMode
+        mode: currentMode,
+        isHelpRequest: isHelpReq
       });
       
       // Check for help requests in socratic mode
-      if (currentMode === 'socratic' && Agent.isHelpRequest(message)) {
+      if (currentMode === 'socratic' && isHelpReq) {
         const count = Agent.incrementHelpRequest(sessionId);
         if (count >= 3) {
           // Will trigger guided mode in system prompt
+          showToast('info', '提示', '你请求帮助次数较多，李主管会给你更多引导');
         }
       }
       
@@ -634,15 +651,22 @@
 
     async function getAIResponse(userMessage) {
       const sendBtn = document.getElementById('send-btn');
+      const input = document.getElementById('chat-input');
       sendBtn.disabled = true;
+      input.disabled = true;
       isStreaming = true;
       
-      // Add thinking indicator
+      // Add thinking indicator with better styling
       const chatMessages = document.getElementById('chat-messages');
       const thinkingDiv = document.createElement('div');
       thinkingDiv.className = 'message agent';
       thinkingDiv.id = 'thinking-indicator';
-      thinkingDiv.innerHTML = `<div class="loading-dots"><span></span><span></span><span></span></div>`;
+      thinkingDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.9em;">李主管正在思考...</span>
+        </div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      `;
       chatMessages.appendChild(thinkingDiv);
       scrollChatToBottom();
       
@@ -703,6 +727,7 @@
               });
               
               sendBtn.disabled = false;
+              input.disabled = false;
               isStreaming = false;
               scrollChatToBottom();
             },
@@ -710,11 +735,20 @@
               thinkingDiv.remove();
               responseDiv.remove();
               
-              if (error.code !== 'ABORTED') {
-                showToast('error', 'AI响应错误', error.message);
+              if (error.code === 'ABORTED') {
+                showToast('info', '已取消', 'AI回复已取消');
+              } else if (error.code === 'NO_API_KEY') {
+                showToast('error', '未配置API Key', '请先在设置中配置AI API Key');
+              } else if (error.code === 'INVALID_KEY') {
+                showToast('error', 'API Key无效', '请检查API Key配置是否正确');
+              } else if (error.code === 'RATE_LIMIT') {
+                showToast('warning', '请求过于频繁', '请稍后再试，或切换其他AI通道');
+              } else {
+                showToast('error', 'AI响应错误', error.message || '请稍后重试');
               }
               
               sendBtn.disabled = false;
+              input.disabled = false;
               isStreaming = false;
             }
           }
@@ -724,10 +758,11 @@
         thinkingDiv.remove();
         
         if (error.code !== 'ABORTED') {
-          showToast('error', '请求失败', error.message);
+          showToast('error', '请求失败', error.message || '发生未知错误，请稍后重试');
         }
         
         sendBtn.disabled = false;
+        input.disabled = false;
         isStreaming = false;
       }
     }
@@ -807,6 +842,9 @@
     async function markComplete() {
       if (!currentLesson) return;
       
+      // Track lesson completion
+      trackLessonComplete();
+      
       await CourseEngine.markLessonCompleted(currentStage?.id, currentLesson.id, {
         completedAt: Date.now()
       });
@@ -824,6 +862,66 @@
           window.location.href = 'dashboard.html';
         }, 1000);
       }
+    }
+
+    // ==================== Learning Behavior Tracking ====================
+    function trackLessonStart() {
+      // Track when student starts a lesson
+      const trackingData = {
+        stageId: currentStage?.id,
+        lessonId: currentLesson?.id,
+        mode: currentMode,
+        sessionId: sessionId,
+        startTime: sessionStartTime,
+        type: 'lesson_start'
+      };
+      
+      // Save initial tracking data
+      DB.progress.save({
+        lessonId: currentLesson?.id,
+        stageId: currentStage?.id,
+        sessionId: sessionId,
+        status: 'in-progress',
+        startTime: sessionStartTime,
+        mode: currentMode,
+        interactionCount: 0,
+        helpRequests: 0
+      }).catch(console.error);
+    }
+
+    function trackInteraction(isHelpRequest = false) {
+      interactionCount++;
+      if (isHelpRequest) {
+        helpRequestCount++;
+      }
+      
+      // Update metrics in real-time
+      DB.progress.save({
+        lessonId: currentLesson?.id,
+        stageId: currentStage?.id,
+        sessionId: sessionId,
+        status: 'in-progress',
+        interactionCount: interactionCount,
+        helpRequests: helpRequestCount,
+        lastInteractionAt: Date.now()
+      }).catch(console.error);
+    }
+
+    function trackLessonComplete() {
+      const duration = Date.now() - sessionStartTime;
+      
+      // Save final session data
+      DB.progress.save({
+        lessonId: currentLesson?.id,
+        stageId: currentStage?.id,
+        sessionId: sessionId,
+        status: 'completed',
+        completedAt: Date.now(),
+        duration: duration,
+        totalInteractionCount: interactionCount,
+        totalHelpRequests: helpRequestCount,
+        completionRate: currentLesson?.aiEnabled ? (interactionCount > 0 ? 1 : 0) : 1
+      }).catch(console.error);
     }
 
     // ==================== Utilities ====================

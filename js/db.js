@@ -122,6 +122,7 @@ async function getAllSettings() {
 
 // ==================== Learning Progress Operations ====================
 
+// Extended progress data structure for detailed tracking
 async function getProgress(stageId, lessonId) {
   await initDB();
   return new Promise((resolve, reject) => {
@@ -160,12 +161,59 @@ async function saveProgress(data) {
       const existing = getRequest.result;
       if (existing) {
         data.id = existing.id;
+        // Merge behavior metrics
+        if (existing.behaviorMetrics && data.behaviorMetrics) {
+          data.behaviorMetrics = {
+            ...existing.behaviorMetrics,
+            ...data.behaviorMetrics
+          };
+        }
       }
       const request = store.put(data);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     };
   });
+}
+
+// Save detailed learning session data
+async function saveLearningSession(sessionData) {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('learning_progress', 'readwrite');
+    const store = tx.objectStore('learning_progress');
+    
+    const data = {
+      lessonId: sessionData.lessonId,
+      stageId: sessionData.stageId,
+      sessionId: sessionData.sessionId,
+      startTime: sessionData.startTime,
+      endTime: Date.now(),
+      duration: sessionData.duration || 0,
+      interactionCount: sessionData.interactionCount || 0,
+      helpRequests: sessionData.helpRequests || 0,
+      ownWorkConfirmed: sessionData.ownWorkConfirmed || false,
+      status: sessionData.status || 'in-progress',
+      completedAt: sessionData.completedAt || null
+    };
+    
+    const request = store.add(data);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Update behavior metrics for a lesson
+async function updateBehaviorMetrics(stageId, lessonId, metrics) {
+  const existing = await getProgress(stageId, lessonId);
+  if (existing) {
+    existing.behaviorMetrics = {
+      ...existing.behaviorMetrics,
+      ...metrics,
+      lastUpdated: Date.now()
+    };
+    await saveProgress(existing);
+  }
 }
 
 async function getAllProgress() {
@@ -406,6 +454,8 @@ window.DB = {
     get: getProgress,
     getStage: getStageProgress,
     save: saveProgress,
+    saveSession: saveLearningSession,
+    updateMetrics: updateBehaviorMetrics,
     getAll: getAllProgress
   },
   conversations: {
