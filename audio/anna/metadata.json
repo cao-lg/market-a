@@ -1,329 +1,239 @@
 {
   "voice": "FunAudioLLM/CosyVoice2-0.5B:anna",
   "voice_name": "Anna（温柔女声）",
-  "generated_at": "2026-06-27 09:17:06",
+  "generated_at": "2026-06-27 10:16:24",
   "total_lessons": 64,
-  "success_count": 64,
+  "success_count": 0,
   "files": {
     "stage-1-lesson-1": {
       "title": "入职宣讲（上）：企业与项目介绍",
       "file": "audio/anna/stage-1-lesson-1.mp3",
-      "size": 6401023
+      "size": 7184383
     },
     "stage-1-lesson-2": {
       "title": "入职宣讲（下）：方法论与案例拆解",
       "file": "audio/anna/stage-1-lesson-2.mp3",
-      "size": 11446015
+      "size": 14409343
     },
     "stage-1-lesson-3": {
       "title": "工具环境准备",
       "file": "audio/anna/stage-1-lesson-3.mp3",
-      "size": 7041535
+      "size": 8791423
     },
     "stage-1-lesson-4": {
       "title": "实操练习（上）：小组分工与计划制定",
       "file": "audio/anna/stage-1-lesson-4.mp3",
-      "size": 6548863
+      "size": 6637567
     },
     "stage-1-lesson-5": {
       "title": "实操练习（下）：报告结构分析与计划完善",
       "file": "audio/anna/stage-1-lesson-5.mp3",
-      "size": 6873343
+      "size": 7178623
     },
     "stage-1-lesson-6": {
       "title": "成果提交与审核",
       "file": "audio/anna/stage-1-lesson-6.mp3",
-      "size": 4066303
+      "size": 8139775
     },
     "stage-2-lesson-1": {
       "title": "数据清洗理论（理论）",
       "file": "audio/anna/stage-2-lesson-1.mp3",
-      "size": 6665215
+      "size": 7241983
     },
     "stage-2-lesson-2": {
       "title": "全流程示范（示范）",
       "file": "audio/anna/stage-2-lesson-2.mp3",
-      "size": 2852095
+      "size": 6958207
     },
     "stage-2-lesson-3": {
       "title": "跟练（上）：无效数据与重复值处理",
       "file": "audio/anna/stage-2-lesson-3.mp3",
-      "size": 4894975
+      "size": 5542015
     },
     "stage-2-lesson-4": {
       "title": "跟练（下）：缺失值处理与格式标准化",
       "file": "audio/anna/stage-2-lesson-4.mp3",
-      "size": 4347775
+      "size": 7174015
     },
     "stage-2-lesson-5": {
       "title": "独立练（上）：缺失值处理与格式标准化",
       "file": "audio/anna/stage-2-lesson-5.mp3",
-      "size": 5022847
+      "size": 6319615
     },
     "stage-2-lesson-6": {
       "title": "独立练（下）：异常值识别与业务判断",
       "file": "audio/anna/stage-2-lesson-6.mp3",
-      "size": 5897215
+      "size": 5994367
     },
     "stage-2-lesson-7": {
       "title": "项目实操（一）：9月全量数据清洗启动",
       "file": "audio/anna/stage-2-lesson-7.mp3",
-      "size": 4735615
+      "size": 4277503
     },
     "stage-2-lesson-8": {
       "title": "项目实操（二）：陷阱数据识别与处理",
       "file": "audio/anna/stage-2-lesson-8.mp3",
-      "size": 6369535
+      "size": 6795775
     },
     "stage-2-lesson-9": {
       "title": "项目实操（三）：清洗完成与说明文档撰写",
       "file": "audio/anna/stage-2-lesson-9.mp3",
-      "size": 5257855
+      "size": 6007807
     },
     "stage-2-lesson-10": {
       "title": "变式练习（一）：新品类数据清洗",
       "file": "audio/anna/stage-2-lesson-10.mp3",
-      "size": 5053567
+      "size": 4899967
     },
     "stage-2-lesson-11": {
       "title": "变式练习（二）：对比反思与迁移总结",
       "file": "audio/anna/stage-2-lesson-11.mp3",
-      "size": 5725567
+      "size": 5383807
     },
     "stage-2-lesson-12": {
       "title": "成果校验与反馈",
       "file": "audio/anna/stage-2-lesson-12.mp3",
-      "size": 6891775
+      "size": 7789183
     },
     "stage-3-lesson-1": {
       "title": "核心指标体系讲解（上）：流量与转化类",
       "file": "audio/anna/stage-3-lesson-1.mp3",
-      "size": 6427135
+      "size": 9038335
     },
     "stage-3-lesson-2": {
       "title": "核心指标体系讲解（下）：交易与用户类",
       "file": "audio/anna/stage-3-lesson-2.mp3",
-      "size": 10522495
+      "size": 12205183
     },
     "stage-3-lesson-3": {
       "title": "手写口径练习：20个核心指标定义与公式",
       "file": "audio/anna/stage-3-lesson-3.mp3",
-      "size": 4848127
+      "size": 4983295
     },
     "stage-3-lesson-4": {
       "title": "操作示范：AI+Excel批量核算指标",
       "file": "audio/anna/stage-3-lesson-4.mp3",
-      "size": 6770047
+      "size": 7410943
     },
     "stage-3-lesson-5": {
       "title": "跟练（上）：流量类与交易类指标核算",
       "file": "audio/anna/stage-3-lesson-5.mp3",
-      "size": 5757823
+      "size": 6938623
     },
     "stage-3-lesson-6": {
       "title": "跟练（下）：转化类与用户类指标核算",
       "file": "audio/anna/stage-3-lesson-6.mp3",
-      "size": 6224383
+      "size": 7272703
     },
     "stage-3-lesson-7": {
       "title": "项目实操（上）：9月全量核心指标核算",
       "file": "audio/anna/stage-3-lesson-7.mp3",
-      "size": 4841983
+      "size": 5282815
     },
     "stage-3-lesson-8": {
       "title": "项目实操（下）：环比对比与异常标注",
       "file": "audio/anna/stage-3-lesson-8.mp3",
-      "size": 4440703
+      "size": 6690943
     },
     "stage-3-lesson-9": {
       "title": "含陷阱任务（上）：口径不一致与逻辑矛盾识别",
       "file": "audio/anna/stage-3-lesson-9.mp3",
-      "size": 5938687
+      "size": 6939775
     },
     "stage-3-lesson-10": {
       "title": "含陷阱任务（下）：指标体系逻辑一致性检验",
       "file": "audio/anna/stage-3-lesson-10.mp3",
-      "size": 7674367
+      "size": 8206975
     },
     "stage-3-lesson-11": {
       "title": "纠错与优化：AI结果校验与异常标注修正",
       "file": "audio/anna/stage-3-lesson-11.mp3",
-      "size": 8553727
+      "size": 9255295
     },
     "stage-3-lesson-12": {
       "title": "成果提交与审核",
       "file": "audio/anna/stage-3-lesson-12.mp3",
-      "size": 8151295
+      "size": 9047935
     },
     "stage-4-lesson-1": {
       "title": "流量与转化归因分析框架（理论）",
       "file": "audio/anna/stage-4-lesson-1.mp3",
-      "size": 7220863
+      "size": 8374015
     },
     "stage-4-lesson-2": {
       "title": "流量归因分析：示范+跟练",
       "file": "audio/anna/stage-4-lesson-2.mp3",
-      "size": 8678143
+      "size": 11187967
     },
     "stage-4-lesson-3": {
       "title": "流量归因分析：独立实操",
       "file": "audio/anna/stage-4-lesson-3.mp3",
-      "size": 4014463
+      "size": 4419967
     },
     "stage-4-lesson-4": {
       "title": "流量归因分析：变式迁移",
       "file": "audio/anna/stage-4-lesson-4.mp3",
-      "size": 4978303
+      "size": 4767487
     },
     "stage-4-lesson-5": {
       "title": "用户价值与RFM模型（理论）",
       "file": "audio/anna/stage-4-lesson-5.mp3",
-      "size": 5536255
+      "size": 11618047
     },
     "stage-4-lesson-6": {
       "title": "用户RFM分析：示范+跟练",
       "file": "audio/anna/stage-4-lesson-6.mp3",
-      "size": 7854847
+      "size": 12510847
     },
     "stage-4-lesson-7": {
       "title": "用户RFM分析：独立实操",
       "file": "audio/anna/stage-4-lesson-7.mp3",
-      "size": 3321343
+      "size": 3890047
     },
     "stage-4-lesson-8": {
       "title": "用户RFM分析：变式迁移",
       "file": "audio/anna/stage-4-lesson-8.mp3",
-      "size": 4967167
+      "size": 4890367
     },
     "stage-4-lesson-9": {
       "title": "竞品分析框架与数据采集（理论）",
       "file": "audio/anna/stage-4-lesson-9.mp3",
-      "size": 8674303
+      "size": 9313663
     },
     "stage-4-lesson-10": {
       "title": "竞品对标分析：示范+跟练",
       "file": "audio/anna/stage-4-lesson-10.mp3",
-      "size": 11237503
+      "size": 14025343
     },
     "stage-4-lesson-11": {
       "title": "竞品对标分析：独立实操",
       "file": "audio/anna/stage-4-lesson-11.mp3",
-      "size": 4434175
+      "size": 4996735
     },
     "stage-4-lesson-12": {
       "title": "竞品对标分析：变式迁移",
       "file": "audio/anna/stage-4-lesson-12.mp3",
-      "size": 5136127
+      "size": 5440255
     },
     "stage-4-lesson-13": {
       "title": "营销活动复盘方法论（理论）",
       "file": "audio/anna/stage-4-lesson-13.mp3",
-      "size": 9554815
+      "size": 10569727
     },
     "stage-4-lesson-14": {
       "title": "活动效果复盘：示范+跟练",
       "file": "audio/anna/stage-4-lesson-14.mp3",
-      "size": 14044927
+      "size": 16794367
     },
     "stage-4-lesson-15": {
       "title": "活动效果复盘：独立实操",
       "file": "audio/anna/stage-4-lesson-15.mp3",
-      "size": 4010623
+      "size": 4444543
     },
     "stage-4-lesson-16": {
       "title": "活动效果复盘：变式迁移+阶段验收",
       "file": "audio/anna/stage-4-lesson-16.mp3",
-      "size": 6379903
-    },
-    "stage-5-lesson-1": {
-      "title": "看板与报告设计原则（理论+样例）",
-      "file": "audio/anna/stage-5-lesson-1.mp3",
-      "size": 8795647
-    },
-    "stage-5-lesson-2": {
-      "title": "在线看板基础操作教学（理论+演示）",
-      "file": "audio/anna/stage-5-lesson-2.mp3",
-      "size": 8752255
-    },
-    "stage-5-lesson-3": {
-      "title": "实操：数据看板搭建与报告骨架搭建",
-      "file": "audio/anna/stage-5-lesson-3.mp3",
-      "size": 6806143
-    },
-    "stage-5-lesson-4": {
-      "title": "实操：看板优化与报告骨架完善",
-      "file": "audio/anna/stage-5-lesson-4.mp3",
-      "size": 5113855
-    },
-    "stage-5-lesson-5": {
-      "title": "实操：报告内容填充与AI润色优化",
-      "file": "audio/anna/stage-5-lesson-5.mp3",
-      "size": 6651007
-    },
-    "stage-5-lesson-6": {
-      "title": "实操：汇报PPT制作",
-      "file": "audio/anna/stage-5-lesson-6.mp3",
-      "size": 7297663
-    },
-    "stage-5-lesson-7": {
-      "title": "实操：看板交互功能完善（上）",
-      "file": "audio/anna/stage-5-lesson-7.mp3",
-      "size": 7771903
-    },
-    "stage-5-lesson-8": {
-      "title": "实操：看板交互功能完善（下）",
-      "file": "audio/anna/stage-5-lesson-8.mp3",
-      "size": 7359487
-    },
-    "stage-5-lesson-9": {
-      "title": "交叉评审：小组互查报告与看板",
-      "file": "audio/anna/stage-5-lesson-9.mp3",
-      "size": 8609023
-    },
-    "stage-5-lesson-10": {
-      "title": "交叉评审：问题讨论与方案确认",
-      "file": "audio/anna/stage-5-lesson-10.mp3",
-      "size": 7341055
-    },
-    "stage-5-lesson-11": {
-      "title": "终稿优化与提交（上）",
-      "file": "audio/anna/stage-5-lesson-11.mp3",
-      "size": 5156863
-    },
-    "stage-5-lesson-12": {
-      "title": "终稿优化与提交（下）",
-      "file": "audio/anna/stage-5-lesson-12.mp3",
-      "size": 8094463
-    },
-    "stage-6-lesson-1": {
-      "title": "项目路演（上）：小组汇报",
-      "file": "audio/anna/stage-6-lesson-1.mp3",
-      "size": 8734975
-    },
-    "stage-6-lesson-2": {
-      "title": "项目路演（下）：小组汇报",
-      "file": "audio/anna/stage-6-lesson-2.mp3",
-      "size": 5654527
-    },
-    "stage-6-lesson-3": {
-      "title": "项目路演：评审与打分",
-      "file": "audio/anna/stage-6-lesson-3.mp3",
-      "size": 6746623
-    },
-    "stage-6-lesson-4": {
-      "title": "整体点评与知识体系复盘",
-      "file": "audio/anna/stage-6-lesson-4.mp3",
-      "size": 12647935
-    },
-    "stage-6-lesson-5": {
-      "title": "转正终结考核：新品类数据分析",
-      "file": "audio/anna/stage-6-lesson-5.mp3",
-      "size": 8885887
-    },
-    "stage-6-lesson-6": {
-      "title": "考核反馈与职业发展建议",
-      "file": "audio/anna/stage-6-lesson-6.mp3",
-      "size": 8309503
+      "size": 7702015
     }
   }
 }
