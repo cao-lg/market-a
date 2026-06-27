@@ -47,64 +47,149 @@ def text_to_speech(text, output_file):
     except Exception as e:
         return False, str(e)
 
-def clean_text(markdown):
-    """清理Markdown文本，转换为纯文本用于语音合成"""
+def process_markdown_to_script(markdown, lesson_title):
+    """
+    将Markdown内容转换为口语化的讲稿
+    适合语音朗读，生动、悦耳、简洁
+    """
     import re
     
-    # 移除Markdown标记
+    # 提取标题
+    title_match = re.search(r'^#\s+(.+?)(?:\n|$)', markdown, re.MULTILINE)
+    main_title = title_match.group(1).strip() if title_match else lesson_title
+    
     text = markdown
     
-    # 移除标题标记
-    text = re.sub(r'^#+\s+', '', text)
-    
-    # 移除粗体/斜体标记
-    text = re.sub(r'\*+([^*]+)\*+', r'\1', text)
-    text = re.sub(r'_+([^_]+)_+', r'\1', text)
-    
-    # 移除链接，保留文本
-    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
-    
-    # 移除代码块
+    # ====== 第一步：移除所有代码块 ======
     text = re.sub(r'```[\s\S]*?```', '', text)
-    
-    # 移除行内代码
     text = re.sub(r'`([^`]+)`', r'\1', text)
     
-    # 移除表格分隔线
-    text = re.sub(r'\|[-:]+\|', '', text)
+    # ====== 第二步：处理分隔线 ======
+    # 把 --- 转换成自然的段落过渡
+    text = re.sub(r'\n-{3,}\n+', '\n\n---新话题---\n\n', text)
+    text = re.sub(r'\n-{3,}$', '\n\n---新话题---', text, flags=re.MULTILINE)
     
-    # 处理表格：转换为简单文本
+    # ====== 第三步：处理表格 ======
     lines = text.split('\n')
-    cleaned_lines = []
-    for line in lines:
-        if '|' in line:
-            # 表格行：提取内容
+    result_lines = []
+    i = 0
+    
+    while i < len(lines):
+        line = lines[i].strip()
+        
+        # 跳过表格分隔线
+        if re.match(r'^[\|:\-\s]+$', line) or re.match(r'^\|[-:]+\|', line):
+            i += 1
+            continue
+        
+        # 处理表格行
+        if line.startswith('|') or '|' in line:
             cells = [c.strip() for c in line.split('|') if c.strip()]
-            if cells:
-                cleaned_lines.append('，'.join(cells))
-        else:
-            cleaned_lines.append(line)
+            if len(cells) >= 2:
+                # 表格转成自然语言
+                if len(cells) == 2:
+                    result_lines.append(f"{cells[0]}是{cells[1]}。")
+                elif len(cells) == 3:
+                    result_lines.append(f"{cells[0]}，{cells[1]}是{cells[2]}。")
+                elif len(cells) == 4:
+                    result_lines.append(f"{cells[0]}，{cells[1]}是{cells[2]}，{cells[3]}。")
+                else:
+                    # 多列表格：列出关键信息
+                    result_lines.append('，'.join(cells) + '。')
+            i += 1
+            continue
+        
+        result_lines.append(line)
+        i += 1
     
-    text = '\n'.join(cleaned_lines)
+    text = '\n'.join(result_lines)
     
-    # 移除列表标记
-    text = re.sub(r'^\s*[-*+]\s+', '', text)
-    text = re.sub(r'^\s*\d+\.\s+', '', text)
+    # ====== 第四步：处理标题 ======
+    # 主标题只保留一次
+    text = re.sub(r'^#\s+.+?(?:\n|$)', '', text, flags=re.MULTILINE)
     
-    # 移除引用标记
-    text = re.sub(r'^>\s*', '', text)
+    # 二级标题 -> 强调词
+    def replace_h2(m):
+        return f"\n\n{m.group(1).strip()}\n"
+    text = re.sub(r'^##\s+(.+?)(?:\n|$)', replace_h2, text, flags=re.MULTILINE)
     
-    # 移除HTML标记
-    text = re.sub(r'<[^>]+>', '', text)
+    # 三级标题 -> 段落引导
+    def replace_h3(m):
+        return f"我们来看{m.group(1).strip()}："
+    text = re.sub(r'^###\s+(.+?)(?:\n|$)', replace_h3, text, flags=re.MULTILINE)
     
-    # 移除多余空白
+    # 四级及以上标题 -> 简短过渡
+    def replace_h4(m):
+        return f"另外，{m.group(1).strip()}："
+    text = re.sub(r'^#{4,}\s+(.+?)(?:\n|$)', replace_h4, text, flags=re.MULTILINE)
+    
+    # ====== 第五步：处理列表 ======
+    # 有序列表：直接读出
+    def replace_ol(m):
+        return f"第一，{m.group(1).strip()}。" if m.group(1).strip() else ""
+    text = re.sub(r'^\d+\.\s+(.+?)(?:\n|$)', replace_ol, text, flags=re.MULTILINE)
+    
+    # 无序列表：转为逗号分隔的句子
+    def replace_ul(m):
+        content = m.group(1).strip()
+        if content:
+            return f"包括{content}。"
+        return ""
+    text = re.sub(r'^[-*]\s+(.+?)(?:\n|$)', replace_ul, text, flags=re.MULTILINE)
+    
+    # ====== 第六步：处理格式标记 ======
+    # 粗体 -> 直接读出
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    
+    # 斜体 -> 直接读出
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    text = re.sub(r'_([^_]+)_', r'\1', text)
+    
+    # 链接 -> 保留文字
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    
+    # 引用 -> 直接读出
+    text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
+    
+    # ====== 第七步：处理技术符号 ======
+    # 箭头转换
+    text = re.sub(r'→', '，然后', text)
+    text = re.sub(r'<-', '，由', text)
+    text = re.sub(r'<=', '小于等于', text)
+    text = re.sub(r'=>', '大于等于', text)
+    text = re.sub(r'>=', '大于等于', text)
+    text = re.sub(r'!=', '不等于', text)
+    
+    # 百分号
+    text = re.sub(r'(\d+)%', r'\1百分之', text)
+    
+    # ====== 第八步：处理特殊分隔符 ======
+    # ---新话题--- 转换为自然过渡
+    text = re.sub(r'---新话题---', '\n\n好，接下来我们看下一个内容。\n\n', text)
+    
+    # ====== 第九步：清理和优化 ======
+    # 移除多余空行
     text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    # 清理行内多余空格
     text = re.sub(r'  +', ' ', text)
     
-    # 添加自然停顿
-    text = re.sub(r'\n\n', '。\n\n', text)  # 段落结尾加句号
+    # 处理一些口语化表达
+    text = re.sub(r'等等\.', '等等。', text)
     
-    return text.strip()
+    # 移除行首行尾空白
+    text = re.sub(r'^[ \t]+|[ \t]+$', '', text, flags=re.MULTILINE)
+    
+    # ====== 第十步：添加开头和结尾 ======
+    opening = f"大家好，欢迎学习{main_title}。\n\n"
+    ending = "\n\n好，今天的内容就到这里。希望对大家有帮助，下次课再见！"
+    
+    return opening + text.strip() + ending
+
+
+def clean_text(markdown):
+    """兼容旧函数名"""
+    return process_markdown_to_script(markdown, "")
 
 def main():
     print("开始批量生成语音文件...")
@@ -133,25 +218,18 @@ def main():
             
             total_lessons += 1
             
-            # 清理文本
+            # 处理文本：转换为口语化讲稿
             raw_text = lesson['content']['markdown']
-            clean_text_content = clean_text(raw_text)
+            script = process_markdown_to_script(raw_text, lesson_title)
             
             # 生成文件名
             output_file = os.path.join(OUTPUT_DIR, f"{lesson_id}.mp3")
             
-            # 检查是否已存在
-            if os.path.exists(output_file):
-                file_size = os.path.getsize(output_file)
-                print(f"✓ {lesson_id}: 已存在 ({file_size//1024}KB)")
-                success_count += 1
-                total_size += file_size
-                continue
-            
+            # 强制重新生成（使用新的讲稿处理）
             print(f"生成 {lesson_id}: {lesson_title}...")
-            print(f"  文本长度: {len(clean_text_content)} 字符")
+            print(f"  文本长度: {len(script)} 字符")
             
-            success, result = text_to_speech(clean_text_content, output_file)
+            success, result = text_to_speech(script, output_file)
             
             if success:
                 file_size = result
