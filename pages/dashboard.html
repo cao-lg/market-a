@@ -6,153 +6,968 @@
   <title>学习仪表盘 - 市场数据分析AI伴学平台</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <style>
+    .dashboard-page {
+      min-height: 100vh;
+      position: relative;
+      z-index: 2;
+    }
+
+    .page-header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+      backdrop-filter: blur(12px);
+      padding: var(--space-3) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      opacity: 0.3;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .header-brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(212, 140, 82, 0.3);
+    }
+
+    .header-brand-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .student-id-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+    }
+
+    .student-id-label {
+      color: var(--text-tertiary);
+    }
+
+    .student-id-value {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .page-content-wrap {
+      padding: var(--space-xl);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-welcome {
+      margin-bottom: var(--space-2xl);
+      animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .welcome-eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent-primary), transparent);
+    }
+
+    .welcome-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      letter-spacing: -0.01em;
+    }
+
+    .welcome-title em {
+      font-style: italic;
+      font-weight: 500;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-subtitle {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .stats-overview-enhanced {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-2xl);
+      animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+    }
+
+    @media (max-width: 768px) {
+      .stats-overview-enhanced {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-normal);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .stat-card:nth-child(1) .stat-card-icon {
+      background: var(--accent-primary-light);
+    }
+    .stat-card:nth-child(2) .stat-card-icon {
+      background: var(--accent-gold-light);
+    }
+    .stat-card:nth-child(3) .stat-card-icon {
+      background: var(--accent-success-light);
+    }
+    .stat-card:nth-child(4) .stat-card-icon {
+      background: var(--accent-teal-light);
+    }
+
+    .stat-card-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: var(--space-1);
+    }
+
+    .stat-card-label {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card-progress {
+      margin-top: var(--space-3);
+    }
+
+    .stat-card-progress .progress {
+      height: 4px;
+      background: var(--bg-tertiary);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .section-title-accent {
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--accent-primary), var(--accent-gold));
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .section-subtitle {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .stages-section {
+      margin-bottom: var(--space-2xl);
+      animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+    }
+
+    .stage-grid-enhanced {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .stage-card-enhanced {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage-card-enhanced::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition-slow);
+    }
+
+    .stage-card-enhanced:hover:not(.locked)::before {
+      transform: scaleX(1);
+    }
+
+    .stage-card-enhanced:hover:not(.locked) {
+      border-color: var(--accent-primary);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 30px rgba(212, 140, 82, 0.08);
+    }
+
+    .stage-card-enhanced.locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .stage-card-enhanced.completed .stage-number {
+      background: var(--accent-success-light);
+      color: var(--accent-success);
+      border-color: var(--accent-success-light);
+    }
+
+    .stage-card-enhanced.in-progress .stage-number {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary-light);
+    }
+
+    .stage-number {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 1.25rem;
+      font-family: var(--font-display);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .stage-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .stage-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stage-card-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .stage-card-meta {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .stage-card-body {
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .stage-progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .stage-progress-label {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .stage-progress-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .stage-progress-bar-wrap {
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .stage-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
+      border-radius: var(--radius-full);
+      transition: width var(--transition-slower);
+      position: relative;
+    }
+
+    .stage-progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      animation: shimmer 2.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .stage-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-md);
+    }
+
+    .stage-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .stage-status-badge.completed {
+      background: var(--accent-success-light);
+      color: var(--accent-success);
+      border: 1px solid var(--accent-success-light);
+    }
+
+    .stage-status-badge.in-progress {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-primary-light);
+    }
+
+    .stage-status-badge.test-passed {
+      background: var(--accent-success-light);
+      color: var(--accent-success);
+      border: 1px solid var(--accent-success-light);
+    }
+
+    .stage-status-badge.locked {
+      background: var(--bg-tertiary);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-color);
+    }
+
+    .stage-status-badge.not-started {
+      background: var(--bg-tertiary);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-color);
+    }
+
+    .stage-test-score {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: var(--accent-success);
+      font-weight: 500;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: var(--space-xl);
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+      position: relative;
+    }
+
+    .sidebar-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+      opacity: 0.5;
+    }
+
+    .sidebar-card-header {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
+    }
+
+    .sidebar-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-primary-light);
+    }
+
+    .sidebar-card-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .sidebar-card-body {
+      padding: var(--space-lg);
+    }
+
+    .action-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      border: 1px solid transparent;
+      margin-bottom: var(--space-2);
+    }
+
+    .action-btn:last-child {
+      margin-bottom: 0;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: var(--text-inverse);
+      box-shadow: 0 2px 8px rgba(212, 140, 82, 0.25);
+    }
+
+    .action-btn.primary:hover {
+      box-shadow: 0 4px 16px rgba(212, 140, 82, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .action-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    .action-btn.secondary:hover {
+      background: var(--bg-quaternary);
+      border-color: var(--border-hover);
+    }
+
+    .action-btn.ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+
+    .action-btn.ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .metric-item {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .metric-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .metric-item:first-child {
+      padding-top: 0;
+    }
+
+    .metric-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .metric-item-label {
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-item-value {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .metric-item-bar {
+      height: 5px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .metric-item-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
+      border-radius: var(--radius-full);
+      transition: width var(--transition-slower);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .activity-item:first-child {
+      padding-top: 0;
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--bg-tertiary);
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .activity-desc {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-time {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-lg) 0;
+    }
+
+    .empty-state-icon {
+      font-size: 1.75rem;
+      margin-bottom: var(--space-2);
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        padding: var(--space-2) var(--space-md);
+      }
+      .page-content-wrap {
+        padding: var(--space-md);
+      }
+      .student-id-badge .student-id-label {
+        display: none;
+      }
+      .welcome-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
-<body class="min-h-screen" style="background: var(--bg-primary);">
-  
-  <!-- Header -->
-  <header class="page-header">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-        <span class="font-semibold">学习仪表盘</span>
-      </div>
-    </div>
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
-        <span class="text-sm" style="color: var(--text-tertiary);">学生ID:</span>
-        <span class="text-sm font-mono" id="student-id" style="color: var(--text-secondary);"></span>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="window.location.href='settings.html'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        设置
-      </button>
-      <button class="btn btn-secondary btn-sm" onclick="exportRecord()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        导出
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="page-content">
-    <div class="dashboard-grid">
-      <!-- Main Content Area -->
-      <div class="main-content">
-        
-        <!-- Overview Stats -->
-        <div class="stats-overview mb-6">
-          <div class="stat-item">
-            <div class="stat-value" id="overall-progress">0%</div>
-            <div class="stat-label">总体进度</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="completed-hours">0/54</div>
-            <div class="stat-label">已完成课时</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="test-passed">0</div>
-            <div class="stat-label">测试通过</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="total-score">--</div>
-            <div class="stat-label">平均成绩</div>
-          </div>
+<body>
+  <div class="dashboard-page">
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-brand">
+        <div class="header-brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-inverse)" stroke-width="2">
+            <path d="M3 3v18h18"/>
+            <path d="M7 14l4-4 4 4 5-5"/>
+          </svg>
         </div>
-
-        <!-- Stage Cards -->
-        <div class="mb-4">
-          <h2 class="text-lg font-semibold mb-4">学习阶段</h2>
-          <div class="stage-grid" id="stage-grid">
-            <!-- Stage cards will be rendered here -->
-          </div>
+        <span class="header-brand-title">学习仪表盘</span>
+      </div>
+      <div class="header-actions">
+        <div class="student-id-badge">
+          <span class="student-id-label">学生ID</span>
+          <span class="student-id-value" id="student-id">--</span>
         </div>
+        <button class="btn btn-ghost btn-sm" onclick="window.location.href='settings.html'" title="设置">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportRecord()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          导出
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content-wrap">
+      <!-- Welcome Section -->
+      <div class="dashboard-welcome">
+        <div class="welcome-eyebrow">Welcome Back</div>
+        <h1 class="welcome-title">继续你的<em>数据分析师</em>之旅</h1>
+        <p class="welcome-subtitle">杭州悦享家居用品有限公司 · 9月月度数据分析项目</p>
       </div>
 
-      <!-- Sidebar -->
-      <div class="sidebar">
-        
-        <!-- Quick Actions -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">快速继续</h3>
-          </div>
-          <div class="card-body">
-            <button class="btn btn-primary w-full mb-3" id="continue-btn" onclick="continueLastLesson()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-              继续学习
-            </button>
-            <button class="btn btn-secondary w-full" onclick="window.location.href='learn.html'">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              </svg>
-              学习中心
-            </button>
-            <button class="btn btn-outline w-full mt-2" onclick="startSimulatedTest()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 11l3 3L22 4"/>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
-              模拟测试
-            </button>
-          </div>
-        </div>
-
-        <!-- Behavior Metrics -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">学习行为</h3>
-          </div>
-          <div class="card-body">
-            <div class="metrics-grid" style="grid-template-columns: 1fr;">
-              <div class="metric-card">
-                <div class="metric-label">AI依赖指数</div>
-                <div class="metric-value" id="ai-dependency">0.00</div>
-                <div class="progress mt-2">
-                  <div class="progress-bar" id="ai-dependency-bar" style="width: 0%;"></div>
+      <div class="dashboard-layout">
+        <!-- Main Column -->
+        <div>
+          <!-- Stats Overview -->
+          <div class="stats-overview-enhanced">
+            <div class="stat-card">
+              <div class="stat-card-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div class="stat-card-value" id="overall-progress">0%</div>
+              <div class="stat-card-label">总体进度</div>
+              <div class="stat-card-progress">
+                <div class="progress">
+                  <div class="progress-bar" id="overall-progress-bar" style="width: 0%;"></div>
                 </div>
               </div>
-              <div class="metric-card">
-                <div class="metric-label">自我纠正率</div>
-                <div class="metric-value" id="self-correction">0%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
               </div>
-              <div class="metric-card">
-                <div class="metric-label">总学习时长</div>
-                <div class="metric-value" id="total-time">0分钟</div>
+              <div class="stat-card-value" id="completed-hours">0/64</div>
+              <div class="stat-card-label">已完成课时</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2">
+                  <polyline points="9 11 12 14 22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
               </div>
-              <div class="metric-card">
-                <div class="metric-label">会话次数</div>
-                <div class="metric-value" id="session-count">0</div>
+              <div class="stat-card-value" id="test-passed">0</div>
+              <div class="stat-card-label">测试通过</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
               </div>
+              <div class="stat-card-value" id="total-score">--</div>
+              <div class="stat-card-label">平均成绩</div>
+            </div>
+          </div>
+
+          <!-- Stages Section -->
+          <div class="stages-section">
+            <div class="section-header">
+              <div class="section-title-wrap">
+                <div class="section-title-accent"></div>
+                <div>
+                  <h2 class="section-title">学习阶段</h2>
+                  <div class="section-subtitle">循序渐进，掌握数据分析全流程</div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-grid-enhanced" id="stage-grid">
+              <!-- Stage cards will be rendered here -->
             </div>
           </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">最近活动</h3>
+        <!-- Sidebar -->
+        <div>
+          <!-- Quick Actions -->
+          <div class="sidebar-card" style="animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;">
+            <div class="sidebar-card-header">
+              <div class="sidebar-card-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <h3 class="sidebar-card-title">快速继续</h3>
+            </div>
+            <div class="sidebar-card-body">
+              <button class="action-btn primary" id="continue-btn" onclick="continueLastLesson()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                继续学习
+              </button>
+              <button class="action-btn secondary" onclick="window.location.href='learn.html'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                学习中心
+              </button>
+              <button class="action-btn ghost" onclick="startSimulatedTest()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 11l3 3L22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                模拟测试
+              </button>
+            </div>
           </div>
-          <div class="card-body" id="recent-activity">
-            <p class="text-sm text-center" style="color: var(--text-tertiary);">暂无最近活动</p>
+
+          <!-- Behavior Metrics -->
+          <div class="sidebar-card" style="animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;">
+            <div class="sidebar-card-header">
+              <div class="sidebar-card-icon" style="background: var(--accent-teal-light);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+              </div>
+              <h3 class="sidebar-card-title">学习行为</h3>
+            </div>
+            <div class="sidebar-card-body">
+              <div class="metric-item">
+                <div class="metric-item-row">
+                  <span class="metric-item-label">AI依赖指数</span>
+                  <span class="metric-item-value" id="ai-dependency">0.00</span>
+                </div>
+                <div class="metric-item-bar">
+                  <div class="metric-item-bar-fill" id="ai-dependency-bar" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-item-row">
+                  <span class="metric-item-label">自我纠正率</span>
+                  <span class="metric-item-value" id="self-correction">0%</span>
+                </div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-item-row">
+                  <span class="metric-item-label">总学习时长</span>
+                  <span class="metric-item-value" id="total-time" style="font-size: 0.95rem;">0分钟</span>
+                </div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-item-row">
+                  <span class="metric-item-label">会话次数</span>
+                  <span class="metric-item-value" id="session-count">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="sidebar-card" style="animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.55s both;">
+            <div class="sidebar-card-header">
+              <div class="sidebar-card-icon" style="background: var(--accent-gold-light);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <h3 class="sidebar-card-title">最近活动</h3>
+            </div>
+            <div class="sidebar-card-body" id="recent-activity">
+              <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-text">暂无最近活动</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
@@ -161,10 +976,8 @@
   <script src="../js/course-engine.js"></script>
   <script src="../js/export.js"></script>
   <script>
-    // Current student ID
     let studentId = '';
 
-    // Initialize page
     document.addEventListener('DOMContentLoaded', async () => {
       studentId = localStorage.getItem('studentId') || 'unknown';
       document.getElementById('student-id').textContent = studentId.slice(0, 8) + '...';
@@ -172,7 +985,6 @@
       await renderDashboard();
     });
 
-    // Render entire dashboard
     async function renderDashboard() {
       await renderStats();
       await renderStageGrid();
@@ -180,13 +992,10 @@
       await renderRecentActivity();
     }
     
-    // Start simulated test mode
     function startSimulatedTest() {
-      // Navigate to learn page with simulated test mode
       window.location.href = 'learn.html?mode=simulatedTest';
     }
     
-    // Render overview stats
     async function renderStats() {
       const progress = await CourseEngine.calculateOverallProgress();
       const assessments = await DB.assessments.getAll();
@@ -203,12 +1012,12 @@
       const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : null;
 
       document.getElementById('overall-progress').textContent = progress.percentage + '%';
+      document.getElementById('overall-progress-bar').style.width = progress.percentage + '%';
       document.getElementById('completed-hours').textContent = `${progress.completedHours}/${progress.totalHours}`;
       document.getElementById('test-passed').textContent = passedTests;
       document.getElementById('total-score').textContent = avgScore !== null ? avgScore : '--';
     }
 
-    // Render stage cards
     async function renderStageGrid() {
       const stages = await CourseEngine.getAllStages();
       const grid = document.getElementById('stage-grid');
@@ -218,59 +1027,64 @@
         
         let statusClass = '';
         let statusText = '';
-        let statusBadge = '';
+        let progressPercent = 0;
         
         switch (status.status) {
           case 'completed':
             statusClass = 'completed';
             statusText = '已完成';
-            statusBadge = '<span class="badge badge-success">已完成</span>';
+            progressPercent = 100;
             break;
           case 'in-progress':
             statusClass = 'in-progress';
             statusText = '进行中';
-            statusBadge = '<span class="badge badge-primary">进行中</span>';
+            progressPercent = (status.completedLessons / stage.totalLessons) * 100;
             break;
           case 'test-passed':
             statusClass = 'completed';
-            statusText = '测试已通过';
-            statusBadge = '<span class="badge badge-success">测试通过</span>';
+            statusText = '测试通过';
+            progressPercent = 100;
             break;
           case 'locked':
             statusClass = 'locked';
             statusText = '已锁定';
-            statusBadge = '<span class="badge badge-warning">已锁定</span>';
+            progressPercent = 0;
             break;
           default:
+            statusClass = 'not-started';
             statusText = '未开始';
-            statusBadge = '<span class="badge" style="background: var(--bg-tertiary); color: var(--text-tertiary);">未开始</span>';
+            progressPercent = 0;
         }
         
         return `
-          <div class="stage-card ${statusClass}" onclick="${status.status !== 'locked' ? `navigateToStage('${stage.id}')` : ''}">
-            <div class="stage-card-header">
+          <div class="stage-card-enhanced ${statusClass}" onclick="${status.status !== 'locked' ? `navigateToStage('${stage.id}')` : ''}">
+            <div class="stage-card-top">
               <div class="stage-number">${index + 1}</div>
-              <div class="stage-info">
-                <h3>${stage.title}</h3>
-                <div class="stage-meta">${stage.totalLessons}课时</div>
+              <div class="stage-card-info">
+                <h3 class="stage-card-title">${stage.title}</h3>
+                <div class="stage-card-meta">${stage.totalLessons} 课时</div>
               </div>
             </div>
-            <div class="stage-card-footer">
-              <div class="stage-lessons">
-                <span>${status.completedLessons}/${stage.totalLessons}</span> 课时完成
+            <div class="stage-card-body">
+              <div class="stage-progress-row">
+                <span class="stage-progress-label">学习进度</span>
+                <span class="stage-progress-count">${status.completedLessons}/${stage.totalLessons}</span>
               </div>
-              ${statusBadge}
+              <div class="stage-progress-bar-wrap">
+                <div class="stage-progress-bar-fill" style="width: ${progressPercent}%;"></div>
+              </div>
+              <div class="stage-card-footer">
+                <span class="stage-status-badge ${statusClass}">${statusText}</span>
+                ${status.testScore !== undefined ? `<span class="stage-test-score">${status.testScore}分</span>` : ''}
+              </div>
             </div>
-            ${status.testScore !== undefined ? `<div class="mt-2 text-sm" style="color: var(--accent-green);">测试成绩: ${status.testScore}分</div>` : ''}
           </div>
         `;
       }).join('');
     }
 
-    // Stage status cache
     const stageStatuses = {};
 
-    // Load all stage statuses
     async function loadStageStatuses() {
       const stages = await CourseEngine.getAllStages();
       for (const stage of stages) {
@@ -278,18 +1092,15 @@
       }
     }
 
-    // Navigate to stage
     function navigateToStage(stageId) {
       window.location.href = `learn.html?stage=${stageId}`;
     }
 
-    // Continue last lesson
     async function continueLastLesson() {
       const lastLesson = await DB.settings.get('lastLesson');
       if (lastLesson) {
         window.location.href = `learn.html?stage=${lastLesson.stageId}&lesson=${lastLesson.lessonId}`;
       } else {
-        // Find first incomplete lesson
         const stages = await CourseEngine.getAllStages();
         for (const stage of stages) {
           const status = await CourseEngine.getStageStatus(stage.id);
@@ -303,12 +1114,10 @@
             }
           }
         }
-        // All completed, go to dashboard
         window.location.href = 'learn.html';
       }
     }
 
-    // Render behavior metrics
     async function renderBehaviorMetrics() {
       const behavior = await CourseEngine.getBehaviorOverview();
       
@@ -319,12 +1128,10 @@
       document.getElementById('session-count').textContent = behavior.totalSessions;
     }
 
-    // Render recent activity
     async function renderRecentActivity() {
       const conversations = await DB.conversations.getAll?.() || [];
       const submissions = await DB.submissions.getAll() || [];
       
-      // Combine and sort by timestamp
       const activities = [
         ...conversations.map(c => ({ type: 'chat', ...c })),
         ...submissions.map(s => ({ type: 'submission', ...s }))
@@ -333,7 +1140,12 @@
       const container = document.getElementById('recent-activity');
       
       if (activities.length === 0) {
-        container.innerHTML = '<p class="text-sm text-center" style="color: var(--text-tertiary);">暂无最近活动</p>';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">暂无最近活动</div>
+          </div>
+        `;
         return;
       }
       
@@ -347,40 +1159,39 @@
         
         if (activity.type === 'chat') {
           return `
-            <div class="flex items-start gap-3 mb-3 pb-3" style="border-bottom: 1px solid var(--border-color);">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--bg-tertiary);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm truncate" style="color: var(--text-primary);">AI对话</div>
-                <div class="text-xs truncate" style="color: var(--text-tertiary);">${activity.content?.slice(0, 30) || ''}...</div>
+              <div class="activity-content">
+                <div class="activity-title">AI对话</div>
+                <div class="activity-desc">${activity.content?.slice(0, 25) || ''}...</div>
               </div>
-              <div class="text-xs" style="color: var(--text-tertiary);">${time}</div>
+              <span class="activity-time">${time}</span>
             </div>
           `;
         } else {
           return `
-            <div class="flex items-start gap-3 mb-3 pb-3" style="border-bottom: 1px solid var(--border-color);">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--bg-tertiary);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2">
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2">
                   <polyline points="9 11 12 14 22 4"/>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                 </svg>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm truncate" style="color: var(--text-primary);">提交作业</div>
-                <div class="text-xs truncate" style="color: var(--text-tertiary);">${activity.lessonId}</div>
+              <div class="activity-content">
+                <div class="activity-title">提交作业</div>
+                <div class="activity-desc">${activity.lessonId || '未命名'}</div>
               </div>
-              <div class="text-xs" style="color: var(--text-tertiary);">${time}</div>
+              <span class="activity-time">${time}</span>
             </div>
           `;
         }
       }).join('');
     }
 
-    // Export record
     async function exportRecord() {
       try {
         const data = await Export.learningRecordToJSON();
@@ -397,16 +1208,16 @@
       }
     }
 
-    // Toast notification
     function showToast(type, title, message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
       
       const icons = {
-        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-warning)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-info)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
       };
       
       toast.innerHTML = `
@@ -425,7 +1236,6 @@
       }, 4000);
     }
 
-    // Load all stage statuses on page load
     loadStageStatuses();
   </script>
 </body>

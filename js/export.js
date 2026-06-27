@@ -26,7 +26,7 @@ async function learningRecordToJSON() {
       totalStages: content.stages.length
     };
   } catch (e) {
-    courseInfo = { totalHours: 54, totalStages: 6 };
+    courseInfo = { totalHours: 64, totalStages: 6 };
   }
   
   // Calculate progress

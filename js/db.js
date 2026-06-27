@@ -288,6 +288,17 @@ async function clearConversations(sessionId) {
   });
 }
 
+async function getAllConversations() {
+  await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('ai_conversations', 'readonly');
+    const store = tx.objectStore('ai_conversations');
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 // ==================== Submissions Operations ====================
 
 async function saveSubmission(data) {
@@ -461,6 +472,7 @@ window.DB = {
   conversations: {
     save: saveConversation,
     get: getConversations,
+    getAll: getAllConversations,
     count: getConversationCount,
     clear: clearConversations
   },

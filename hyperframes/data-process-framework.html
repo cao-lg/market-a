@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>数据分析全流程框架</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden;">
+  <div
+    data-composition-id="data-process"
+    data-width="1920"
+    data-height="1080"
+    data-start="0"
+    data-duration="12"
+    data-track-index="0"
+    style="
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      overflow: hidden;
+      background: #0d1117;
+    "
+  >
+    <div class="bg-gradient" data-layout-ignore style="
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(212, 140, 82, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(90, 158, 143, 0.04) 0%, transparent 50%);
+    "></div>
+
+    <div class="grain-overlay" data-layout-ignore style="
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    "></div>
+
+    <div class="scene-content" style="
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 80px 120px;
+      gap: 0;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+    ">
+      <div class="header-section" style="
+        text-align: center;
+        margin-bottom: 60px;
+      ">
+        <div class="eyebrow" style="
+          font-family: 'Inter', sans-serif;
+          font-size: 16px;
+          font-weight: 500;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #d48c52;
+          margin-bottom: 16px;
+          opacity: 0;
+        ">
+          FRAMEWORK
+        </div>
+        <h1 class="main-title" style="
+          font-family: 'Playfair Display', serif;
+          font-size: 64px;
+          font-weight: 700;
+          color: #f5f5f5;
+          line-height: 1.2;
+          margin: 0 0 16px 0;
+          letter-spacing: -0.02em;
+          opacity: 0;
+        ">
+          电商数据分析全流程框架
+        </h1>
+        <div class="title-underline" style="
+          width: 80px;
+          height: 3px;
+          background: linear-gradient(90deg, #d48c52, #e6b455);
+          margin: 0 auto;
+          opacity: 0;
+          transform: scaleX(0);
+        "></div>
+        <p class="subtitle" style="
+          font-family: 'Lora', serif;
+          font-size: 24px;
+          color: #8b949e;
+          margin-top: 20px;
+          font-style: italic;
+          opacity: 0;
+        ">
+          从原始数据到业务洞察的六个核心阶段
+        </p>
+      </div>
+
+      <div class="flow-container" style="
+        position: relative;
+        width: 100%;
+        max-width: 1600px;
+      ">
+        <div class="flow-path" style="
+          position: absolute;
+          top: 50%;
+          left: 5%;
+          right: 5%;
+          height: 2px;
+          background: linear-gradient(90deg, rgba(212, 140, 82, 0.1), rgba(212, 140, 82, 0.5), rgba(212, 140, 82, 0.1));
+          transform: translateY(-50%);
+          opacity: 0;
+        ">
+          <div class="flow-path-progress" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #d48c52, #e6b455);
+            box-shadow: 0 0 10px rgba(212, 140, 82, 0.5);
+          "></div>
+        </div>
+
+        <div class="flow-stages" style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+        ">
+          <div class="stage-card s1" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #d48c52, #e6b455);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(212, 140, 82, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              1
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(212, 140, 82, 0.1);
+              border: 1px solid rgba(212, 140, 82, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              📥
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              数据采集
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              获取准确完整的原始数据
+            </div>
+          </div>
+
+          <div class="stage-card s2" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #d48c52, #e6b455);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(212, 140, 82, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              2
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(212, 140, 82, 0.1);
+              border: 1px solid rgba(212, 140, 82, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              🧹
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              数据清洗
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              脏数据变成干净数据
+            </div>
+          </div>
+
+          <div class="stage-card s3" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #d48c52, #e6b455);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(212, 140, 82, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              3
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(212, 140, 82, 0.1);
+              border: 1px solid rgba(212, 140, 82, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              📊
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              指标核算
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              构建核心指标体系
+            </div>
+          </div>
+
+          <div class="stage-card s4" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #d48c52, #e6b455);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(212, 140, 82, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              4
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(212, 140, 82, 0.1);
+              border: 1px solid rgba(212, 140, 82, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              🔍
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              数据分析
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              发现问题诊断原因
+            </div>
+          </div>
+
+          <div class="stage-card s5" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #d48c52, #e6b455);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(212, 140, 82, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              5
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(212, 140, 82, 0.1);
+              border: 1px solid rgba(212, 140, 82, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              📝
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              报告输出
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              清晰呈现分析结论
+            </div>
+          </div>
+
+          <div class="stage-card s6" style="
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+          ">
+            <div class="stage-number-badge" style="
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #5a9e8f, #7ab8a8);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Playfair Display', serif;
+              font-size: 24px;
+              font-weight: 700;
+              color: #0d1117;
+              box-shadow: 0 4px 20px rgba(90, 158, 143, 0.4);
+              position: relative;
+              z-index: 2;
+            ">
+              6
+            </div>
+            <div class="stage-icon" style="
+              width: 80px;
+              height: 80px;
+              border-radius: 16px;
+              background: rgba(90, 158, 143, 0.1);
+              border: 1px solid rgba(90, 158, 143, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 36px;
+            ">
+              🚀
+            </div>
+            <div class="stage-title" style="
+              font-family: 'Inter', sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #f5f5f5;
+              text-align: center;
+            ">
+              数据应用
+            </div>
+            <div class="stage-desc" style="
+              font-family: 'Lora', serif;
+              font-size: 14px;
+              color: #8b949e;
+              text-align: center;
+              line-height: 1.5;
+            ">
+              驱动业务增长行动
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-note" style="
+        margin-top: 80px;
+        padding: 24px 48px;
+        background: rgba(212, 140, 82, 0.05);
+        border: 1px solid rgba(212, 140, 82, 0.2);
+        border-radius: 8px;
+        opacity: 0;
+      ">
+        <p style="
+          font-family: 'Lora', serif;
+          font-size: 20px;
+          color: #d48c52;
+          margin: 0;
+          font-style: italic;
+          text-align: center;
+        ">
+          "发现异常 → 拆解维度 → 定位原因 → 验证假设 → 提出建议"
+        </p>
+      </div>
+    </div>
+
+    <div class="corner-tl" data-layout-ignore style="
+      position: absolute;
+      top: 40px;
+      left: 100px;
+      width: 32px;
+      height: 32px;
+      border-top: 1.5px solid #d48c52;
+      border-left: 1.5px solid #d48c52;
+      opacity: 0.4;
+    "></div>
+    <div class="corner-tr" data-layout-ignore style="
+      position: absolute;
+      top: 40px;
+      right: 100px;
+      width: 32px;
+      height: 32px;
+      border-top: 1.5px solid #d48c52;
+      border-right: 1.5px solid #d48c52;
+      opacity: 0.4;
+    "></div>
+    <div class="corner-bl" data-layout-ignore style="
+      position: absolute;
+      bottom: 40px;
+      left: 100px;
+      width: 32px;
+      height: 32px;
+      border-bottom: 1.5px solid #d48c52;
+      border-left: 1.5px solid #d48c52;
+      opacity: 0.4;
+    "></div>
+    <div class="corner-br" data-layout-ignore style="
+      position: absolute;
+      bottom: 40px;
+      right: 100px;
+      width: 32px;
+      height: 32px;
+      border-bottom: 1.5px solid #d48c52;
+      border-right: 1.5px solid #d48c52;
+      opacity: 0.4;
+    "></div>
+
+    <!-- Audio narration -->
+    <audio id="narration" preload="auto" style="display:none;">
+      <source src="narrations/data-process-narration.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      
+      // Audio sync with animation
+      const audio = document.getElementById('narration');
+      if (audio) {
+        audio.addEventListener('loadeddata', () => {
+          tl.call(() => audio.play(), null, 0.2);
+        });
+        audio.addEventListener('ended', () => {
+          tl.pause();
+        });
+      }
+
+      tl.to(".eyebrow", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl.to(".main-title", { opacity: 1, duration: 0.8, ease: "power3.out" }, 0.5);
+      tl.to(".title-underline", { opacity: 1, scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 1.0);
+      tl.to(".subtitle", { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.2);
+
+      tl.to(".flow-path", { opacity: 1, duration: 0.8, ease: "power2.out" }, 1.8);
+
+      const stageDelays = [2.0, 2.4, 2.8, 3.2, 3.6, 4.0];
+      const stages = [".s1", ".s2", ".s3", ".s4", ".s5", ".s6"];
+      
+      stages.forEach((stage, i) => {
+        tl.to(stage, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "back.out(1.2)",
+        }, stageDelays[i]);
+        
+        tl.to(`${stage} .stage-icon`, {
+          scale: 1.1,
+          duration: 0.3,
+          ease: "power2.out",
+          yoyo: true,
+          repeat: 1,
+        }, stageDelays[i] + 0.5);
+      });
+
+      tl.to(".flow-path-progress", {
+        width: "100%",
+        duration: 3.5,
+        ease: "power2.inOut",
+      }, 2.2);
+
+      tl.to(".bottom-note", {
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out",
+      }, 7.0);
+
+      tl.to(".stage-number-badge", {
+        scale: 1.15,
+        duration: 0.4,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: 1,
+        stagger: { each: 0.15, from: "start" }
+      }, 8.5);
+
+      window.__timelines["data-process"] = tl;
+
+      (function autoPlay() {
+        if (window.__hyperframes_playing) return;
+        if (typeof gsap !== "undefined") {
+          tl.play();
+        } else {
+          setTimeout(autoPlay, 100);
+        }
+      })();
+    </script>
+  </div>
+</body>
+</html>
