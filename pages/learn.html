@@ -744,10 +744,13 @@
   <div id="toast-container" class="toast-container"></div>
 
   <script src="../js/db.js"></script>
+  <script src="../js/prompts.js?v=20260629"></script>
   <script src="../js/ai.js?v=20250726"></script>
-  <script src="../js/agent.js"></script>
+  <script src="../js/agent.js?v=20260628"></script>
   <script src="../js/course-engine.js"></script>
   <script src="../js/marked.min.js"></script>
+  <script src="../js/dialog-logger.js"></script>
+  <script src="../js/issue-tracker.js"></script>
   <script>
     // ==================== State ====================
     let currentStage = null;
@@ -759,6 +762,17 @@
     let sessionStartTime = null;
     let interactionCount = 0;
     let helpRequestCount = 0;
+
+    // ==================== Safe Logging ====================
+    function safeLogAdd(params) {
+      try {
+        if (window.LogService && typeof window.LogService.add === 'function') {
+          window.LogService.add(params);
+        }
+      } catch (e) {
+        console.warn('LogService.add failed:', e);
+      }
+    }
 
     // ==================== Markdown Config ====================
     // Configure marked.js for security and style
@@ -804,8 +818,48 @@
     }
 
     function sendQuickReply(text) {
+      if (currentMode === 'examiner') {
+        handleExaminerQuickReply(text);
+        return;
+      }
       document.getElementById('chat-input').value = text;
       sendMessage();
+    }
+
+    function handleExaminerQuickReply(text) {
+      const input = document.getElementById('chat-input');
+      
+      switch (text) {
+        case '下一题':
+          input.value = '请出下一题';
+          sendMessage();
+          break;
+        case '有疑问':
+          input.value = '这道题我不太理解，能给我一些提示吗？';
+          sendMessage();
+          break;
+        case '完成':
+          input.value = '我答完了，提交测试';
+          sendMessage();
+          break;
+        default:
+          input.value = text;
+          sendMessage();
+      }
+    }
+
+    // ==================== Mode Indicator ====================
+    function updateModeIndicator() {
+      const modeInfo = Agent.getModeInfo(currentMode);
+      const modeBadge = document.getElementById('mode-badge');
+      if (modeBadge) {
+        modeBadge.textContent = modeInfo.name;
+        modeBadge.className = `agent-mode-badge ${modeInfo.badgeClass}`;
+      }
+      const chatMode = document.getElementById('chat-mode');
+      if (chatMode) {
+        chatMode.textContent = modeInfo.name;
+      }
     }
 
     // ==================== Initialization ====================
@@ -919,14 +973,16 @@
 
       // Get lesson type and mode
       const lessonType = currentLesson.type || 'content-reading';
-      currentMode = currentLesson.agentMode || 'knowledge';
+      // Priority: URL mode param > lesson's agentMode > default 'knowledge'
+      const validModes = ['onboard', 'knowledge', 'socratic', 'reviewer', 'examiner', 'simulatedTest', 'assistant'];
+      if (urlMode && validModes.includes(urlMode)) {
+        currentMode = urlMode;
+      } else {
+        currentMode = currentLesson.agentMode || 'knowledge';
+      }
 
       // Update mode badge
-      const modeInfo = Agent.getModeInfo(currentMode);
-      const modeBadge = document.getElementById('mode-badge');
-      modeBadge.textContent = modeInfo.name;
-      modeBadge.className = `agent-mode-badge ${modeInfo.badgeClass}`;
-      document.getElementById('chat-mode').textContent = modeInfo.name;
+      updateModeIndicator();
 
       // Update navigation
       updateNavigation();
@@ -1714,6 +1770,97 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       }
     }
 
+    // Submit message feedback
+    function submitFeedback(msgId, helpful, suggestion = '') {
+      const feedbackDiv = document.getElementById(`feedback-${msgId}`);
+      if (!feedbackDiv) return;
+      
+      // Get the selected button
+      const selectedBtn = feedbackDiv.querySelector(`.feedback-btn.${helpful ? 'helpful' : 'unhelpful'}`);
+      
+      // Check if already submitted
+      if (feedbackDiv.dataset.submitted) return;
+      
+      // Mark as submitted
+      feedbackDiv.dataset.submitted = 'true';
+      
+      // Add selected animation
+      if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+        selectedBtn.style.transform = 'scale(1.2)';
+        selectedBtn.style.borderColor = helpful ? 'var(--accent-success)' : 'var(--accent-secondary)';
+      }
+      
+      // If unhelpful, show suggestion input
+      if (!helpful) {
+        const suggestionHtml = `
+          <div class="feedback-suggestion">
+            <textarea id="suggestion-${msgId}" placeholder="请告诉我们如何改进（可选）..."></textarea>
+            <div class="feedback-suggestion-actions">
+              <button class="feedback-cancel-btn" onclick="closeFeedback('${msgId}')">跳过</button>
+              <button class="feedback-submit-btn" onclick="saveFeedbackSuggestion('${msgId}')">提交</button>
+            </div>
+          </div>
+        `;
+        feedbackDiv.insertAdjacentHTML('beforeend', suggestionHtml);
+        feedbackDiv.querySelector(`#suggestion-${msgId}`).focus();
+      } else {
+        // Save feedback directly for helpful
+        saveFeedbackToStorage(msgId, helpful, '');
+        showToast('success', '感谢反馈', '您的支持是我们改进的动力！');
+      }
+    }
+
+    // Save feedback suggestion
+    function saveFeedbackSuggestion(msgId) {
+      const textarea = document.getElementById(`suggestion-${msgId}`);
+      if (!textarea) return;
+      const suggestion = textarea.value.trim();
+      saveFeedbackToStorage(msgId, false, suggestion);
+      closeFeedback(msgId);
+      showToast('success', '感谢反馈', '您的建议将帮助我们做得更好！');
+    }
+
+    // Close feedback popup
+    function closeFeedback(msgId) {
+      const feedbackDiv = document.getElementById(`feedback-${msgId}`);
+      if (!feedbackDiv) return;
+      const suggestionDiv = feedbackDiv.querySelector('.feedback-suggestion');
+      if (suggestionDiv) {
+        suggestionDiv.style.animation = 'slideDown 0.2s ease reverse';
+        setTimeout(() => suggestionDiv.remove(), 200);
+      }
+      // Remove buttons after delay
+      const buttons = feedbackDiv.querySelector('.feedback-buttons');
+      if (buttons) {
+        buttons.style.opacity = '0.5';
+        buttons.style.pointerEvents = 'none';
+      }
+      const label = feedbackDiv.querySelector('.feedback-label');
+      if (label) label.textContent = '已收到反馈';
+    }
+
+    // Save feedback to localStorage
+    function saveFeedbackToStorage(msgId, helpful, suggestion) {
+      const feedback = {
+        msgId,
+        helpful,
+        suggestion,
+        timestamp: Date.now(),
+        role: 'agent'
+      };
+      
+      try {
+        const existing = JSON.parse(localStorage.getItem('messageFeedback') || '[]');
+        // Check if already has feedback for this msgId
+        const filtered = existing.filter(f => f.msgId !== msgId);
+        filtered.push(feedback);
+        localStorage.setItem('messageFeedback', JSON.stringify(filtered));
+      } catch (e) {
+        console.error('Failed to save feedback:', e);
+      }
+    }
+
     // Show error in message bubble
     function showMessageError(msgId, error) {
       const msgDiv = document.getElementById(msgId);
@@ -1779,6 +1926,18 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
         isHelpRequest: isHelpReq
       });
 
+      // Log student message
+      safeLogAdd({
+        sessionId,
+        role: 'student',
+        agentMode: currentMode,
+        message: message,
+        metadata: {
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id
+        }
+      });
+
       // Check for help requests in socratic mode
       if (currentMode === 'socratic' && isHelpReq) {
         const count = Agent.incrementHelpRequest(sessionId);
@@ -1823,7 +1982,10 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
         const context = {
           stage: currentStage?.title,
           taskDescription: currentLesson?.title,
-          relevantContext: ''
+          relevantContext: currentLesson?.content?.markdown || '',
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          studyCount: parseInt(localStorage.getItem('studyCount') || '0', 10)
         };
 
         // Add examiner-specific context
@@ -1903,6 +2065,13 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
                 <div class="message-meta">
                   <span class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
+                <div class="message-feedback" id="feedback-${msgId}">
+                  <span class="feedback-label">回复是否有帮助？</span>
+                  <div class="feedback-buttons">
+                    <button class="feedback-btn helpful" onclick="submitFeedback('${msgId}', true)" title="有帮助">👍</button>
+                    <button class="feedback-btn unhelpful" onclick="submitFeedback('${msgId}', false)" title="待改进">👎</button>
+                  </div>
+                </div>
               `;
 
               // Save to DB
@@ -1916,10 +2085,35 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
                 mode: currentMode
               });
 
+              // Log agent response
+              safeLogAdd({
+                sessionId,
+                role: 'agent',
+                agentMode: currentMode,
+                message: fullResponse,
+                metadata: {
+                  stageId: currentStage?.id,
+                  lessonId: currentLesson?.id
+                }
+              });
+
               sendBtn.disabled = false;
               input.disabled = false;
               isStreaming = false;
               scrollChatToBottom();
+
+              // Smart image generation
+              try {
+                const imageCheck = AI.image.shouldGenerate(userMessage, fullResponse);
+                if (imageCheck.should) {
+                  const imageProvider = AI.image.getAvailableProvider();
+                  if (imageProvider) {
+                    generateAndAppendImage(msgId, imageCheck.prompt, userMessage, fullResponse);
+                  }
+                }
+              } catch (e) {
+                console.log('Image generation check skipped:', e);
+              }
             },
             onError: (error) => {
               thinkingDiv.remove();
@@ -1980,6 +2174,100 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
     function scrollChatToBottom() {
       const chatMessages = document.getElementById('chat-messages');
       chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ==================== Smart Image Generation ====================
+    async function generateAndAppendImage(msgId, prompt, userMessage, aiResponse) {
+      const msgDiv = document.getElementById(msgId);
+      if (!msgDiv) return;
+
+      const imageContainerId = `img-${msgId}`;
+      
+      const imgContainer = document.createElement('div');
+      imgContainer.id = imageContainerId;
+      imgContainer.className = 'message-image-container';
+      imgContainer.innerHTML = `
+        <div class="image-loading">
+          <div class="image-loading-spinner"></div>
+          <span class="image-loading-text">正在生成配图...</span>
+        </div>
+      `;
+      
+      const messageMeta = msgDiv.querySelector('.message-meta');
+      if (messageMeta) {
+        messageMeta.before(imgContainer);
+      } else {
+        msgDiv.appendChild(imgContainer);
+      }
+      
+      scrollChatToBottom();
+
+      try {
+        const images = await AI.image.generate(prompt, { size: '1024x1024' });
+        
+        if (images && images.length > 0) {
+          const imageData = images[0];
+          let imageUrl = null;
+          
+          if (imageData.url) {
+            imageUrl = imageData.url;
+          } else if (imageData.b64_json) {
+            imageUrl = `data:image/png;base64,${imageData.b64_json}`;
+          }
+          
+          if (imageUrl) {
+            imgContainer.innerHTML = `
+              <div class="generated-image-wrapper">
+                <div class="generated-image-label">
+                  <span class="generated-image-icon">🎨</span>
+                  <span>AI 配图</span>
+                  <button class="regen-image-btn" onclick="regenerateImage('${msgId}')" title="重新生成">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="23 4 23 10 17 10"/>
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                    </svg>
+                  </button>
+                </div>
+                <img src="${imageUrl}" alt="AI generated image" class="generated-image" onclick="openImagePreview(this.src)">
+              </div>
+            `;
+            scrollChatToBottom();
+          } else {
+            imgContainer.remove();
+          }
+        } else {
+          imgContainer.remove();
+        }
+      } catch (error) {
+        console.log('Image generation failed:', error);
+        imgContainer.remove();
+      }
+    }
+
+    async function regenerateImage(msgId) {
+      const conversations = await DB.conversations.get(sessionId, 5);
+      const lastUserMsg = conversations.find(c => c.role === 'student');
+      const lastAgentMsg = conversations.find(c => c.role === 'agent');
+      
+      if (lastUserMsg && lastAgentMsg) {
+        const imageCheck = AI.image.shouldGenerate(lastUserMsg.content, lastAgentMsg.content);
+        if (imageCheck.should) {
+          generateAndAppendImage(msgId, imageCheck.prompt, lastUserMsg.content, lastAgentMsg.content);
+        }
+      }
+    }
+
+    function openImagePreview(src) {
+      const modal = document.createElement('div');
+      modal.className = 'image-preview-modal';
+      modal.onclick = () => modal.remove();
+      modal.innerHTML = `
+        <div class="image-preview-content" onclick="event.stopPropagation()">
+          <img src="${src}" alt="Preview">
+          <button class="image-preview-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
     }
 
     // ==================== Chat Locked State ====================
@@ -2045,6 +2333,18 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       });
 
       showToast('success', '已完成', '课时进度已保存');
+
+      // Log lesson completion
+      safeLogAdd({
+        sessionId,
+        role: 'student',
+        agentMode: currentMode,
+        message: '[课时完成]',
+        metadata: {
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id
+        }
+      });
 
       // Navigate to next lesson or dashboard
       const nextLesson = await CourseEngine.getNextLesson(currentStage?.id, currentLesson.id);

@@ -3,6 +3,10 @@
  * Manages the "李主管" AI Agent with 6 interaction modes
  */
 
+// Import Prompts system from prompts.js
+// Note: Prompts module should be loaded before agent.js
+// The Prompts object should contain: Prompts.socrates, Prompts.knowledge, Prompts.examiner, getPrompt()
+
 // System prompt for the manager character
 const MANAGER_SYSTEM_PROMPT = `【角色设定】你叫李主管，是杭州悦享家居用品有限公司电商运营部的主管，管理一个6人的数据分析团队。
 
@@ -227,9 +231,66 @@ const helpRequestCounts = new Map();
 /**
  * Get the complete system prompt for a given mode
  * @param {string} mode - The interaction mode
- * @param {Object} context - Additional context { stage, taskDescription, relevantContext }
+ * @param {Object} context - Additional context { stage, taskDescription, relevantContext, stageId, lessonId, studyCount, sessionId, examinerState, wrongAnswers }
  */
 function getSystemPrompt(mode, context = {}) {
+  // Map agent.js modes to prompts.js modes
+  const modeMapping = {
+    'socratic': 'socrates',
+    'knowledge': 'knowledge',
+    'examiner': 'examiner'
+  };
+
+  const promptsMode = modeMapping[mode];
+
+  // If Prompts system is available and mode is supported, use it
+  if (promptsMode && typeof Prompts !== 'undefined' && typeof Prompts.getPrompt === 'function') {
+    // Transform context for Prompts.getPrompt()
+    // Maps: stage -> stageId, lesson -> lessonId
+    const promptsContext = {
+      stageId: context.stageId || context.stage || '',
+      lessonId: context.lessonId || context.lesson || '',
+      topic: context.topic || '',
+      studyCount: context.studyCount || 0,
+      previousAnswers: context.previousAnswers || [],
+      mistakes: context.mistakes || []
+    };
+
+    // Get prompt from Prompts system (includes difficulty adjustment and context)
+    let fullPrompt = Prompts.getPrompt(promptsMode, promptsContext);
+
+    // Add manager system prompt for additional context
+    if (MANAGER_SYSTEM_PROMPT) {
+      fullPrompt = MANAGER_SYSTEM_PROMPT + '\n\n' + fullPrompt;
+    }
+
+    // Add examiner-specific state context
+    if (mode === 'examiner' && context.examinerState) {
+      fullPrompt += `\n\n【当前状态】：${context.examinerState}`;
+      if (context.examinerState === 'testing') {
+        fullPrompt += `\n学生正在答题中，请提醒他们专注答题。`;
+      } else if (context.examinerState === 'reviewing') {
+        fullPrompt += `\n测试已完成，现在进入答疑环节，请帮助学生解答错题。`;
+      }
+    }
+
+    // Add wrong answers context for examiner reviewing
+    if (mode === 'examiner' && context.wrongAnswers) {
+      fullPrompt += `\n\n学生答错的题目：\n${context.wrongAnswers}`;
+    }
+
+    // Add help count warning for socratic mode
+    if (mode === 'socratic' && context.sessionId) {
+      const helpCount = helpRequestCounts.get(context.sessionId) || 0;
+      if (helpCount >= 3) {
+        fullPrompt += `\n\n【重要】学生已连续请求帮助${helpCount}次，请切换到引导提示模式，给出具体步骤但仍要引导思考。`;
+      }
+    }
+
+    return fullPrompt;
+  }
+
+  // Fallback to original MODE_PROMPTS for modes not in Prompts system
   const basePrompt = MANAGER_SYSTEM_PROMPT;
   const modePrompt = MODE_PROMPTS[mode] || MODE_PROMPTS.knowledge;
   
@@ -358,7 +419,7 @@ function getInitialMessage(mode, content) {
       return '请提交你的成果，我会认真审核。';
     
     case 'examiner':
-      return '测试中，请专注答题，AI辅助已关闭。';
+      return '【阶段性测试】\n\n你好！我是李主管，今天由我来考核你对所学知识的掌握程度。\n\n📋 测试说明：\n- 我会依次出题，难度逐步递进\n- 请独立思考，认真作答\n- 答完后点击"完成"提交\n- 测试结束后我们一起分析错题\n\n准备好了吗？我们开始第一题：';
     
     case 'assistant':
       return '你好！我是数据助手，需要我帮你处理什么数据操作？';
