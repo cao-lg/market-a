@@ -505,7 +505,7 @@
           <div>
             <div class="notice-title">演示密钥已预置</div>
             <div class="notice-text">
-              已为你预置演示用的智谱AI、Moark、Agens API Key，可直接体验。建议尽快
+              已为你预置演示用的智谱AI、Moark、Agnes API Key，可直接体验。建议尽快
               <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" style="color: var(--accent-primary);">申请自己的API Key</a>
               替换，以获得更好的稳定性和配额。
             </div>
@@ -668,39 +668,47 @@
           </div>
         </div>
 
-        <!-- Agens AI (阿贡) -->
-        <div class="api-card" data-provider="agens" id="card-agens">
+        <!-- Agnes AI (艾格) -->
+        <div class="api-card" data-provider="agnes" id="card-agnes">
           <div class="api-card-header">
             <div class="api-provider-info">
-              <div class="api-provider-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+              <div class="api-provider-icon" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
                 Ag
               </div>
               <div>
-                <div class="api-provider-name">Agens 阿贡</div>
-                <div class="api-provider-model">agen-snake-7b · 免费额度</div>
+                <div class="api-provider-name">Agnes 艾格</div>
+                <div class="api-provider-model">agnes-2.0-flash · 免费·1M上下文</div>
               </div>
             </div>
-            <div class="api-status-pill inactive" id="status-pill-agens">
+            <div class="api-status-pill inactive" id="status-pill-agnes">
               <span class="api-status-dot"></span>
-              <span id="status-text-agens">未配置</span>
+              <span id="status-text-agnes">未配置</span>
             </div>
           </div>
           <div class="api-input-wrapper">
-            <input type="password" class="form-input" id="api-key-agens" 
+            <input type="password" class="form-input" id="api-key-agnes" 
                    placeholder="输入API Key" autocomplete="off">
-            <button type="button" class="api-input-toggle" onclick="toggleKeyVisibility('agens')">
-              <span id="toggle-text-agens">显示</span>
+            <button type="button" class="api-input-toggle" onclick="toggleKeyVisibility('agnes')">
+              <span id="toggle-text-agnes">显示</span>
             </button>
           </div>
+          <div class="provider-models-info" style="margin-top: 12px; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 8px; font-size: 12px; color: var(--text-secondary);">
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">🎉 免费模型清单</div>
+            <div style="display: grid; gap: 4px;">
+              <div>💬 对话：Agnes-2.0-Flash（1M上下文）、Agnes-1.5-Flash</div>
+              <div>🖼️ 生图：Agnes-Image-2.1-Flash、Agnes-Image-2.0-Flash</div>
+              <div>🎬 视频生成：Agnes-Video-V2.0</div>
+            </div>
+          </div>
           <div class="api-card-footer">
-            <a href="https://platform.agens.cn/api-keys" target="_blank" rel="noopener" class="api-link">
-              前往Agens平台申请 →
+            <a href="https://apihub.agnes-ai.com/" target="_blank" rel="noopener" class="api-link">
+              前往 Agnes 开放平台申请 →
             </a>
             <div class="api-actions">
-              <button class="btn btn-sm btn-secondary" onclick="testConnection('agens')">
+              <button class="btn btn-sm btn-secondary" onclick="testConnection('agnes')">
                 测试连接
               </button>
-              <button class="btn btn-sm btn-primary" onclick="saveAPIKey('agens')">
+              <button class="btn btn-sm btn-primary" onclick="saveAPIKey('agnes')">
                 保存
               </button>
             </div>
@@ -760,7 +768,7 @@
               <option value="zhipu">智谱AI</option>
               <option value="siliconflow">硅基流动</option>
               <option value="moark">Moark</option>
-              <option value="agens">Agens 阿贡</option>
+              <option value="agnes">Agnes 艾格</option>
               <option value="gemini">Google Gemini（需翻墙）</option>
             </select>
           </div>
@@ -961,7 +969,7 @@
     const DEFAULT_API_KEYS = {
       zhipu: 'd1286edd8bd946bea3742a8ac35fd5ff.ePrvv0jNRpthf6BB',
       moark: 'ZUCRCKXPLEF1PHOYFYWF36Y10UQWXCWAPKUPVB1T',
-      agens: 'sk-arRLZGfgBPBMIO3E4VtxiVOSymZ89NkYzgVkCOOoOjZ3pn9F'
+      agnes: 'sk-arRLZGfgBPBMIO3E4VtxiVOSymZ89NkYzgVkCOOoOjZ3pn9F'
     };
 
     function toggleKeyVisibility(provider) {
@@ -978,7 +986,7 @@
     }
 
     async function loadSavedAPIKeys() {
-      const providers = ['zhipu', 'siliconflow', 'moark', 'agens', 'gemini'];
+      const providers = ['zhipu', 'siliconflow', 'moark', 'agnes', 'gemini'];
       
       for (const provider of providers) {
         let apiKey = localStorage.getItem(`apiKey_${provider}`);
@@ -1177,7 +1185,7 @@
         zhipu: '智谱AI',
         siliconflow: '硅基流动',
         moark: 'Moark',
-        agens: 'Agens 阿贡',
+        agnes: 'Agnes 艾格',
         gemini: 'Google Gemini'
       };
       return names[provider] || provider;

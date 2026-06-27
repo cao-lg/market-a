@@ -46,10 +46,23 @@ const API_PROVIDERS = {
     baseURL: 'https://api.moark.com/v1',
     model: 'GLM-4.6'
   },
-  agens: {
-    name: 'Agens 阿贡',
-    baseURL: 'https://api.agens.cn/v1',
-    model: 'agen-snake-7b'
+  agnes: {
+    name: 'Agnes 艾格',
+    baseURL: 'https://apihub.agnes-ai.com/v1',
+    model: 'agnes-2.0-flash',
+    models: {
+      chat: [
+        { id: 'agnes-2.0-flash', name: 'Agnes-2.0-Flash（免费·1M上下文）', free: true },
+        { id: 'agnes-1.5-flash', name: 'Agnes-1.5-Flash（免费）', free: true }
+      ],
+      image: [
+        { id: 'agnes-image-2.1-flash', name: 'Agnes-Image-2.1-Flash（免费生图）', free: true },
+        { id: 'agnes-image-2.0-flash', name: 'Agnes-Image-2.0-Flash（免费生图）', free: true }
+      ],
+      video: [
+        { id: 'agnes-video-v2.0', name: 'Agnes-Video-V2.0（免费视频生成）', free: true }
+      ]
+    }
   },
   gemini: {
     name: 'Gemini',
@@ -483,8 +496,30 @@ async function synthesizeSpeech(text, options = {}) {
 
 // ==================== Image Generation ====================
 
+function getAvailableImageProvider() {
+  const providers = ['agnes', 'siliconflow'];
+  for (const p of providers) {
+    const apiKey = localStorage.getItem(`apiKey_${p}`);
+    if (apiKey && API_PROVIDERS[p]?.models?.image?.length > 0) {
+      return { provider: p, model: API_PROVIDERS[p].models.image[0].id };
+    }
+  }
+  return null;
+}
+
 async function generateImage(prompt, options = {}) {
-  const provider = options.provider || 'siliconflow';
+  let provider = options.provider;
+  let model = options.model;
+  
+  if (!provider) {
+    const available = getAvailableImageProvider();
+    if (!available) {
+      throw new AIAPIError('没有可用的图片生成服务，请先配置 Agnes 或 硅基流动 API Key', 'NO_IMAGE_PROVIDER');
+    }
+    provider = available.provider;
+    model = available.model;
+  }
+  
   const apiKey = localStorage.getItem(`apiKey_${provider}`);
   
   if (!apiKey) {
@@ -496,7 +531,10 @@ async function generateImage(prompt, options = {}) {
     throw new AIAPIError('未知的提供商', 'UNKNOWN_PROVIDER');
   }
   
-  const model = options.model || 'Kwai-Kolors/Kolors';
+  if (!model) {
+    model = config.models?.image?.[0]?.id;
+  }
+  
   const size = options.size || '1024x1024';
   
   const response = await fetch(`${config.baseURL}/images/generations`, {
@@ -520,6 +558,85 @@ async function generateImage(prompt, options = {}) {
   
   const data = await response.json();
   return data.data || [];
+}
+
+function shouldGenerateImage(userMessage, aiResponse) {
+  const combined = (userMessage + ' ' + aiResponse).toLowerCase();
+  
+  const imageKeywords = [
+    '图表', '柱状图', '折线图', '饼图', '漏斗图', '数据可视化',
+    '示意图', '流程图', '架构图', '对比图', '趋势图',
+    '画图', '生成图', '图片', '配图', '插图',
+    '画一下', '画个', '画一张', '生成一张',
+    '视觉化', '可视化', '展示一下',
+    'dashboard', 'dashboard', 'chart', 'graph', 'diagram',
+    '数据图', '分析图', '统计图',
+    '场景', '画面', '界面', '原型'
+  ];
+  
+  const noImageKeywords = [
+    '不要图', '不用图', '无需图', '不需要图', '别画图',
+    '文字', '只用文字', '纯文字'
+  ];
+  
+  for (const kw of noImageKeywords) {
+    if (combined.includes(kw)) {
+      return { should: false, reason: '用户明确表示不需要图片' };
+    }
+  }
+  
+  for (const kw of imageKeywords) {
+    if (combined.includes(kw)) {
+      const prompt = extractImagePrompt(userMessage, aiResponse, kw);
+      return { should: true, prompt, trigger: kw };
+    }
+  }
+  
+  const dataAnalysisKeywords = [
+    '数据分析', '用户增长', '转化率', '留存率', 'GMV',
+    '销售数据', '用户行为', '流量分析', '市场分析',
+    '对比分析', '趋势分析', '增长趋势', '下降', '上升',
+    '数据看板', '数据报表', '业绩分析', '运营分析',
+    '用户画像', '复购率', '客单价', '订单量'
+  ];
+  
+  let dataTopicCount = 0;
+  for (const kw of dataAnalysisKeywords) {
+    if (combined.includes(kw.toLowerCase())) {
+      dataTopicCount++;
+    }
+  }
+  
+  if (dataTopicCount >= 2 && aiResponse.length > 100) {
+    const prompt = generateDataVizPrompt(userMessage, aiResponse);
+    return { should: true, prompt, trigger: 'data-analysis-auto' };
+  }
+  
+  return { should: false };
+}
+
+function extractImagePrompt(userMessage, aiResponse, triggerKeyword) {
+  const fullText = userMessage + ' ' + aiResponse;
+  
+  let prompt = '';
+  const triggerIndex = fullText.indexOf(triggerKeyword);
+  
+  if (triggerIndex !== -1) {
+    const before = fullText.substring(Math.max(0, triggerIndex - 50), triggerIndex);
+    const after = fullText.substring(triggerIndex, Math.min(triggerIndex + 100, fullText.length));
+    prompt = (before + after).trim();
+  }
+  
+  if (!prompt || prompt.length < 10) {
+    prompt = aiResponse.substring(0, 200);
+  }
+  
+  return `高质量数据可视化图表，专业商务风格，清晰易读，配色协调。主题：${prompt.substring(0, 150)}`;
+}
+
+function generateDataVizPrompt(userMessage, aiResponse) {
+  const topic = userMessage.substring(0, 80) || '数据分析';
+  return `高质量专业数据可视化图表，商务风格，柱状图或折线图形式，配色专业美观，展示${topic}相关数据趋势，清晰标注坐标轴和数据，适合商务汇报使用`;
 }
 
 // ==================== Speech Recognition ====================
@@ -638,7 +755,9 @@ window.AI = {
     synthesize: synthesizeSpeech
   },
   image: {
-    generate: generateImage
+    generate: generateImage,
+    shouldGenerate: shouldGenerateImage,
+    getAvailableProvider: getAvailableImageProvider
   },
   speech: {
     transcribe: transcribeAudio
