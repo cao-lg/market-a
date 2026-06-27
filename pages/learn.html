@@ -713,6 +713,11 @@
           <!-- Messages will be rendered here -->
         </div>
 
+        <!-- Quick Replies -->
+        <div class="quick-replies" id="quick-replies">
+          <!-- Quick reply buttons will be rendered here -->
+        </div>
+
         <!-- Chat Locked Overlay -->
         <div class="chat-locked-overlay hidden" id="chat-locked">
           <div class="lock-icon">🔒</div>
@@ -742,6 +747,7 @@
   <script src="../js/ai.js?v=20250726"></script>
   <script src="../js/agent.js"></script>
   <script src="../js/course-engine.js"></script>
+  <script src="../js/marked.min.js"></script>
   <script>
     // ==================== State ====================
     let currentStage = null;
@@ -753,6 +759,54 @@
     let sessionStartTime = null;
     let interactionCount = 0;
     let helpRequestCount = 0;
+
+    // ==================== Markdown Config ====================
+    // Configure marked.js for security and style
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+      headerIds: false,
+      mangle: false
+    });
+
+    // Render markdown with security
+    function renderMarkdown(text) {
+      if (!text) return '';
+      const html = marked.parse(text);
+      // Basic XSS prevention while allowing safe formatting
+      return html
+        .replace(/<script/gi, '&lt;script')
+        .replace(/on\w+=/gi, 'data-original-$&');
+    }
+
+    // ==================== Quick Replies Config ====================
+    const QUICK_REPLIES = {
+      socratic: ['我试试', '还是不太懂', '我理解了', '换个方式问'],
+      knowledge: ['继续学习', '我有疑问', '已理解'],
+      onboard: ['我明白了', '有点困惑', '准备好了'],
+      reviewer: ['提交成果', '再改改', '需要帮助'],
+      examiner: ['下一题', '有疑问', '完成'],
+      default: ['继续', '我明白了', '谢谢']
+    };
+
+    function getQuickReplies() {
+      return QUICK_REPLIES[currentMode] || QUICK_REPLIES.default;
+    }
+
+    function renderQuickReplies() {
+      const container = document.getElementById('quick-replies');
+      if (!container) return;
+      
+      const replies = getQuickReplies();
+      container.innerHTML = replies.map(reply => 
+        `<button class="quick-reply-btn" onclick="sendQuickReply('${reply}')">${reply}</button>`
+      ).join('');
+    }
+
+    function sendQuickReply(text) {
+      document.getElementById('chat-input').value = text;
+      sendMessage();
+    }
 
     // ==================== Initialization ====================
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1577,23 +1631,114 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       `;
     }
 
-    function addMessageToUI(message) {
+    function addMessageToUI(message, options = {}) {
       const chatMessages = document.getElementById('chat-messages');
       const isAgent = message.role === 'agent' || message.role === 'assistant';
+      const msgId = options.id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       const time = new Date(message.timestamp || Date.now()).toLocaleTimeString('zh-CN', {
         hour: '2-digit',
         minute: '2-digit'
       });
 
+      // Render content: use markdown for agent, plain text for student
+      const renderedContent = isAgent ? renderMarkdown(message.content) : escapeHtml(message.content);
+
       const div = document.createElement('div');
       div.className = `message ${isAgent ? 'agent' : 'student'}`;
+      div.id = msgId;
+      
+      // Add message actions for agent messages
+      const actionsHtml = isAgent ? `
+        <div class="message-actions">
+          <button class="msg-action-btn" onclick="copyMessage('${msgId}')" title="复制">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <button class="msg-action-btn" onclick="regenerateMessage('${msgId}')" title="重新生成">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </button>
+        </div>
+      ` : '';
+
       div.innerHTML = `
-        ${escapeHtml(message.content)}
-        <div class="message-time">${time}</div>
+        ${renderedContent}
+        ${actionsHtml}
+        <div class="message-meta">
+          <span class="message-time">${time}</span>
+        </div>
       `;
 
+      // Add error state class if needed
+      if (options.error) {
+        div.classList.add('message-error');
+      }
+
       chatMessages.appendChild(div);
+      
+      // Render quick replies after first agent message
+      if (isAgent && options.showQuickReplies !== false) {
+        renderQuickReplies();
+      }
+      
+      return msgId;
+    }
+
+    // Copy message content
+    function copyMessage(msgId) {
+      const msgDiv = document.getElementById(msgId);
+      if (!msgDiv) return;
+      const content = msgDiv.querySelector('.message-content')?.textContent || msgDiv.cloneNode(true).querySelector('.message-actions')?.remove() || msgDiv.textContent;
+      navigator.clipboard.writeText(msgDiv.textContent.replace(/复制重新生成/gi, '').trim()).then(() => {
+        showToast('success', '已复制', '消息内容已复制到剪贴板');
+      });
+    }
+
+    // Retry failed message
+    async function regenerateMessage(msgId) {
+      const msgDiv = document.getElementById(msgId);
+      if (!msgDiv) return;
+      
+      // Get the last user message for retry
+      const messages = document.querySelectorAll('.message.student');
+      if (messages.length > 0) {
+        const lastUserMsg = messages[messages.length - 1];
+        const userText = lastUserMsg.textContent.replace(/\d{2}:\d{2}$/, '').trim();
+        msgDiv.remove();
+        await getAIResponse(userText);
+      }
+    }
+
+    // Show error in message bubble
+    function showMessageError(msgId, error) {
+      const msgDiv = document.getElementById(msgId);
+      if (!msgDiv) return;
+      msgDiv.classList.add('message-error');
+      msgDiv.innerHTML = `
+        <div class="error-content">
+          <span class="error-icon">⚠️</span>
+          <span class="error-text">${escapeHtml(error)}</span>
+        </div>
+        <button class="retry-btn" onclick="retryMessage('${msgId}')">重试</button>
+      `;
+    }
+
+    function retryMessage(msgId) {
+      const msgDiv = document.getElementById(msgId);
+      if (!msgDiv) return;
+      msgDiv.remove();
+      // Trigger retry logic - get last user message and resend
+      const messages = document.querySelectorAll('.message.student');
+      if (messages.length > 0) {
+        const lastUserMsg = messages[messages.length - 1];
+        const userText = lastUserMsg.textContent.replace(/\d{2}:\d{2}$/, '').trim();
+        getAIResponse(userText);
+      }
     }
 
     async function sendMessage() {
@@ -1700,9 +1845,10 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
 
         // Create streaming response container
         let fullResponse = '';
+        const msgId = `stream-${Date.now()}`;
         const responseDiv = document.createElement('div');
         responseDiv.className = 'message agent';
-        responseDiv.id = 'stream-response';
+        responseDiv.id = msgId;
         chatMessages.appendChild(responseDiv);
 
         // Remove thinking indicator
@@ -1715,16 +1861,48 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
             onChunk: (chunk, full) => {
               fullResponse = full;
               responseDiv.innerHTML = `
-                ${escapeHtml(fullResponse)}
-                <div class="message-time" style="opacity: 0.5;">输入中...</div>
+                ${renderMarkdown(fullResponse)}
+                <div class="message-actions">
+                  <button class="msg-action-btn" onclick="copyMessage('${msgId}')" title="复制">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                  </button>
+                  <button class="msg-action-btn" onclick="regenerateMessage('${msgId}')" title="重新生成">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="23 4 23 10 17 10"/>
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="message-meta">
+                  <span class="message-time" style="opacity: 0.5;">输入中...</span>
+                </div>
               `;
               scrollChatToBottom();
             },
             onComplete: async (full) => {
               fullResponse = full;
               responseDiv.innerHTML = `
-                ${escapeHtml(fullResponse)}
-                <div class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</div>
+                ${renderMarkdown(fullResponse)}
+                <div class="message-actions">
+                  <button class="msg-action-btn" onclick="copyMessage('${msgId}')" title="复制">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                  </button>
+                  <button class="msg-action-btn" onclick="regenerateMessage('${msgId}')" title="重新生成">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="23 4 23 10 17 10"/>
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="message-meta">
+                  <span class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
               `;
 
               // Save to DB
@@ -1745,23 +1923,28 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
             },
             onError: (error) => {
               thinkingDiv.remove();
-              responseDiv.remove();
 
               if (error.code === 'ABORTED') {
+                responseDiv.remove();
                 showToast('info', '已取消', 'AI回复已取消');
               } else if (error.code === 'NO_API_KEY') {
+                showMessageError(msgId, '未配置API Key，请先在设置中配置');
                 showToast('error', '未配置API Key', '请先在设置中配置AI API Key');
               } else if (error.code === 'INVALID_KEY') {
+                showMessageError(msgId, 'API Key无效，请检查配置');
                 showToast('error', 'API Key无效', '请检查API Key配置是否正确');
               } else if (error.code === 'RATE_LIMIT') {
+                showMessageError(msgId, '请求过于频繁，请稍后再试');
                 showToast('warning', '请求过于频繁', '请稍后再试，或切换其他AI通道');
               } else {
+                showMessageError(msgId, error.message || '网络错误，请检查网络连接');
                 showToast('error', 'AI响应错误', error.message || '请稍后重试');
               }
 
               sendBtn.disabled = false;
               input.disabled = false;
               isStreaming = false;
+              scrollChatToBottom();
             }
           }
         );

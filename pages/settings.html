@@ -553,6 +553,34 @@
           </div>
         </div>
 
+        <!-- AI Usage Stats -->
+        <section class="card" id="ai-stats">
+          <div class="form-group">
+            <label class="form-label">AI 使用统计</label>
+            <div class="stats-grid">
+              <div class="stats-item">
+                <span class="stats-value">0</span>
+                <span class="stats-label">对话次数</span>
+              </div>
+              <div class="stats-item">
+                <span class="stats-value">0</span>
+                <span class="stats-label">输入 Tokens</span>
+              </div>
+              <div class="stats-item">
+                <span class="stats-value">0</span>
+                <span class="stats-label">输出 Tokens</span>
+              </div>
+              <div class="stats-item">
+                <span class="stats-value">0</span>
+                <span class="stats-label">总 Tokens</span>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="resetAIStats()" style="margin-top: 10px;">
+              重置统计
+            </button>
+          </div>
+        </section>
+
         <!-- Silicon Flow -->
         <div class="api-card" data-provider="siliconflow" id="card-siliconflow">
           <div class="api-card-header">
@@ -1182,6 +1210,58 @@
         setTimeout(() => toast.remove(), 300);
       }, 4000);
     }
+
+    // ==================== AI Usage Stats ====================
+    function initAIStats() {
+      const statsContainer = document.getElementById('ai-stats');
+      if (!statsContainer) return;
+
+      const usage = window.AI?.stats?.getUsage() || { requests: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+
+      statsContainer.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">AI 使用统计</label>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-value">${usage.requests}</span>
+              <span class="stats-label">对话次数</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">${formatNumber(usage.inputTokens)}</span>
+              <span class="stats-label">输入 Tokens</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">${formatNumber(usage.outputTokens)}</span>
+              <span class="stats-label">输出 Tokens</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">${formatNumber(usage.totalTokens)}</span>
+              <span class="stats-label">总 Tokens</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="resetAIStats()" style="margin-top: 10px;">
+            重置统计
+          </button>
+        </div>
+      `;
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function resetAIStats() {
+      if (window.AI?.stats) {
+        window.AI.stats.reset();
+        initAIStats();
+        showToast('success', '已重置', 'AI使用统计已重置');
+      }
+    }
+
+    // Init stats on page load
+    initAIStats();
   </script>
 </body>
 </html>

@@ -253,6 +253,11 @@ async function sendChatRequestStream(messages, callbacks, options = {}) {
               throw new AIAPIError(parsed.error.message || 'API错误', 'API_ERROR');
             }
             
+            // Track usage from response headers if available
+            if (parsed.usage) {
+              AIStats.increment(parsed.usage.prompt_tokens || 0, parsed.usage.completion_tokens || 0);
+            }
+            
           } catch (e) {
             // Ignore JSON parse errors for incomplete chunks
           }
@@ -263,6 +268,11 @@ async function sendChatRequestStream(messages, callbacks, options = {}) {
     if (onComplete) {
       onComplete(fullContent);
     }
+    
+    // Estimate tokens if not provided in response (approximate: 1 token ≈ 2 chars for Chinese)
+    const estimatedInputTokens = messages.reduce((sum, m) => sum + Math.ceil((m.content || '').length / 2), 0);
+    const estimatedOutputTokens = Math.ceil(fullContent.length / 2);
+    AIStats.increment(estimatedInputTokens, estimatedOutputTokens);
     
     return fullContent;
     
@@ -550,6 +560,63 @@ async function transcribeAudio(audioFile, options = {}) {
   return data.text || '';
 }
 
+// ==================== Token Usage Stats ====================
+
+const AIStats = {
+  requestCount: 0,
+  totalInputTokens: 0,
+  totalOutputTokens: 0,
+  
+  reset() {
+    this.requestCount = 0;
+    this.totalInputTokens = 0;
+    this.totalOutputTokens = 0;
+    this.save();
+  },
+  
+  increment(inputTokens = 0, outputTokens = 0) {
+    this.requestCount++;
+    this.totalInputTokens += inputTokens;
+    this.totalOutputTokens += outputTokens;
+    this.save();
+  },
+  
+  save() {
+    localStorage.setItem('ai_stats', JSON.stringify({
+      requestCount: this.requestCount,
+      totalInputTokens: this.totalInputTokens,
+      totalOutputTokens: this.totalOutputTokens,
+      lastUpdated: Date.now()
+    }));
+  },
+  
+  load() {
+    const saved = localStorage.getItem('ai_stats');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        this.requestCount = data.requestCount || 0;
+        this.totalInputTokens = data.totalInputTokens || 0;
+        this.totalOutputTokens = data.totalOutputTokens || 0;
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  },
+  
+  getUsage() {
+    return {
+      requests: this.requestCount,
+      inputTokens: this.totalInputTokens,
+      outputTokens: this.totalOutputTokens,
+      totalTokens: this.totalInputTokens + this.totalOutputTokens
+    };
+  }
+};
+
+// Load stats on init
+AIStats.load();
+
 // ==================== Export ====================
 
 window.AI = {
@@ -575,5 +642,6 @@ window.AI = {
   },
   speech: {
     transcribe: transcribeAudio
-  }
+  },
+  stats: AIStats
 };
