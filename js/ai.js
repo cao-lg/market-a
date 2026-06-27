@@ -14,7 +14,32 @@ const API_PROVIDERS = {
   siliconflow: {
     name: '硅基流动',
     baseURL: 'https://api.siliconflow.cn/v1',
-    model: 'Qwen/Qwen2.5-7B-Instruct'
+    model: 'Qwen/Qwen2.5-7B-Instruct',
+    models: {
+      chat: [
+        { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5-7B（推荐，永久免费）', free: true },
+        { id: 'Qwen/Qwen2.5-32B-Instruct', name: 'Qwen2.5-32B（免费）', free: true },
+        { id: 'Qwen/Qwen2.5-72B-Instruct', name: 'Qwen2.5-72B（免费）', free: true },
+        { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek-V3（免费）', free: true },
+        { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek-R1 推理（免费）', free: true },
+        { id: 'THUDM/glm-4-9b-chat', name: 'GLM-4-9B（免费）', free: true },
+        { id: 'meta-llama/Llama-3.1-8B-Instruct', name: 'Llama-3.1-8B（免费）', free: true },
+        { id: 'meta-llama/Llama-3.1-70B-Instruct', name: 'Llama-3.1-70B（免费）', free: true }
+      ],
+      image: [
+        { id: 'Kwai-Kolors/Kolors', name: 'Kolors 可图（免费生图）', free: true },
+        { id: 'black-forest-labs/FLUX.1-schnell', name: 'FLUX.1-schnell（免费生图）', free: true },
+        { id: 'stabilityai/stable-diffusion-3.5-large-turbo', name: 'SD3.5-turbo（免费生图）', free: true }
+      ],
+      speech: [
+        { id: 'FunAudioLLM/CosyVoice2-0.5B', name: 'CosyVoice2 语音合成', free: false }
+      ],
+      transcription: [
+        { id: 'iic/SenseVoiceSmall', name: 'SenseVoiceSmall 语音识别（免费）', free: true },
+        { id: 'TeleAI/TeleSpeechASR', name: 'TeleSpeechASR 语音识别（免费）', free: true },
+        { id: 'openai/whisper-large-v3', name: 'Whisper-Large-v3（免费）', free: true }
+      ]
+    }
   },
   moark: {
     name: 'Moark',
@@ -446,6 +471,85 @@ async function synthesizeSpeech(text, options = {}) {
   return URL.createObjectURL(blob);
 }
 
+// ==================== Image Generation ====================
+
+async function generateImage(prompt, options = {}) {
+  const provider = options.provider || 'siliconflow';
+  const apiKey = localStorage.getItem(`apiKey_${provider}`);
+  
+  if (!apiKey) {
+    throw new AIAPIError('请先在设置中配置API Key', 'NO_API_KEY');
+  }
+  
+  const config = API_PROVIDERS[provider];
+  if (!config) {
+    throw new AIAPIError('未知的提供商', 'UNKNOWN_PROVIDER');
+  }
+  
+  const model = options.model || 'Kwai-Kolors/Kolors';
+  const size = options.size || '1024x1024';
+  
+  const response = await fetch(`${config.baseURL}/images/generations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: model,
+      prompt: prompt,
+      size: size,
+      n: options.n || 1
+    })
+  });
+  
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new AIAPIError(`生图失败: ${response.status} ${errText.substring(0, 100)}`, 'IMAGE_ERROR');
+  }
+  
+  const data = await response.json();
+  return data.data || [];
+}
+
+// ==================== Speech Recognition ====================
+
+async function transcribeAudio(audioFile, options = {}) {
+  const provider = options.provider || 'siliconflow';
+  const apiKey = localStorage.getItem(`apiKey_${provider}`);
+  
+  if (!apiKey) {
+    throw new AIAPIError('请先在设置中配置API Key', 'NO_API_KEY');
+  }
+  
+  const config = API_PROVIDERS[provider];
+  if (!config) {
+    throw new AIAPIError('未知的提供商', 'UNKNOWN_PROVIDER');
+  }
+  
+  const model = options.model || 'iic/SenseVoiceSmall';
+  
+  const formData = new FormData();
+  formData.append('file', audioFile);
+  formData.append('model', model);
+  
+  const response = await fetch(`${config.baseURL}/audio/transcriptions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: formData
+  });
+  
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new AIAPIError(`语音识别失败: ${response.status} ${errText.substring(0, 100)}`, 'TRANSCRIBE_ERROR');
+  }
+  
+  const data = await response.json();
+  return data.text || '';
+}
+
 // ==================== Export ====================
 
 window.AI = {
@@ -465,5 +569,11 @@ window.AI = {
     getSpeed: getTTSSpeed,
     getAvailableVoices: getAvailableTTSVoices,
     synthesize: synthesizeSpeech
+  },
+  image: {
+    generate: generateImage
+  },
+  speech: {
+    transcribe: transcribeAudio
   }
 };

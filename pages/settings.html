@@ -505,7 +505,7 @@
           <div>
             <div class="notice-title">演示密钥已预置</div>
             <div class="notice-text">
-              已为你预置演示用的智谱AI和Moark API Key，可直接体验。建议尽快
+              已为你预置演示用的智谱AI、Moark、Agens API Key，可直接体验。建议尽快
               <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" style="color: var(--accent-primary);">申请自己的API Key</a>
               替换，以获得更好的稳定性和配额。
             </div>
@@ -562,7 +562,7 @@
               </div>
               <div>
                 <div class="api-provider-name">硅基流动</div>
-                <div class="api-provider-model">Qwen/Qwen2.5-7B-Instruct · 永久免费</div>
+                <div class="api-provider-model">海量免费模型 · 对话/生图/语音全支持</div>
               </div>
             </div>
             <div class="api-status-pill inactive" id="status-pill-siliconflow">
@@ -576,6 +576,15 @@
             <button type="button" class="api-input-toggle" onclick="toggleKeyVisibility('siliconflow')">
               <span id="toggle-text-siliconflow">显示</span>
             </button>
+          </div>
+          <div class="provider-models-info" style="margin-top: 12px; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 8px; font-size: 12px; color: var(--text-secondary);">
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">🎉 免费模型清单</div>
+            <div style="display: grid; gap: 4px;">
+              <div>💬 对话：Qwen2.5、DeepSeek-V3、GLM-4-9B、Llama-3.1 等8款</div>
+              <div>🖼️ 生图：Kolors 可图、FLUX.1-schnell、SD3.5-turbo</div>
+              <div>🎙️ 语音识别：SenseVoiceSmall、TeleSpeechASR、Whisper-Large-v3</div>
+            </div>
+            <a href="https://www.siliconflow.cn/pricing" target="_blank" style="color: var(--accent-primary); text-decoration: none; display: inline-block; margin-top: 6px;">查看完整价格 →</a>
           </div>
           <div class="api-card-footer">
             <a href="https://cloud.siliconflow.cn/account/ak" target="_blank" rel="noopener" class="api-link">
@@ -922,7 +931,8 @@
 
     const DEFAULT_API_KEYS = {
       zhipu: 'd1286edd8bd946bea3742a8ac35fd5ff.ePrvv0jNRpthf6BB',
-      moark: 'ZUCRCKXPLEF1PHOYFYWF36Y10UQWXCWAPKUPVB1T'
+      moark: 'ZUCRCKXPLEF1PHOYFYWF36Y10UQWXCWAPKUPVB1T',
+      agens: 'sk-arRLZGfgBPBMIO3E4VtxiVOSymZ89NkYzgVkCOOoOjZ3pn9F'
     };
 
     function toggleKeyVisibility(provider) {
