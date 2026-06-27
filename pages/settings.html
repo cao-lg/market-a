@@ -741,39 +741,42 @@
     
     <h2 class="section-title">语音朗读设置</h2>
     <p class="section-desc">
-      配置课程内容的语音朗读引擎和音色，支持多种高质量神经TTS。
+      课程语音由Anna温柔女声朗读，已预置高质量音频文件，无需配置API即可直接播放。
     </p>
 
     <section class="card">
       <div class="form-group">
-        <label class="form-label">语音引擎</label>
-        <div class="provider-select-wrapper">
-          <select class="form-select w-full" id="tts-provider" onchange="onTTSProviderChange()">
-            <option value="siliconflow">硅基流动 · CosyVoice2（推荐，最自然）</option>
-            <option value="zhipu">智谱AI · GLM-TTS</option>
-            <option value="browser">浏览器系统语音（免费，无需API）</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group" id="tts-voice-group">
-        <label class="form-label">音色选择</label>
+        <label class="form-label">朗读音色</label>
         <div class="provider-select-wrapper">
           <select class="form-select w-full" id="tts-voice" onchange="saveTTSVoice()">
+            <option value="anna">Anna（温柔女声）</option>
           </select>
         </div>
-        <div class="form-hint" id="tts-voice-hint">选择你喜欢的朗读声音</div>
+        <div class="form-hint">使用硅基流动CosyVoice2预置音色，自然流畅</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">试听</label>
+        <label class="form-label">试听语音效果</label>
         <button class="btn btn-secondary" onclick="testTTSVoice()" id="tts-test-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
           试听效果
         </button>
-        <div class="form-hint" id="tts-test-hint">点击试听当前选择的音色</div>
+        <div class="form-hint">点击试听语音效果</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">语音文件统计</label>
+        <div class="stat-item">
+          <span class="stat-label">已预置课时</span>
+          <span class="stat-value" id="audio-lessons-count">64课时</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">音频文件大小</span>
+          <span class="stat-value" id="audio-total-size">约400MB</span>
+        </div>
+        <div class="form-hint">所有课程内容已预生成语音文件，播放时无需调用API</div>
       </div>
     </section>
 
@@ -1011,84 +1014,49 @@
     // ==================== TTS Settings ====================
     
     function initTTSSettings() {
-      const provider = localStorage.getItem('tts_provider') || 'siliconflow';
-      document.getElementById('tts-provider').value = provider;
-      updateTTSVoiceOptions();
-    }
-
-    function onTTSProviderChange() {
-      const provider = document.getElementById('tts-provider').value;
-      localStorage.setItem('tts_provider', provider);
-      updateTTSVoiceOptions();
-      showToast('success', '已保存', '语音引擎已切换');
-    }
-
-    function updateTTSVoiceOptions() {
-      const provider = document.getElementById('tts-provider').value;
-      const voiceSelect = document.getElementById('tts-voice');
-      const voiceGroup = document.getElementById('tts-voice-group');
-      
-      if (provider === 'browser') {
-        voiceGroup.style.display = 'none';
-        return;
-      }
-      
-      voiceGroup.style.display = 'block';
-      
-      const voices = window.AI?.tts?.voices?.[provider] || [];
-      voiceSelect.innerHTML = '';
-      
-      voices.forEach(v => {
-        const option = document.createElement('option');
-        option.value = v.id;
-        option.textContent = v.name;
-        voiceSelect.appendChild(option);
-      });
-      
-      const saved = localStorage.getItem('tts_voice');
-      if (saved && voices.find(v => v.id === saved)) {
-        voiceSelect.value = saved;
-      } else if (voices.length > 0) {
-        voiceSelect.value = voices[0].id;
-        localStorage.setItem('tts_voice', voices[0].id);
-      }
+      // 静态音频模式，无需初始化
+      const voice = localStorage.getItem('tts_voice') || 'anna';
+      document.getElementById('tts-voice').value = voice;
     }
 
     function saveTTSVoice() {
       const voice = document.getElementById('tts-voice').value;
       localStorage.setItem('tts_voice', voice);
+      showToast('success', '已保存', '音色设置已更新');
     }
 
     async function testTTSVoice() {
       const btn = document.getElementById('tts-test-btn');
-      const hint = document.getElementById('tts-test-hint');
       
       btn.disabled = true;
-      btn.textContent = '生成中...';
-      hint.textContent = '正在生成试听语音，请稍候...';
+      
+      // 使用第一课时的音频文件进行试听
+      const testAudioUrl = '../audio/anna/stage-1-lesson-1.mp3';
       
       try {
-        const url = await window.AI.tts.synthesize(
-          '你好，欢迎使用数据分析AI伴学平台。我将为你讲解电商数据分析的核心知识，包括流量指标、转化漏斗、GMV诊断等内容。',
-          { speed: 1.0 }
-        );
+        const audio = new Audio(testAudioUrl);
         
-        const audio = new Audio(url);
-        audio.play();
+        // 只播放前30秒作为试听
+        audio.currentTime = 0;
+        await audio.play();
+        
+        // 30秒后停止
+        setTimeout(() => {
+          if (audio.currentTime < 30) {
+            audio.pause();
+          }
+        }, 30000);
         
         btn.disabled = false;
-        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>重新试听';
-        hint.textContent = '正在播放试听语音...';
+        showToast('success', '正在播放', '试听语音播放中...');
         
         audio.onended = () => {
-          hint.textContent = '试听完成，点击可重新试听';
+          showToast('info', '试听完成', '可点击重新试听');
         };
         
       } catch (e) {
         btn.disabled = false;
-        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>试听效果';
-        hint.textContent = '生成失败：' + e.message + '。请检查API Key是否正确。';
-        showToast('error', '语音生成失败', e.message);
+        showToast('error', '播放失败', '请检查音频文件是否存在');
       }
     }
 

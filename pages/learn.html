@@ -1019,11 +1019,12 @@
       return Math.ceil(chars / charsPerSecond);
     }
 
-    function getTTSProviderName() {
-      const p = window.AI?.tts?.getProvider?.() || 'browser';
-      const names = { siliconflow: '硅基流动', zhipu: '智谱AI', moark: 'Moark', browser: '系统语音' };
-      return names[p] || p;
-    }
+    // 预置音色名称映射
+    const VOICE_NAMES = {
+      anna: 'Anna（温柔女声）',
+      alex: 'Alex（磁性男声）'
+    };
+    let currentVoice = 'anna'; // 默认使用温柔女声
 
     function initSpeechControls(markdownText) {
       const bar = document.getElementById('audio-control-bar');
@@ -1043,16 +1044,42 @@
 
       bar.style.display = 'flex';
       
-      if (speechAudioUrl) {
+      if (speechAudioUrl && speechAudioUrl.startsWith('blob:')) {
         URL.revokeObjectURL(speechAudioUrl);
-        speechAudioUrl = null;
+      }
+      speechAudioUrl = null;
+      
+      // 检查是否有静态音频文件
+      if (currentLesson && currentLesson.id) {
+        const staticAudioUrl = `../audio/${currentVoice}/${currentLesson.id}.mp3`;
+        // 先尝试加载静态文件，如果存在就使用
+        checkStaticAudio(staticAudioUrl).then(exists => {
+          if (exists) {
+            speechAudioUrl = staticAudioUrl;
+            document.getElementById('audio-status').textContent = `${VOICE_NAMES[currentVoice]} · 点击播放开始朗读`;
+          } else {
+            // 没有静态文件，显示系统语音
+            const duration = estimateDuration(speechText, speechRate);
+            document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
+            document.getElementById('audio-status').textContent = `系统语音 · 全文约${formatTime(duration)}，点击播放开始朗读`;
+          }
+        });
+      } else {
+        const duration = estimateDuration(speechText, speechRate);
+        document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
+        document.getElementById('audio-status').textContent = `系统语音 · 全文约${formatTime(duration)}，点击播放开始朗读`;
       }
       
-      const duration = estimateDuration(speechText, speechRate);
-      document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
-      document.getElementById('audio-status').textContent = `${getTTSProviderName()} · 全文约${formatTime(duration)}，点击播放开始朗读`;
-      
       updatePlayPauseIcon();
+    }
+
+    async function checkStaticAudio(url) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        return response.ok;
+      } catch {
+        return false;
+      }
     }
 
     function hideSpeechControls() {
@@ -1104,37 +1131,19 @@
 
       stopSpeech();
 
-      const provider = window.AI?.tts?.getProvider?.() || 'browser';
-
-      if (provider === 'browser') {
-        startBrowserSpeech();
-        return;
-      }
-
-      if (speechAudioUrl) {
-        playAudioUrl(speechAudioUrl);
-        return;
-      }
-
-      isGenerating = true;
-      document.getElementById('audio-status').textContent = '🎙️ 正在生成语音，请稍候...';
-      document.getElementById('play-icon').style.opacity = '0.5';
-
-      try {
-        speechAudioUrl = await window.AI.tts.synthesize(speechText, { speed: speechRate });
-        isGenerating = false;
-        document.getElementById('play-icon').style.opacity = '1';
-        
-        if (speechAudioUrl) {
+      // 优先使用静态音频文件
+      if (currentLesson && currentLesson.id) {
+        const staticAudioUrl = `../audio/${currentVoice}/${currentLesson.id}.mp3`;
+        const exists = await checkStaticAudio(staticAudioUrl);
+        if (exists) {
+          speechAudioUrl = staticAudioUrl;
           playAudioUrl(speechAudioUrl);
+          return;
         }
-      } catch (e) {
-        isGenerating = false;
-        document.getElementById('play-icon').style.opacity = '1';
-        console.warn('API TTS failed, falling back to browser:', e.message);
-        document.getElementById('audio-status').textContent = 'API不可用，切换到系统语音...';
-        setTimeout(() => startBrowserSpeech(), 500);
       }
+
+      // 没有静态文件，使用浏览器语音
+      startBrowserSpeech();
     }
 
     function playAudioUrl(url) {
