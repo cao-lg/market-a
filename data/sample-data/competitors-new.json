@@ -1,0 +1,121 @@
+[
+  {
+    "competitor_id": "COMP004",
+    "competitor_name": "无印良品官方旗舰店",
+    "platform": "天猫",
+    "sku_count": 28,
+    "price_range": "49-399",
+    "avg_price": 159,
+    "monthly_sales": 8500,
+    "monthly_gmv": 1351500,
+    "avg_conversion_rate": 4.2,
+    "return_rate": 4.2,
+    "main_products": [
+      {
+        "name": "聚丙烯收纳箱",
+        "price": 129,
+        "monthly_sales": 2200
+      },
+      {
+        "name": "软质收纳盒",
+        "price": 69,
+        "monthly_sales": 3100
+      },
+      {
+        "name": "不锈钢厨房架",
+        "price": 259,
+        "monthly_sales": 900
+      }
+    ],
+    "advantages": [
+      "品牌调性高",
+      "设计简约",
+      "材质环保",
+      "品质稳定"
+    ],
+    "disadvantages": [
+      "价格偏高",
+      "SKU较少",
+      "活动力度小"
+    ]
+  },
+  {
+    "competitor_id": "COMP005",
+    "competitor_name": "京东京造官方旗舰店",
+    "platform": "京东",
+    "sku_count": 42,
+    "price_range": "39-249",
+    "avg_price": 99,
+    "monthly_sales": 15600,
+    "monthly_gmv": 1544400,
+    "avg_conversion_rate": 5.5,
+    "return_rate": 7.1,
+    "main_products": [
+      {
+        "name": "加厚收纳箱",
+        "price": 79,
+        "monthly_sales": 4500
+      },
+      {
+        "name": "厨房置物架",
+        "price": 129,
+        "monthly_sales": 2800
+      },
+      {
+        "name": "衣柜收纳盒套装",
+        "price": 99,
+        "monthly_sales": 3600
+      }
+    ],
+    "advantages": [
+      "自有品牌",
+      "物流快",
+      "品质有保障",
+      "性价比高"
+    ],
+    "disadvantages": [
+      "设计一般",
+      "品牌调性中等"
+    ]
+  },
+  {
+    "competitor_id": "COMP006",
+    "competitor_name": "小红书-收纳达人馆",
+    "platform": "小红书",
+    "sku_count": 15,
+    "price_range": "59-199",
+    "avg_price": 89,
+    "monthly_sales": 12000,
+    "monthly_gmv": 1068000,
+    "avg_conversion_rate": 6.8,
+    "return_rate": 9.5,
+    "main_products": [
+      {
+        "name": "ins风收纳盒",
+        "price": 69,
+        "monthly_sales": 5200
+      },
+      {
+        "name": "厨房调料瓶套装",
+        "price": 89,
+        "monthly_sales": 3500
+      },
+      {
+        "name": "桌面化妆品收纳",
+        "price": 129,
+        "monthly_sales": 2100
+      }
+    ],
+    "advantages": [
+      "内容种草强",
+      "颜值高",
+      "年轻用户多",
+      "传播力强"
+    ],
+    "disadvantages": [
+      "平台抽成高",
+      "退货率较高",
+      "SKU少"
+    ]
+  }
+]

@@ -750,7 +750,7 @@
     
     <h2 class="section-title">语音朗读设置</h2>
     <p class="section-desc">
-      课程语音由Anna温柔女声朗读，已预置高质量音频文件，无需配置API即可直接播放。
+      课程语音由微软Edge TTS晓晓女声朗读，完全免费，自然流畅，无需配置API即可直接播放。
     </p>
 
     <section class="card">
@@ -758,10 +758,11 @@
         <label class="form-label">朗读音色</label>
         <div class="provider-select-wrapper">
           <select class="form-select w-full" id="tts-voice" onchange="saveTTSVoice()">
-            <option value="anna">Anna（温柔女声）</option>
+            <option value="xiaoxiao">晓晓（微软Edge女声 · 推荐）</option>
+            <option value="anna">Anna（硅基流动女声）</option>
           </select>
         </div>
-        <div class="form-hint">使用硅基流动CosyVoice2预置音色，自然流畅</div>
+        <div class="form-hint">使用微软Edge TTS神经语音合成，自然悦耳</div>
       </div>
 
       <div class="form-group">
@@ -1024,8 +1025,7 @@
     // ==================== TTS Settings ====================
     
     function initTTSSettings() {
-      // 静态音频模式，无需初始化
-      const voice = localStorage.getItem('tts_voice') || 'anna';
+      const voice = localStorage.getItem('tts_voice') || 'xiaoxiao';
       document.getElementById('tts-voice').value = voice;
     }
 
@@ -1037,11 +1037,11 @@
 
     async function testTTSVoice() {
       const btn = document.getElementById('tts-test-btn');
+      const voice = document.getElementById('tts-voice').value;
       
       btn.disabled = true;
       
-      // 使用第一课时的音频文件进行试听
-      const testAudioUrl = '../audio/anna/stage-1-lesson-1.mp3';
+      const testAudioUrl = `../audio/${voice}/stage-1-lesson-1.mp3`;
       
       try {
         const audio = new Audio(testAudioUrl);

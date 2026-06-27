@@ -1,0 +1,233 @@
+[
+  {
+    "trap_type": "口径不一致-GMV是否包含退款",
+    "description": "不同报表的GMV口径不一致，有的包含退款，有的不包含",
+    "indicators": [
+      {
+        "report_name": "销售报表A",
+        "indicator_name": "GMV",
+        "value": 750000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "包含退款订单",
+        "remark": "按下单时间统计，包含已退款订单金额"
+      },
+      {
+        "report_name": "财务报表B",
+        "indicator_name": "GMV",
+        "value": 712500,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "剔除退款",
+        "remark": "按支付时间统计，已扣除退款金额"
+      },
+      {
+        "report_name": "运营报表C",
+        "indicator_name": "GMV",
+        "value": 735000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "包含部分退款",
+        "remark": "按发货时间统计，仅扣除全额退款"
+      }
+    ]
+  },
+  {
+    "trap_type": "口径不一致-UV是否去重",
+    "description": "UV统计口径不一致，有的按去重，有的按不去重",
+    "indicators": [
+      {
+        "report_name": "流量报表A",
+        "indicator_name": "UV",
+        "value": 168000,
+        "unit": "人",
+        "period": "2023年9月",
+        "caliber": "去重",
+        "remark": "按访客ID去重统计"
+      },
+      {
+        "report_name": "流量报表B",
+        "indicator_name": "UV",
+        "value": 210000,
+        "unit": "人次",
+        "period": "2023年9月",
+        "caliber": "不去重",
+        "remark": "按访问次数统计，未去重"
+      },
+      {
+        "report_name": "第三方报表C",
+        "indicator_name": "UV",
+        "value": 175000,
+        "unit": "人",
+        "period": "2023年9月",
+        "caliber": "按设备去重",
+        "remark": "按设备ID去重，与访客ID口径不同"
+      }
+    ]
+  },
+  {
+    "trap_type": "口径不一致-转化率分子分母",
+    "description": "转化率的分子分母定义不一致",
+    "indicators": [
+      {
+        "report_name": "运营报表A",
+        "indicator_name": "转化率",
+        "value": 3.2,
+        "unit": "%",
+        "period": "2023年9月",
+        "caliber": "下单转化率",
+        "remark": "下单人数 / 访问人数"
+      },
+      {
+        "report_name": "财务报表B",
+        "indicator_name": "转化率",
+        "value": 2.8,
+        "unit": "%",
+        "period": "2023年9月",
+        "caliber": "支付转化率",
+        "remark": "支付人数 / 访问人数"
+      },
+      {
+        "report_name": "第三方报表C",
+        "indicator_name": "转化率",
+        "value": 4.5,
+        "unit": "%",
+        "period": "2023年9月",
+        "caliber": "类目均值",
+        "remark": "下单转化率，全类目平均水平"
+      }
+    ]
+  },
+  {
+    "trap_type": "单位不统一",
+    "description": "同一指标使用不同的单位",
+    "indicators": [
+      {
+        "report_name": "销售报表A",
+        "indicator_name": "GMV",
+        "value": 75,
+        "unit": "万元",
+        "period": "2023年9月",
+        "caliber": "支付口径",
+        "remark": "以万元为单位"
+      },
+      {
+        "report_name": "运营报表B",
+        "indicator_name": "GMV",
+        "value": 750000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "支付口径",
+        "remark": "以元为单位"
+      },
+      {
+        "report_name": "汇报材料C",
+        "indicator_name": "GMV",
+        "value": 0.0075,
+        "unit": "亿元",
+        "period": "2023年9月",
+        "caliber": "支付口径",
+        "remark": "以亿元为单位"
+      }
+    ]
+  },
+  {
+    "trap_type": "时间范围不一致",
+    "description": "报表统计的时间范围不一致",
+    "indicators": [
+      {
+        "report_name": "月报A",
+        "indicator_name": "GMV",
+        "value": 750000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "自然月",
+        "remark": "9月1日-9月30日，共30天"
+      },
+      {
+        "report_name": "周报B汇总",
+        "indicator_name": "GMV",
+        "value": 725000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "按周统计",
+        "remark": "9月第1-4周，实际为8月28日-9月24日"
+      },
+      {
+        "report_name": "财务周期C",
+        "indicator_name": "GMV",
+        "value": 780000,
+        "unit": "元",
+        "period": "2023年9月",
+        "caliber": "财务周期",
+        "remark": "财务周期为上月26日-本月25日"
+      }
+    ]
+  },
+  {
+    "trap_type": "逻辑矛盾-数据不自洽",
+    "description": "数据之间存在逻辑矛盾，无法互相印证",
+    "indicators": [
+      {
+        "report_name": "用户报表A",
+        "indicator_name": "新增用户数",
+        "value": 8500,
+        "unit": "人",
+        "period": "2023年9月",
+        "caliber": "按注册时间",
+        "remark": "本月新增注册用户"
+      },
+      {
+        "report_name": "订单报表B",
+        "indicator_name": "新客订单数",
+        "value": 9200,
+        "unit": "单",
+        "period": "2023年9月",
+        "caliber": "首单用户",
+        "remark": "新客首单订单数，大于新增用户数，存在矛盾"
+      },
+      {
+        "report_name": "流量报表C",
+        "indicator_name": "新访客数",
+        "value": 7800,
+        "unit": "人",
+        "period": "2023年9月",
+        "caliber": "按访客ID",
+        "remark": "首次访问的访客数"
+      }
+    ]
+  },
+  {
+    "trap_type": "口径不一致-客单价计算方式",
+    "description": "客单价的计算方式不一致",
+    "indicators": [
+      {
+        "report_name": "销售报表A",
+        "indicator_name": "客单价",
+        "value": 105,
+        "unit": "元/单",
+        "period": "2023年9月",
+        "caliber": "按订单数",
+        "remark": "GMV / 订单数"
+      },
+      {
+        "report_name": "用户报表B",
+        "indicator_name": "客单价",
+        "value": 128,
+        "unit": "元/人",
+        "period": "2023年9月",
+        "caliber": "按购买人数",
+        "remark": "GMV / 购买人数（人均消费）"
+      },
+      {
+        "report_name": "行业报告C",
+        "indicator_name": "客单价",
+        "value": 95,
+        "unit": "元/件",
+        "period": "2023年9月",
+        "caliber": "按商品件数",
+        "remark": "GMV / 商品件数（件单价）"
+      }
+    ]
+  }
+]

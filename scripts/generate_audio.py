@@ -1,51 +1,30 @@
 #!/usr/bin/env python3
 """
 批量生成课程语音文件
-使用硅基流动 CosyVoice2 API
+使用 edge-tts (微软Edge TTS，完全免费)
 """
 
 import json
 import os
-import requests
+import asyncio
 import time
-import hashlib
+import edge_tts
 
-API_KEY = "sk-tbppcdrmrmnristmzjinynuqvflifmernybuupqardjwgcgn"
-API_URL = "https://api.siliconflow.cn/v1/audio/speech"
-VOICE = "FunAudioLLM/CosyVoice2-0.5B:anna"  # 温柔女声
-OUTPUT_DIR = "/workspace/audio/anna"
+VOICE = "zh-CN-XiaoxiaoNeural"  # 晓晓女声
+OUTPUT_DIR = "/workspace/audio/xiaoxiao"
+PROXY = "http://127.0.0.1:18080"  # 代理
 
 def get_course_content():
-    """读取课程内容"""
     with open('/workspace/data/course-content.json') as f:
         return json.load(f)
 
+async def text_to_speech_async(text, output_file):
+    communicate = edge_tts.Communicate(text, VOICE, proxy=PROXY)
+    await communicate.save(output_file)
+    return True, os.path.getsize(output_file)
+
 def text_to_speech(text, output_file):
-    """调用API生成语音"""
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "model": "FunAudioLLM/CosyVoice2-0.5B",
-        "input": text,
-        "voice": VOICE,
-        "response_format": "mp3",
-        "speed": 1.0
-    }
-    
-    try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
-        
-        if response.status_code == 200:
-            with open(output_file, 'wb') as f:
-                f.write(response.content)
-            return True, len(response.content)
-        else:
-            return False, f"HTTP {response.status_code}: {response.text[:100]}"
-    except Exception as e:
-        return False, str(e)
+    return asyncio.run(text_to_speech_async(text, output_file))
 
 def process_markdown_to_script(markdown, lesson_title):
     """
@@ -252,7 +231,7 @@ def main():
     # 生成元数据文件
     metadata = {
         "voice": VOICE,
-        "voice_name": "Anna（温柔女声）",
+        "voice_name": "晓晓（微软Edge TTS）",
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "total_lessons": total_lessons,
         "success_count": success_count,
@@ -266,7 +245,7 @@ def main():
             if os.path.exists(output_file):
                 metadata["files"][lesson_id] = {
                     "title": lesson['title'],
-                    "file": f"audio/anna/{lesson_id}.mp3",
+                    "file": f"audio/xiaoxiao/{lesson_id}.mp3",
                     "size": os.path.getsize(output_file)
                 }
     

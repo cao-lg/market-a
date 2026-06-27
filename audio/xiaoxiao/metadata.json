@@ -1,0 +1,329 @@
+{
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "voice_name": "晓晓（微软Edge TTS）",
+  "generated_at": "2026-06-27 11:10:58",
+  "total_lessons": 64,
+  "success_count": 64,
+  "files": {
+    "stage-1-lesson-1": {
+      "title": "入职宣讲（上）：企业与项目介绍",
+      "file": "audio/xiaoxiao/stage-1-lesson-1.mp3",
+      "size": 2729232
+    },
+    "stage-1-lesson-2": {
+      "title": "入职宣讲（下）：方法论与案例拆解",
+      "file": "audio/xiaoxiao/stage-1-lesson-2.mp3",
+      "size": 5144400
+    },
+    "stage-1-lesson-3": {
+      "title": "工具环境准备",
+      "file": "audio/xiaoxiao/stage-1-lesson-3.mp3",
+      "size": 3154176
+    },
+    "stage-1-lesson-4": {
+      "title": "实操练习（上）：小组分工与计划制定",
+      "file": "audio/xiaoxiao/stage-1-lesson-4.mp3",
+      "size": 2501424
+    },
+    "stage-1-lesson-5": {
+      "title": "实操练习（下）：报告结构分析与计划完善",
+      "file": "audio/xiaoxiao/stage-1-lesson-5.mp3",
+      "size": 2719584
+    },
+    "stage-1-lesson-6": {
+      "title": "成果提交与审核",
+      "file": "audio/xiaoxiao/stage-1-lesson-6.mp3",
+      "size": 3168144
+    },
+    "stage-2-lesson-1": {
+      "title": "数据清洗理论（理论）",
+      "file": "audio/xiaoxiao/stage-2-lesson-1.mp3",
+      "size": 2626416
+    },
+    "stage-2-lesson-2": {
+      "title": "全流程示范（示范）",
+      "file": "audio/xiaoxiao/stage-2-lesson-2.mp3",
+      "size": 2501712
+    },
+    "stage-2-lesson-3": {
+      "title": "跟练（上）：无效数据与重复值处理",
+      "file": "audio/xiaoxiao/stage-2-lesson-3.mp3",
+      "size": 2084976
+    },
+    "stage-2-lesson-4": {
+      "title": "跟练（下）：缺失值处理与格式标准化",
+      "file": "audio/xiaoxiao/stage-2-lesson-4.mp3",
+      "size": 2734992
+    },
+    "stage-2-lesson-5": {
+      "title": "独立练（上）：缺失值处理与格式标准化",
+      "file": "audio/xiaoxiao/stage-2-lesson-5.mp3",
+      "size": 2374560
+    },
+    "stage-2-lesson-6": {
+      "title": "独立练（下）：异常值识别与业务判断",
+      "file": "audio/xiaoxiao/stage-2-lesson-6.mp3",
+      "size": 2244240
+    },
+    "stage-2-lesson-7": {
+      "title": "项目实操（一）：9月全量数据清洗启动",
+      "file": "audio/xiaoxiao/stage-2-lesson-7.mp3",
+      "size": 1669536
+    },
+    "stage-2-lesson-8": {
+      "title": "项目实操（二）：陷阱数据识别与处理",
+      "file": "audio/xiaoxiao/stage-2-lesson-8.mp3",
+      "size": 2470176
+    },
+    "stage-2-lesson-9": {
+      "title": "项目实操（三）：清洗完成与说明文档撰写",
+      "file": "audio/xiaoxiao/stage-2-lesson-9.mp3",
+      "size": 2210832
+    },
+    "stage-2-lesson-10": {
+      "title": "变式练习（一）：新品类数据清洗",
+      "file": "audio/xiaoxiao/stage-2-lesson-10.mp3",
+      "size": 1840896
+    },
+    "stage-2-lesson-11": {
+      "title": "变式练习（二）：对比反思与迁移总结",
+      "file": "audio/xiaoxiao/stage-2-lesson-11.mp3",
+      "size": 2008224
+    },
+    "stage-2-lesson-12": {
+      "title": "成果校验与反馈",
+      "file": "audio/xiaoxiao/stage-2-lesson-12.mp3",
+      "size": 2888928
+    },
+    "stage-3-lesson-1": {
+      "title": "核心指标体系讲解（上）：流量与转化类",
+      "file": "audio/xiaoxiao/stage-3-lesson-1.mp3",
+      "size": 3399696
+    },
+    "stage-3-lesson-2": {
+      "title": "核心指标体系讲解（下）：交易与用户类",
+      "file": "audio/xiaoxiao/stage-3-lesson-2.mp3",
+      "size": 4617072
+    },
+    "stage-3-lesson-3": {
+      "title": "手写口径练习：20个核心指标定义与公式",
+      "file": "audio/xiaoxiao/stage-3-lesson-3.mp3",
+      "size": 1885824
+    },
+    "stage-3-lesson-4": {
+      "title": "操作示范：AI+Excel批量核算指标",
+      "file": "audio/xiaoxiao/stage-3-lesson-4.mp3",
+      "size": 2756592
+    },
+    "stage-3-lesson-5": {
+      "title": "跟练（上）：流量类与交易类指标核算",
+      "file": "audio/xiaoxiao/stage-3-lesson-5.mp3",
+      "size": 2550384
+    },
+    "stage-3-lesson-6": {
+      "title": "跟练（下）：转化类与用户类指标核算",
+      "file": "audio/xiaoxiao/stage-3-lesson-6.mp3",
+      "size": 2677392
+    },
+    "stage-3-lesson-7": {
+      "title": "项目实操（上）：9月全量核心指标核算",
+      "file": "audio/xiaoxiao/stage-3-lesson-7.mp3",
+      "size": 2030400
+    },
+    "stage-3-lesson-8": {
+      "title": "项目实操（下）：环比对比与异常标注",
+      "file": "audio/xiaoxiao/stage-3-lesson-8.mp3",
+      "size": 2416752
+    },
+    "stage-3-lesson-9": {
+      "title": "含陷阱任务（上）：口径不一致与逻辑矛盾识别",
+      "file": "audio/xiaoxiao/stage-3-lesson-9.mp3",
+      "size": 2577888
+    },
+    "stage-3-lesson-10": {
+      "title": "含陷阱任务（下）：指标体系逻辑一致性检验",
+      "file": "audio/xiaoxiao/stage-3-lesson-10.mp3",
+      "size": 3005568
+    },
+    "stage-3-lesson-11": {
+      "title": "纠错与优化：AI结果校验与异常标注修正",
+      "file": "audio/xiaoxiao/stage-3-lesson-11.mp3",
+      "size": 3483792
+    },
+    "stage-3-lesson-12": {
+      "title": "成果提交与审核",
+      "file": "audio/xiaoxiao/stage-3-lesson-12.mp3",
+      "size": 3332880
+    },
+    "stage-4-lesson-1": {
+      "title": "流量与转化归因分析框架（理论）",
+      "file": "audio/xiaoxiao/stage-4-lesson-1.mp3",
+      "size": 3082176
+    },
+    "stage-4-lesson-2": {
+      "title": "流量归因分析：示范+跟练",
+      "file": "audio/xiaoxiao/stage-4-lesson-2.mp3",
+      "size": 4054896
+    },
+    "stage-4-lesson-3": {
+      "title": "流量归因分析：独立实操",
+      "file": "audio/xiaoxiao/stage-4-lesson-3.mp3",
+      "size": 1617408
+    },
+    "stage-4-lesson-4": {
+      "title": "流量归因分析：变式迁移",
+      "file": "audio/xiaoxiao/stage-4-lesson-4.mp3",
+      "size": 1803888
+    },
+    "stage-4-lesson-5": {
+      "title": "用户价值与RFM模型（理论）",
+      "file": "audio/xiaoxiao/stage-4-lesson-5.mp3",
+      "size": 4338000
+    },
+    "stage-4-lesson-6": {
+      "title": "用户RFM分析：示范+跟练",
+      "file": "audio/xiaoxiao/stage-4-lesson-6.mp3",
+      "size": 4573008
+    },
+    "stage-4-lesson-7": {
+      "title": "用户RFM分析：独立实操",
+      "file": "audio/xiaoxiao/stage-4-lesson-7.mp3",
+      "size": 1467936
+    },
+    "stage-4-lesson-8": {
+      "title": "用户RFM分析：变式迁移",
+      "file": "audio/xiaoxiao/stage-4-lesson-8.mp3",
+      "size": 1867392
+    },
+    "stage-4-lesson-9": {
+      "title": "竞品分析框架与数据采集（理论）",
+      "file": "audio/xiaoxiao/stage-4-lesson-9.mp3",
+      "size": 3471696
+    },
+    "stage-4-lesson-10": {
+      "title": "竞品对标分析：示范+跟练",
+      "file": "audio/xiaoxiao/stage-4-lesson-10.mp3",
+      "size": 5037696
+    },
+    "stage-4-lesson-11": {
+      "title": "竞品对标分析：独立实操",
+      "file": "audio/xiaoxiao/stage-4-lesson-11.mp3",
+      "size": 1822896
+    },
+    "stage-4-lesson-12": {
+      "title": "竞品对标分析：变式迁移",
+      "file": "audio/xiaoxiao/stage-4-lesson-12.mp3",
+      "size": 1969488
+    },
+    "stage-4-lesson-13": {
+      "title": "营销活动复盘方法论（理论）",
+      "file": "audio/xiaoxiao/stage-4-lesson-13.mp3",
+      "size": 3854448
+    },
+    "stage-4-lesson-14": {
+      "title": "活动效果复盘：示范+跟练",
+      "file": "audio/xiaoxiao/stage-4-lesson-14.mp3",
+      "size": 6155712
+    },
+    "stage-4-lesson-15": {
+      "title": "活动效果复盘：独立实操",
+      "file": "audio/xiaoxiao/stage-4-lesson-15.mp3",
+      "size": 1671696
+    },
+    "stage-4-lesson-16": {
+      "title": "活动效果复盘：变式迁移+阶段验收",
+      "file": "audio/xiaoxiao/stage-4-lesson-16.mp3",
+      "size": 2866896
+    },
+    "stage-5-lesson-1": {
+      "title": "看板与报告设计原则（理论+样例）",
+      "file": "audio/xiaoxiao/stage-5-lesson-1.mp3",
+      "size": 3975552
+    },
+    "stage-5-lesson-2": {
+      "title": "在线看板基础操作教学（理论+演示）",
+      "file": "audio/xiaoxiao/stage-5-lesson-2.mp3",
+      "size": 3616848
+    },
+    "stage-5-lesson-3": {
+      "title": "实操：数据看板搭建与报告骨架搭建",
+      "file": "audio/xiaoxiao/stage-5-lesson-3.mp3",
+      "size": 2725776
+    },
+    "stage-5-lesson-4": {
+      "title": "实操：看板优化与报告骨架完善",
+      "file": "audio/xiaoxiao/stage-5-lesson-4.mp3",
+      "size": 3147984
+    },
+    "stage-5-lesson-5": {
+      "title": "实操：报告内容填充与AI润色优化",
+      "file": "audio/xiaoxiao/stage-5-lesson-5.mp3",
+      "size": 2972592
+    },
+    "stage-5-lesson-6": {
+      "title": "实操：汇报PPT制作",
+      "file": "audio/xiaoxiao/stage-5-lesson-6.mp3",
+      "size": 3136176
+    },
+    "stage-5-lesson-7": {
+      "title": "实操：看板交互功能完善（上）",
+      "file": "audio/xiaoxiao/stage-5-lesson-7.mp3",
+      "size": 3214800
+    },
+    "stage-5-lesson-8": {
+      "title": "实操：看板交互功能完善（下）",
+      "file": "audio/xiaoxiao/stage-5-lesson-8.mp3",
+      "size": 3016512
+    },
+    "stage-5-lesson-9": {
+      "title": "交叉评审：小组互查报告与看板",
+      "file": "audio/xiaoxiao/stage-5-lesson-9.mp3",
+      "size": 3503088
+    },
+    "stage-5-lesson-10": {
+      "title": "交叉评审：问题讨论与方案确认",
+      "file": "audio/xiaoxiao/stage-5-lesson-10.mp3",
+      "size": 3002832
+    },
+    "stage-5-lesson-11": {
+      "title": "终稿优化与提交（上）",
+      "file": "audio/xiaoxiao/stage-5-lesson-11.mp3",
+      "size": 2725632
+    },
+    "stage-5-lesson-12": {
+      "title": "终稿优化与提交（下）",
+      "file": "audio/xiaoxiao/stage-5-lesson-12.mp3",
+      "size": 3423456
+    },
+    "stage-6-lesson-1": {
+      "title": "项目路演（上）：小组汇报",
+      "file": "audio/xiaoxiao/stage-6-lesson-1.mp3",
+      "size": 3408336
+    },
+    "stage-6-lesson-2": {
+      "title": "项目路演（下）：小组汇报",
+      "file": "audio/xiaoxiao/stage-6-lesson-2.mp3",
+      "size": 2500992
+    },
+    "stage-6-lesson-3": {
+      "title": "项目路演：评审与打分",
+      "file": "audio/xiaoxiao/stage-6-lesson-3.mp3",
+      "size": 2696832
+    },
+    "stage-6-lesson-4": {
+      "title": "整体点评与知识体系复盘",
+      "file": "audio/xiaoxiao/stage-6-lesson-4.mp3",
+      "size": 4890960
+    },
+    "stage-6-lesson-5": {
+      "title": "转正终结考核：新品类数据分析",
+      "file": "audio/xiaoxiao/stage-6-lesson-5.mp3",
+      "size": 3594240
+    },
+    "stage-6-lesson-6": {
+      "title": "考核反馈与职业发展建议",
+      "file": "audio/xiaoxiao/stage-6-lesson-6.mp3",
+      "size": 3419424
+    }
+  }
+}
