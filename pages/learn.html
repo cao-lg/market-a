@@ -739,7 +739,7 @@
   <div id="toast-container" class="toast-container"></div>
 
   <script src="../js/db.js"></script>
-  <script src="../js/ai.js"></script>
+  <script src="../js/ai.js?v=20250726"></script>
   <script src="../js/agent.js"></script>
   <script src="../js/course-engine.js"></script>
   <script>
@@ -978,13 +978,13 @@
     }
 
     // ==================== Speech Synthesis (Text-to-Speech) ====================
-    let speechUtterance = null;
+    let speechAudio = null;
     let speechRate = 1.0;
     let isSpeaking = false;
     let isPaused = false;
     let speechText = '';
-    let speechChars = [];
-    let currentCharIndex = 0;
+    let speechAudioUrl = null;
+    let isGenerating = false;
 
     function cleanMarkdownText(md) {
       let text = md || '';
@@ -1007,6 +1007,7 @@
     }
 
     function formatTime(seconds) {
+      if (!isFinite(seconds) || seconds < 0) return '0:00';
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -1018,14 +1019,15 @@
       return Math.ceil(chars / charsPerSecond);
     }
 
+    function getTTSProviderName() {
+      const p = window.AI?.tts?.getProvider?.() || 'browser';
+      const names = { siliconflow: '硅基流动', zhipu: '智谱AI', moark: 'Moark', browser: '系统语音' };
+      return names[p] || p;
+    }
+
     function initSpeechControls(markdownText) {
       const bar = document.getElementById('audio-control-bar');
       if (!bar) return;
-
-      if (!window.speechSynthesis) {
-        hideSpeechControls();
-        return;
-      }
 
       if (!markdownText || markdownText.trim().length < 20) {
         hideSpeechControls();
@@ -1041,9 +1043,14 @@
 
       bar.style.display = 'flex';
       
+      if (speechAudioUrl) {
+        URL.revokeObjectURL(speechAudioUrl);
+        speechAudioUrl = null;
+      }
+      
       const duration = estimateDuration(speechText, speechRate);
       document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
-      document.getElementById('audio-status').textContent = `全文约${formatTime(duration)}，点击播放开始朗读`;
+      document.getElementById('audio-status').textContent = `${getTTSProviderName()} · 全文约${formatTime(duration)}，点击播放开始朗读`;
       
       updatePlayPauseIcon();
     }
@@ -1071,35 +1078,123 @@
     function toggleSpeech() {
       if (!speechText) return;
 
-      if (isSpeaking && isPaused) {
-        window.speechSynthesis.resume();
-        isPaused = false;
-        updatePlayPauseIcon();
-        document.getElementById('audio-status').textContent = '正在朗读...';
-        return;
-      }
+      if (isGenerating) return;
 
-      if (isSpeaking && !isPaused) {
-        window.speechSynthesis.pause();
+      if (speechAudio && isSpeaking && !isPaused) {
+        speechAudio.pause();
         isPaused = true;
         updatePlayPauseIcon();
         document.getElementById('audio-status').textContent = '已暂停';
         return;
       }
 
+      if (speechAudio && isSpeaking && isPaused) {
+        speechAudio.play();
+        isPaused = false;
+        updatePlayPauseIcon();
+        document.getElementById('audio-status').textContent = '正在朗读...';
+        return;
+      }
+
       startSpeech();
     }
 
-    function startSpeech() {
-      if (!speechText || !window.speechSynthesis) return;
+    async function startSpeech() {
+      if (!speechText) return;
+
+      stopSpeech();
+
+      const provider = window.AI?.tts?.getProvider?.() || 'browser';
+
+      if (provider === 'browser') {
+        startBrowserSpeech();
+        return;
+      }
+
+      if (speechAudioUrl) {
+        playAudioUrl(speechAudioUrl);
+        return;
+      }
+
+      isGenerating = true;
+      document.getElementById('audio-status').textContent = '🎙️ 正在生成语音，请稍候...';
+      document.getElementById('play-icon').style.opacity = '0.5';
+
+      try {
+        speechAudioUrl = await window.AI.tts.synthesize(speechText, { speed: speechRate });
+        isGenerating = false;
+        document.getElementById('play-icon').style.opacity = '1';
+        
+        if (speechAudioUrl) {
+          playAudioUrl(speechAudioUrl);
+        }
+      } catch (e) {
+        isGenerating = false;
+        document.getElementById('play-icon').style.opacity = '1';
+        console.warn('API TTS failed, falling back to browser:', e.message);
+        document.getElementById('audio-status').textContent = 'API不可用，切换到系统语音...';
+        setTimeout(() => startBrowserSpeech(), 500);
+      }
+    }
+
+    function playAudioUrl(url) {
+      speechAudio = new Audio(url);
+      speechAudio.playbackRate = speechRate;
+      
+      speechAudio.addEventListener('timeupdate', () => {
+        if (speechAudio && speechAudio.duration) {
+          document.getElementById('audio-progress').textContent = 
+            `${formatTime(speechAudio.currentTime)} / ${formatTime(speechAudio.duration)}`;
+        }
+      });
+
+      speechAudio.addEventListener('play', () => {
+        isSpeaking = true;
+        isPaused = false;
+        updatePlayPauseIcon();
+        document.getElementById('audio-status').textContent = '正在朗读...';
+      });
+
+      speechAudio.addEventListener('pause', () => {
+        isPaused = true;
+        updatePlayPauseIcon();
+      });
+
+      speechAudio.addEventListener('ended', () => {
+        isSpeaking = false;
+        isPaused = false;
+        updatePlayPauseIcon();
+        document.getElementById('audio-status').textContent = '朗读完成';
+        if (speechAudio && speechAudio.duration) {
+          document.getElementById('audio-progress').textContent = 
+            `${formatTime(speechAudio.duration)} / ${formatTime(speechAudio.duration)}`;
+        }
+      });
+
+      speechAudio.addEventListener('error', (e) => {
+        isSpeaking = false;
+        isPaused = false;
+        updatePlayPauseIcon();
+        document.getElementById('audio-status').textContent = '播放出错，请重试';
+        console.error('Audio error:', e);
+      });
+
+      speechAudio.play();
+    }
+
+    function startBrowserSpeech() {
+      if (!window.speechSynthesis) {
+        document.getElementById('audio-status').textContent = '浏览器不支持语音';
+        return;
+      }
 
       window.speechSynthesis.cancel();
 
-      speechUtterance = new SpeechSynthesisUtterance(speechText);
-      speechUtterance.lang = 'zh-CN';
-      speechUtterance.rate = speechRate;
-      speechUtterance.pitch = 1.0;
-      speechUtterance.volume = 1.0;
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      utterance.lang = 'zh-CN';
+      utterance.rate = speechRate;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
 
       const voices = window.speechSynthesis.getVoices();
       const chineseVoice = voices.find(v => 
@@ -1109,17 +1204,17 @@
         v.name.toLowerCase().includes('中文')
       );
       if (chineseVoice) {
-        speechUtterance.voice = chineseVoice;
+        utterance.voice = chineseVoice;
       }
 
-      speechUtterance.onstart = () => {
+      utterance.onstart = () => {
         isSpeaking = true;
         isPaused = false;
         updatePlayPauseIcon();
-        document.getElementById('audio-status').textContent = '正在朗读...';
+        document.getElementById('audio-status').textContent = '正在朗读（系统语音）...';
       };
 
-      speechUtterance.onend = () => {
+      utterance.onend = () => {
         isSpeaking = false;
         isPaused = false;
         updatePlayPauseIcon();
@@ -1128,7 +1223,7 @@
         document.getElementById('audio-progress').textContent = `${formatTime(duration)} / ${formatTime(duration)}`;
       };
 
-      speechUtterance.onerror = (e) => {
+      utterance.onerror = (e) => {
         isSpeaking = false;
         isPaused = false;
         updatePlayPauseIcon();
@@ -1136,44 +1231,42 @@
         console.error('Speech error:', e);
       };
 
-      window.speechSynthesis.speak(speechUtterance);
+      window.speechSynthesis.speak(utterance);
     }
 
     function stopSpeech() {
+      if (speechAudio) {
+        speechAudio.pause();
+        speechAudio.currentTime = 0;
+        speechAudio = null;
+      }
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
       isSpeaking = false;
       isPaused = false;
+      isGenerating = false;
       updatePlayPauseIcon();
       if (speechText) {
         const statusEl = document.getElementById('audio-status');
-        if (statusEl) statusEl.textContent = '已停止，点击播放重新开始';
+        if (statusEl && statusEl.textContent !== '🎙️ 正在生成语音，请稍候...') {
+          statusEl.textContent = '已停止，点击播放重新开始';
+        }
       }
     }
 
     function changeSpeechRate(rate) {
       speechRate = parseFloat(rate);
       
-      if (speechUtterance) {
-        speechUtterance.rate = speechRate;
-      }
-
-      if (isSpeaking) {
-        const wasPaused = isPaused;
-        window.speechSynthesis.cancel();
-        startSpeech();
-        if (wasPaused) {
-          window.speechSynthesis.pause();
-          isPaused = true;
-        }
+      if (speechAudio) {
+        speechAudio.playbackRate = speechRate;
       }
 
       if (speechText) {
         const duration = estimateDuration(speechText, speechRate);
-        document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
-        if (!isSpeaking) {
-          document.getElementById('audio-status').textContent = `全文约${formatTime(duration)}，点击播放开始朗读`;
+        if (!isSpeaking || !speechAudio) {
+          document.getElementById('audio-progress').textContent = `0:00 / ${formatTime(duration)}`;
+          document.getElementById('audio-status').textContent = `${getTTSProviderName()} · 全文约${formatTime(duration)}，点击播放开始朗读`;
         }
       }
     }

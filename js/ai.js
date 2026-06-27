@@ -315,6 +315,137 @@ class AIAPIError extends Error {
   }
 }
 
+// ==================== TTS (Text-to-Speech) ====================
+
+const TTS_VOICES = {
+  siliconflow: [
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:anna', name: 'Anna（温柔女声）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:alex', name: 'Alex（磁性男声）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:emma', name: 'Emma（知性女声）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:jack', name: 'Jack（沉稳男声）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:zh-hongchen', name: '红尘（温柔古风）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:zh-leszhu', name: 'Leszhu（活力少年）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:zh-shaonian', name: '少年（清澈少年）', model: 'FunAudioLLM/CosyVoice2-0.5B' },
+    { id: 'FunAudioLLM/CosyVoice2-0.5B:zh-tianmei', name: '甜美（甜美女声）', model: 'FunAudioLLM/CosyVoice2-0.5B' }
+  ],
+  zhipu: [
+    { id: 'tongtong', name: '彤彤（智谱女声）', model: 'cogtts' },
+    { id: 'nan_speaker_01', name: '男声1号', model: 'cogtts' },
+    { id: 'nv_speaker_01', name: '女声1号', model: 'cogtts' }
+  ],
+  browser: [
+    { id: 'default', name: '系统默认语音', model: 'speechSynthesis' }
+  ]
+};
+
+function getTTSProvider() {
+  const stored = localStorage.getItem('tts_provider');
+  if (stored) {
+    const apiKey = localStorage.getItem(`apiKey_${stored}`);
+    if (apiKey || stored === 'browser') {
+      return stored;
+    }
+  }
+  
+  const providers = ['siliconflow', 'zhipu', 'moark'];
+  for (const p of providers) {
+    if (localStorage.getItem(`apiKey_${p}`)) {
+      return p;
+    }
+  }
+  
+  return 'browser';
+}
+
+function getTTSVoice() {
+  return localStorage.getItem('tts_voice') || '';
+}
+
+function getTTSSpeed() {
+  return parseFloat(localStorage.getItem('tts_speed')) || 1.0;
+}
+
+function getAvailableTTSVoices() {
+  const provider = getTTSProvider();
+  return TTS_VOICES[provider] || TTS_VOICES.browser;
+}
+
+async function synthesizeSpeech(text, options = {}) {
+  const provider = options.provider || getTTSProvider();
+  const voice = options.voice || getTTSVoice();
+  const speed = options.speed || getTTSSpeed();
+  
+  if (provider === 'browser') {
+    throw new Error('browser');
+  }
+  
+  const apiKey = localStorage.getItem(`apiKey_${provider}`);
+  if (!apiKey) {
+    throw new Error('NO_API_KEY');
+  }
+  
+  const config = API_PROVIDERS[provider];
+  if (!config) {
+    throw new Error('UNKNOWN_PROVIDER');
+  }
+  
+  let url, body;
+  
+  if (provider === 'siliconflow') {
+    const voiceInfo = TTS_VOICES.siliconflow.find(v => v.id === voice) || TTS_VOICES.siliconflow[0];
+    url = `${config.baseURL}/audio/speech`;
+    body = {
+      model: voiceInfo.model,
+      input: text,
+      voice: voiceInfo.id,
+      speed: speed,
+      response_format: 'mp3',
+      stream: false
+    };
+  } else if (provider === 'zhipu') {
+    url = `${config.baseURL}/audio/speech`;
+    body = {
+      model: 'cogtts',
+      input: text,
+      voice: voice || 'tongtong'
+    };
+  } else if (provider === 'moark') {
+    url = `${config.baseURL}/audio/speech`;
+    body = {
+      model: 'GLM-TTS',
+      input: text,
+      voice: voice || 'tongtong'
+    };
+  } else {
+    throw new Error('UNSUPPORTED_PROVIDER');
+  }
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  
+  if (response.status === 401) {
+    throw new Error('API Key无效');
+  }
+  
+  if (response.status === 429) {
+    throw new Error('请求过于频繁');
+  }
+  
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`TTS错误: ${response.status} ${errText.substring(0, 100)}`);
+  }
+  
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
 // ==================== Export ====================
 
 window.AI = {
@@ -326,5 +457,13 @@ window.AI = {
   sendChatRequestStream,
   cancelCurrentRequest,
   testConnection,
-  AIAPIError
+  AIAPIError,
+  tts: {
+    voices: TTS_VOICES,
+    getProvider: getTTSProvider,
+    getVoice: getTTSVoice,
+    getSpeed: getTTSSpeed,
+    getAvailableVoices: getAvailableTTSVoices,
+    synthesize: synthesizeSpeech
+  }
 };
