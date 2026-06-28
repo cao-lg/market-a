@@ -122,6 +122,7 @@
   <!-- Handsontable JS -->
   <script src="https://cdn.jsdelivr.net/npm/handsontable@12/dist/handsontable.min.js"></script>
   
+  <script src="../js/student-manager.js"></script>
   <script src="../js/db.js"></script>
   <script src="../js/ai.js?v=20250726"></script>
   <script src="../js/agent.js"></script>
@@ -133,6 +134,10 @@
 
     // Initialize Handsontable
     document.addEventListener('DOMContentLoaded', () => {
+      if (window.StudentManager && typeof window.StudentManager.initUI === 'function') {
+        window.StudentManager.initUI();
+      }
+      
       initTable();
       
       // Check for data parameter in URL

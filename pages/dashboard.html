@@ -972,6 +972,7 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="../js/student-manager.js"></script>
   <script src="../js/db.js"></script>
   <script src="../js/course-engine.js"></script>
   <script src="../js/export.js"></script>
@@ -979,6 +980,10 @@
     let studentId = '';
 
     document.addEventListener('DOMContentLoaded', async () => {
+      if (window.StudentManager && typeof window.StudentManager.initUI === 'function') {
+        window.StudentManager.initUI();
+      }
+      
       studentId = localStorage.getItem('studentId') || 'unknown';
       document.getElementById('student-id').textContent = studentId.slice(0, 8) + '...';
       

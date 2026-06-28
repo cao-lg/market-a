@@ -8,6 +8,9 @@ let currentTestId = null;
 let testStartTime = null;
 let testTimer = null;
 let testAnswers = {};
+let testSessionId = null;
+let questionTrackers = {};
+let questionStartTimes = {};
 
 // ==================== Test Loading ====================
 
@@ -23,6 +26,9 @@ async function loadTest(stageId) {
   currentTestId = `${stageId}-test`;
   currentTest.questions = shuffleArray(questions.questions);
   testAnswers = {};
+  testSessionId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  questionTrackers = {};
+  questionStartTimes = {};
   
   return currentTest;
 }
@@ -109,6 +115,31 @@ function renderTest(containerId) {
   container.innerHTML = html;
   
   startTimer(currentTest.timeLimitMinutes * 60);
+  
+  logTestStartEvent();
+}
+
+async function logTestStartEvent() {
+  try {
+    if (window.ExamTracker && window.DB?.eventLogs) {
+      const stageId = currentTestId.replace('-test', '');
+      await DB.eventLogs.add({
+        eventType: 'exam_start',
+        eventName: '开始测试',
+        sessionId: testSessionId,
+        stageId: stageId,
+        lessonId: currentTestId,
+        properties: {
+          questionCount: currentTest.questions.length,
+          timeLimit: currentTest.timeLimitMinutes,
+          totalScore: calculateTotalScore()
+        },
+        timestamp: Date.now()
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to log test start event:', e);
+  }
 }
 
 function renderQuestion(question, index) {
@@ -186,10 +217,23 @@ function renderQuestion(question, index) {
 // ==================== Answer Handling ====================
 
 function selectOption(questionId, optionIndex, isMulti) {
+  if (!questionStartTimes[questionId]) {
+    questionStartTimes[questionId] = Date.now();
+  }
+  
+  if (!questionTrackers[questionId]) {
+    questionTrackers[questionId] = { modificationCount: 0, hasAnswered: false };
+  }
+  
   const options = document.querySelectorAll(`[data-question="${questionId}"]`);
   
   if (isMulti) {
     const isSelected = options[optionIndex].classList.contains('selected');
+    
+    if (questionTrackers[questionId].hasAnswered) {
+      questionTrackers[questionId].modificationCount++;
+    }
+    
     options[optionIndex].classList.toggle('selected');
     
     if (!testAnswers[questionId]) {
@@ -202,20 +246,69 @@ function selectOption(questionId, optionIndex, isMulti) {
       testAnswers[questionId].push(optionIndex);
     }
   } else {
+    if (questionTrackers[questionId].hasAnswered && testAnswers[questionId] !== optionIndex) {
+      questionTrackers[questionId].modificationCount++;
+    }
+    
     options.forEach((opt, i) => {
       opt.classList.toggle('selected', i === optionIndex);
     });
     testAnswers[questionId] = optionIndex;
   }
   
+  questionTrackers[questionId].hasAnswered = true;
+  
   updateAnsweredCount();
   updateQuestionCardState(questionId, true);
+  
+  logAnswerEvent(questionId, testAnswers[questionId]);
+}
+
+async function logAnswerEvent(questionId, answer) {
+  try {
+    if (window.DB?.eventLogs) {
+      const stageId = currentTestId.replace('-test', '');
+      const question = currentTest.questions.find(q => q.id === questionId);
+      await DB.eventLogs.add({
+        eventType: 'exam_answer',
+        eventName: '选择答案',
+        sessionId: testSessionId,
+        stageId: stageId,
+        lessonId: currentTestId,
+        questionId: questionId,
+        properties: {
+          questionType: question?.type || '',
+          answer: JSON.stringify(answer).substring(0, 200),
+          modificationCount: questionTrackers[questionId]?.modificationCount || 0
+        },
+        timestamp: Date.now()
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to log answer event:', e);
+  }
 }
 
 function saveFillAnswer(questionId, value) {
+  if (!questionStartTimes[questionId]) {
+    questionStartTimes[questionId] = Date.now();
+  }
+  
+  if (!questionTrackers[questionId]) {
+    questionTrackers[questionId] = { modificationCount: 0, hasAnswered: false };
+  }
+  
+  if (questionTrackers[questionId].hasAnswered && testAnswers[questionId] !== value) {
+    questionTrackers[questionId].modificationCount++;
+  }
+  
   testAnswers[questionId] = value;
+  questionTrackers[questionId].hasAnswered = true;
+  
   updateAnsweredCount();
   updateQuestionCardState(questionId, value && value.trim().length > 0);
+  
+  logAnswerEvent(questionId, value);
 }
 
 function updateQuestionCardState(questionId, answered) {
@@ -321,6 +414,12 @@ async function submitTest() {
   
   showTestResults(result);
   
+  await saveAllExamBehaviors(result);
+  
+  await logExamSubmitEvent(result);
+  
+  await logExamCompleteEvent(result);
+  
   await DB.assessments.save({
     testId: currentTestId,
     stageId: currentTestId.replace('-test', ''),
@@ -341,6 +440,141 @@ async function submitTest() {
   }
   
   return result;
+}
+
+async function saveAllExamBehaviors(result) {
+  try {
+    if (!window.DB?.examBehavior) return;
+    
+    const stageId = currentTestId.replace('-test', '');
+    const endTime = Date.now();
+    
+    for (const question of currentTest.questions) {
+      const userAnswer = testAnswers[question.id];
+      const hasAnswered = userAnswer !== undefined && userAnswer !== null && 
+                          (Array.isArray(userAnswer) ? userAnswer.length > 0 : userAnswer !== '');
+      
+      const detail = result.details.find(d => d.questionId === question.id);
+      const startTime = questionStartTimes[question.id] || testStartTime;
+      const duration = startTime ? Math.floor((endTime - startTime) / 1000) : 0;
+      
+      let correctAnswerStr = '';
+      if (question.type === 'single-choice') {
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        correctAnswerStr = letters[question.answer] || String(question.answer);
+      } else if (question.type === 'multi-choice') {
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        correctAnswerStr = (question.answer || []).map(i => letters[i]).join(',');
+      } else {
+        correctAnswerStr = String(question.answer || '');
+      }
+      
+      let userAnswerStr = '';
+      if (question.type === 'single-choice') {
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        userAnswerStr = userAnswer !== undefined ? letters[userAnswer] || String(userAnswer) : '';
+      } else if (question.type === 'multi-choice') {
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        userAnswerStr = Array.isArray(userAnswer) ? userAnswer.map(i => letters[i]).join(',') : '';
+      } else {
+        userAnswerStr = userAnswer ? String(userAnswer) : '';
+      }
+      
+      let questionType = 'choice';
+      if (question.type === 'fill-blank') {
+        questionType = 'shortanswer';
+      } else if (question.type === 'hands-on') {
+        questionType = 'case';
+      }
+      
+      const topic = window.ExamTracker ? 
+        ExamTracker.extractTopic(question.question, stageId) : '其他';
+      
+      await DB.examBehavior.add({
+        studentId: null,
+        stageId: stageId,
+        lessonId: currentTestId,
+        sessionId: testSessionId,
+        questionId: question.id,
+        questionType: questionType,
+        topic: topic,
+        startTime: startTime,
+        endTime: endTime,
+        duration: duration,
+        isCorrect: detail?.correct || false,
+        userAnswer: userAnswerStr,
+        correctAnswer: correctAnswerStr,
+        modificationCount: questionTrackers[question.id]?.modificationCount || 0,
+        skipped: !hasAnswered,
+        checkedCount: 0,
+        score: detail?.score || 0,
+        createdAt: Date.now()
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to save exam behaviors:', e);
+  }
+}
+
+async function logExamSubmitEvent(result) {
+  try {
+    if (window.DB?.eventLogs) {
+      const stageId = currentTestId.replace('-test', '');
+      const answeredCount = Object.keys(testAnswers).filter(k => {
+        const v = testAnswers[k];
+        if (Array.isArray(v)) return v.length > 0;
+        return v !== undefined && v !== null && v !== '';
+      }).length;
+      
+      await DB.eventLogs.add({
+        eventType: 'exam_submit',
+        eventName: '提交试卷',
+        sessionId: testSessionId,
+        stageId: stageId,
+        lessonId: currentTestId,
+        properties: {
+          answeredCount: answeredCount,
+          totalQuestions: currentTest.questions.length,
+          score: result.score,
+          totalScore: result.totalScore,
+          passed: result.passed,
+          timeUsed: getTimeUsed()
+        },
+        timestamp: Date.now()
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to log exam submit event:', e);
+  }
+}
+
+async function logExamCompleteEvent(result) {
+  try {
+    if (window.DB?.eventLogs) {
+      const stageId = currentTestId.replace('-test', '');
+      const correctCount = result.details.filter(d => d.correct).length;
+      
+      await DB.eventLogs.add({
+        eventType: 'exam_complete',
+        eventName: '测试完成',
+        sessionId: testSessionId,
+        stageId: stageId,
+        lessonId: currentTestId,
+        properties: {
+          score: result.score,
+          totalScore: result.totalScore,
+          percentage: result.percentage,
+          passed: result.passed,
+          correctCount: correctCount,
+          totalQuestions: currentTest.questions.length,
+          timeUsed: getTimeUsed()
+        },
+        timestamp: Date.now()
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to log exam complete event:', e);
+  }
 }
 
 function calculateScore() {
