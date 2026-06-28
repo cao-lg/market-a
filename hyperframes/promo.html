@@ -2,18 +2,24 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <title>市场数据分析 AI伴学平台 - 宣传视频</title>
+  <title>市场数据分析 AI伴学平台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin: 0; padding: 0; overflow: hidden;">
+<body style="margin: 0; padding: 0; overflow: hidden; background: #0d1117;">
+  <div id="stage" style="
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+  ">
   <div
     data-composition-id="promo"
     data-width="1920"
     data-height="1080"
     data-start="0"
-    data-duration="30"
+    data-duration="115"
     data-track-index="0"
     style="
       width: 1920px;
@@ -23,574 +29,430 @@
       background: #0d1117;
     "
   >
-    <!-- 场景1：开场标题 (0-5s) -->
-    <div id="scene1" data-start="0" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s1-bg" data-layout-ignore style="
+    <audio id="narration" preload="auto" style="display:none;">
+      <source src="narrations/promo-narration.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="bg-layer" style="
+      position: absolute; inset: 0;
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(212, 140, 82, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(230, 180, 85, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(90, 158, 143, 0.03) 0%, transparent 60%);
+      opacity: 0;
+    "></div>
+
+    <div class="scene-wrap" style="position: relative; width: 100%; height: 100%;">
+
+      <!-- Scene 1: Title -->
+      <div id="s1" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 30% 40%, rgba(212, 140, 82, 0.12) 0%, transparent 60%),
-                    radial-gradient(ellipse at 70% 60%, rgba(230, 180, 85, 0.08) 0%, transparent 50%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 0;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <div class="s1-logo-wrap" style="display: flex; align-items: center; gap: 20px; margin-bottom: 56px;">
-          <div class="s1-logo-mark" style="
-            width: 72px; height: 72px; border: 2px solid #d48c52; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; position: relative;
-          ">
-            <div class="s1-logo-inner" style="width: 36px; height: 36px; background: linear-gradient(135deg, #d48c52, #e6b455); border-radius: 50%;"></div>
+        <div class="s1-logo" style="display: flex; align-items: center; gap: 20px; margin-bottom: 48px;">
+          <div style="width: 72px; height: 72px; border: 2px solid #d48c52; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #d48c52, #e6b455); border-radius: 50%;"></div>
           </div>
-          <div class="s1-logo-text" style="
-            font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600;
-            color: #e6b455; letter-spacing: 0.05em;
-          ">MarketInsight</div>
+          <div style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: #e6b455; letter-spacing: 0.05em;">MarketInsight</div>
         </div>
-        <h1 class="s1-title" style="
-          font-family: 'Playfair Display', serif; font-size: 140px; font-weight: 700;
-          color: #f5f5f5; line-height: 1.1; text-align: center; margin: 0 0 20px 0;
-          letter-spacing: -0.02em;
-        ">市场数据分析</h1>
-        <div class="s1-underline" style="width: 160px; height: 3px; background: linear-gradient(90deg, #d48c52, #e6b455); margin-bottom: 32px;"></div>
-        <h2 class="s1-subtitle" style="
-          font-family: 'Lora', serif; font-size: 52px; font-weight: 400;
-          color: #d48c52; text-align: center; margin: 0 0 48px 0; font-style: italic; letter-spacing: 0.02em;
-        ">AI Agent 伴学平台</h2>
-        <p class="s1-tagline" style="
-          font-family: 'Lora', serif; font-size: 26px; color: #a0a0a0;
-          text-align: center; max-width: 900px; line-height: 1.6; margin: 0;
-        ">从零基础到独立完成电商数据分析全流程</p>
+        <h1 class="s1-title" style="font-family: 'Playfair Display', serif; font-size: 140px; font-weight: 700; color: #f5f5f5; line-height: 1.1; text-align: center; margin: 0 0 24px 0; letter-spacing: -0.02em;">市场数据分析</h1>
+        <div class="s1-line" style="width: 160px; height: 3px; background: linear-gradient(90deg, #d48c52, #e6b455); margin-bottom: 32px; transform: scaleX(0);"></div>
+        <h2 class="s1-subtitle" style="font-family: 'Lora', serif; font-size: 52px; font-weight: 400; color: #d48c52; text-align: center; margin: 0 0 48px 0; font-style: italic; letter-spacing: 0.02em;">AI Agent 伴学平台</h2>
+        <p class="s1-tagline" style="font-family: 'Lora', serif; font-size: 32px; color: #a0a0a0; text-align: center; max-width: 1000px; line-height: 1.6; margin: 0;">从零基础到独立完成电商数据分析全流程</p>
       </div>
-    </div>
 
-    <!-- 场景2：AI智能导师 (5-10s) -->
-    <div id="scene2" data-start="5" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s2-bg" data-layout-ignore style="
+      <!-- Scene 2: AI Mentor -->
+      <div id="s2" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 70% 30%, rgba(107, 140, 175, 0.1) 0%, transparent 50%),
-                    radial-gradient(ellipse at 30% 70%, rgba(212, 140, 82, 0.08) 0%, transparent 50%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 48px;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <div class="s2-header" style="display: flex; align-items: center; gap: 24px; margin-bottom: 8px;">
-          <div class="s2-icon" style="font-size: 56px;">🤖</div>
+        <div class="s2-header" style="display: flex; align-items: center; gap: 24px; margin-bottom: 48px;">
+          <div style="font-size: 64px;">🤖</div>
           <div>
-            <h2 class="s2-title" style="
-              font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700;
-              color: #f5f5f5; margin: 0; letter-spacing: -0.01em;
-            ">AI 智能导师</h2>
-            <p class="s2-desc" style="font-family: 'Lora', serif; font-size: 26px; color: #d48c52; margin: 8px 0 0 0; font-style: italic;">
-              李主管，你的专属数据分析带教导师
-            </p>
+            <div style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: #6b8caf; margin-bottom: 8px;">AI Mentor</div>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: #f5f5f5; margin: 0;">AI 智能导师</h2>
           </div>
         </div>
-        <div class="s2-modes" style="display: flex; gap: 32px;">
-          <div class="s2-mode-card s2-mode-1" style="
-            flex: 1; padding: 40px 32px; border: 1px solid rgba(212, 140, 82, 0.2);
-            border-radius: 4px; background: rgba(212, 140, 82, 0.03);
-          ">
-            <div class="s2-mode-icon" style="font-size: 40px; margin-bottom: 16px;">💡</div>
-            <h3 class="s2-mode-title" style="
-              font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600;
-              color: #e6b455; margin: 0 0 12px 0;
-            ">苏格拉底式</h3>
-            <p class="s2-mode-desc" style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">
-              通过提问引导思考，培养独立分析能力
-            </p>
+        <p class="s2-desc" style="font-family: 'Lora', serif; font-size: 28px; color: #8b949e; margin: 0 0 48px 0; font-style: italic;">李主管，你的专属数据分析带教导师</p>
+        <div style="display: flex; gap: 32px;">
+          <div class="s2-card s2-c1" style="flex: 1; padding: 40px 32px; border: 1px solid rgba(212, 140, 82, 0.2); border-radius: 4px; background: rgba(212, 140, 82, 0.03);">
+            <div style="font-size: 44px; margin-bottom: 16px;">💡</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600; color: #e6b455; margin: 0 0 12px 0;">苏格拉底式</h3>
+            <p style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">通过提问引导思考，培养独立分析能力</p>
           </div>
-          <div class="s2-mode-card s2-mode-2" style="
-            flex: 1; padding: 40px 32px; border: 1px solid rgba(107, 140, 175, 0.2);
-            border-radius: 4px; background: rgba(107, 140, 175, 0.03);
-          ">
-            <div class="s2-mode-icon" style="font-size: 40px; margin-bottom: 16px;">📚</div>
-            <h3 class="s2-mode-title" style="
-              font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600;
-              color: #6b8caf; margin: 0 0 12px 0;
-            ">知识讲解</h3>
-            <p class="s2-mode-desc" style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">
-              系统讲解知识点，结合案例深入浅出
-            </p>
+          <div class="s2-card s2-c2" style="flex: 1; padding: 40px 32px; border: 1px solid rgba(107, 140, 175, 0.2); border-radius: 4px; background: rgba(107, 140, 175, 0.03);">
+            <div style="font-size: 44px; margin-bottom: 16px;">📚</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600; color: #6b8caf; margin: 0 0 12px 0;">知识讲解</h3>
+            <p style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">系统讲解知识点，结合案例深入浅出</p>
           </div>
-          <div class="s2-mode-card s2-mode-3" style="
-            flex: 1; padding: 40px 32px; border: 1px solid rgba(106, 158, 110, 0.2);
-            border-radius: 4px; background: rgba(106, 158, 110, 0.03);
-          ">
-            <div class="s2-mode-icon" style="font-size: 40px; margin-bottom: 16px;">✅</div>
-            <h3 class="s2-mode-title" style="
-              font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600;
-              color: #6a9e6e; margin: 0 0 12px 0;
-            ">考核测评</h3>
-            <p class="s2-mode-desc" style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">
-              智能出题判分，错题精准答疑
-            </p>
+          <div class="s2-card s2-c3" style="flex: 1; padding: 40px 32px; border: 1px solid rgba(106, 158, 110, 0.2); border-radius: 4px; background: rgba(106, 158, 110, 0.03);">
+            <div style="font-size: 44px; margin-bottom: 16px;">✅</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600; color: #6a9e6e; margin: 0 0 12px 0;">考核测评</h3>
+            <p style="font-family: 'Lora', serif; font-size: 18px; color: #a0a0a0; line-height: 1.6; margin: 0;">智能出题判分，错题精准答疑</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 场景3：真实项目实战 (10-15s) -->
-    <div id="scene3" data-start="10" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s3-bg" data-layout-ignore style="
+      <!-- Scene 3: Real Project -->
+      <div id="s3" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 50% 50%, rgba(212, 140, 82, 0.1) 0%, transparent 60%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 40px;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <h2 class="s3-title" style="
-          font-family: 'Playfair Display', serif; font-size: 68px; font-weight: 700;
-          color: #f5f5f5; margin: 0; text-align: center; letter-spacing: -0.01em;
-        ">真实电商项目实战</h2>
-        <p class="s3-subtitle" style="
-          font-family: 'Lora', serif; font-size: 28px; color: #d48c52; margin: 0;
-          text-align: center; font-style: italic;
-        ">杭州悦享家居 · 6大学习阶段 · 54课时精研</p>
-        <div class="s3-stages" style="display: flex; gap: 16px; margin-top: 16px;">
-          <div class="s3-stage s3-s1" style="
-            padding: 24px 28px; border: 1px solid rgba(212, 140, 82, 0.3);
-            border-radius: 4px; background: rgba(212, 140, 82, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #e6b455;">01</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">项目启动</div>
+        <div class="s3-header" style="text-align: center; margin-bottom: 56px;">
+          <div style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: #c45e4b; margin-bottom: 12px;">Real Project</div>
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 68px; font-weight: 700; color: #f5f5f5; margin: 0 0 16px 0;">真实电商项目实战</h2>
+          <p style="font-family: 'Lora', serif; font-size: 28px; color: #8b949e; margin: 0; font-style: italic;">杭州悦享家居 · 6大学习阶段 · 54课时精研</p>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center;">
+          <div class="s3-stage s3-s1" style="padding: 28px 24px; border: 1px solid rgba(212, 140, 82, 0.3); border-radius: 4px; background: rgba(212, 140, 82, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #e6b455;">01</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">项目启动</div>
           </div>
-          <div class="s3-stage s3-s2" style="
-            padding: 24px 28px; border: 1px solid rgba(107, 140, 175, 0.3);
-            border-radius: 4px; background: rgba(107, 140, 175, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #6b8caf;">02</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">数据处理</div>
+          <div style="color: #444; font-size: 24px;">→</div>
+          <div class="s3-stage s3-s2" style="padding: 28px 24px; border: 1px solid rgba(107, 140, 175, 0.3); border-radius: 4px; background: rgba(107, 140, 175, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #6b8caf;">02</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">数据处理</div>
           </div>
-          <div class="s3-stage s3-s3" style="
-            padding: 24px 28px; border: 1px solid rgba(106, 158, 110, 0.3);
-            border-radius: 4px; background: rgba(106, 158, 110, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #6a9e6e;">03</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">指标体系</div>
+          <div style="color: #444; font-size: 24px;">→</div>
+          <div class="s3-stage s3-s3" style="padding: 28px 24px; border: 1px solid rgba(106, 158, 110, 0.3); border-radius: 4px; background: rgba(106, 158, 110, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #6a9e6e;">03</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">指标体系</div>
           </div>
-          <div class="s3-stage s3-s4" style="
-            padding: 24px 28px; border: 1px solid rgba(196, 94, 75, 0.3);
-            border-radius: 4px; background: rgba(196, 94, 75, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #c45e4b;">04</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">GMV诊断</div>
+          <div style="color: #444; font-size: 24px;">→</div>
+          <div class="s3-stage s3-s4" style="padding: 28px 24px; border: 1px solid rgba(196, 94, 75, 0.3); border-radius: 4px; background: rgba(196, 94, 75, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #c45e4b;">04</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">GMV诊断</div>
           </div>
-          <div class="s3-stage s3-s5" style="
-            padding: 24px 28px; border: 1px solid rgba(180, 120, 180, 0.3);
-            border-radius: 4px; background: rgba(180, 120, 180, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #b478b4;">05</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">转化漏斗</div>
+          <div style="color: #444; font-size: 24px;">→</div>
+          <div class="s3-stage s3-s5" style="padding: 28px 24px; border: 1px solid rgba(180, 120, 180, 0.3); border-radius: 4px; background: rgba(180, 120, 180, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #b478b4;">05</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">转化漏斗</div>
           </div>
-          <div class="s3-stage s3-s6" style="
-            padding: 24px 28px; border: 1px solid rgba(212, 140, 82, 0.3);
-            border-radius: 4px; background: rgba(212, 140, 82, 0.05); text-align: center; min-width: 160px;
-          ">
-            <div class="s3-stage-num" style="font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #e6b455;">06</div>
-            <div class="s3-stage-name" style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">综合实战</div>
+          <div style="color: #444; font-size: 24px;">→</div>
+          <div class="s3-stage s3-s6" style="padding: 28px 24px; border: 1px solid rgba(230, 180, 85, 0.3); border-radius: 4px; background: rgba(230, 180, 85, 0.05); text-align: center; min-width: 160px;">
+            <div style="font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: #e6b455;">06</div>
+            <div style="font-family: 'Lora', serif; font-size: 20px; color: #d0d0d0; margin-top: 8px;">综合实战</div>
           </div>
         </div>
+        <p class="s3-footer" style="font-family: 'Lora', serif; font-size: 26px; color: #8b949e; margin-top: 48px; font-style: italic;">从项目启动到综合实战，循序渐进，步步为营</p>
       </div>
-    </div>
 
-    <!-- 场景4：文件上传AI评阅 (15-20s) -->
-    <div id="scene4" data-start="15" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s4-bg" data-layout-ignore style="
+      <!-- Scene 4: AI Grading -->
+      <div id="s4" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 30% 50%, rgba(106, 158, 110, 0.1) 0%, transparent 50%),
-                    radial-gradient(ellipse at 70% 50%, rgba(212, 140, 82, 0.08) 0%, transparent 50%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 48px;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <div style="display: flex; align-items: center; gap: 24px;">
-          <div style="font-size: 56px;">📊</div>
+        <div class="s4-header" style="display: flex; align-items: center; gap: 24px; margin-bottom: 48px;">
+          <div style="font-size: 64px;">📊</div>
           <div>
-            <h2 class="s4-title" style="
-              font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700;
-              color: #f5f5f5; margin: 0;
-            ">AI 智能评阅</h2>
-            <p style="font-family: 'Lora', serif; font-size: 26px; color: #6a9e6e; margin: 8px 0 0 0; font-style: italic;">
-              上传作业，多维度智能评分，精准反馈
-            </p>
+            <div style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: #6a9e6e; margin-bottom: 8px;">AI Grading</div>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: #f5f5f5; margin: 0;">AI 智能评阅</h2>
           </div>
         </div>
         <div style="display: flex; gap: 48px; align-items: stretch;">
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
-            <div class="s4-file-type s4-ft1" style="
-              padding: 28px 32px; border: 1px solid rgba(212, 140, 82, 0.25);
-              border-radius: 4px; background: rgba(212, 140, 82, 0.04);
-              display: flex; align-items: center; gap: 20px;
-            ">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; justify-content: center;">
+            <div class="s4-ft s4-f1" style="padding: 28px 32px; border: 1px solid rgba(212, 140, 82, 0.25); border-radius: 4px; background: rgba(212, 140, 82, 0.04); display: flex; align-items: center; gap: 20px;">
               <div style="font-size: 36px;">📁</div>
               <div>
                 <div style="font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: #e6b455;">数据文件</div>
                 <div style="font-family: 'Lora', serif; font-size: 16px; color: #888; margin-top: 4px;">CSV / JSON / Excel</div>
               </div>
             </div>
-            <div class="s4-file-type s4-ft2" style="
-              padding: 28px 32px; border: 1px solid rgba(107, 140, 175, 0.25);
-              border-radius: 4px; background: rgba(107, 140, 175, 0.04);
-              display: flex; align-items: center; gap: 20px;
-            ">
+            <div class="s4-ft s4-f2" style="padding: 28px 32px; border: 1px solid rgba(107, 140, 175, 0.25); border-radius: 4px; background: rgba(107, 140, 175, 0.04); display: flex; align-items: center; gap: 20px;">
               <div style="font-size: 36px;">📝</div>
               <div>
                 <div style="font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: #6b8caf;">分析报告</div>
                 <div style="font-family: 'Lora', serif; font-size: 16px; color: #888; margin-top: 4px;">Markdown / 结构化文档</div>
               </div>
             </div>
+            <p class="s4-desc" style="font-family: 'Lora', serif; font-size: 22px; color: #8b949e; margin-top: 12px; font-style: italic;">多维度智能评分，精准反馈，帮助你持续进步</p>
           </div>
-          <div style="flex: 1; padding: 32px; border: 1px solid rgba(106, 158, 110, 0.25); border-radius: 4px; background: rgba(106, 158, 110, 0.03);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: #6a9e6e; margin-bottom: 24px; text-align: center;">
-              评阅维度
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 16px;">
-              <div class="s4-dim s4-dim1">
+          <div class="s4-score" style="flex: 1; padding: 36px; border: 1px solid rgba(106, 158, 110, 0.25); border-radius: 4px; background: rgba(106, 158, 110, 0.03);">
+            <div style="font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: #6a9e6e; margin-bottom: 28px; text-align: center;">评阅维度</div>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="s4-dim s4-d1">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                   <span style="font-family: 'Lora', serif; font-size: 18px; color: #c0c0c0;">完整性</span>
                   <span style="font-family: 'Playfair Display', serif; font-size: 18px; color: #e6b455; font-weight: 600;">92%</span>
                 </div>
-                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                  <div class="s4-bar s4-bar1" style="height: 100%; width: 92%; background: linear-gradient(90deg, #d48c52, #e6b455); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div class="s4-bar s4-b1" style="height: 100%; width: 0%; background: linear-gradient(90deg, #d48c52, #e6b455); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div class="s4-dim s4-dim2">
+              <div class="s4-dim s4-d2">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                   <span style="font-family: 'Lora', serif; font-size: 18px; color: #c0c0c0;">规范性</span>
                   <span style="font-family: 'Playfair Display', serif; font-size: 18px; color: #6b8caf; font-weight: 600;">88%</span>
                 </div>
-                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                  <div class="s4-bar s4-bar2" style="height: 100%; width: 88%; background: linear-gradient(90deg, #4a6b8a, #6b8caf); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div class="s4-bar s4-b2" style="height: 100%; width: 0%; background: linear-gradient(90deg, #4a6b8a, #6b8caf); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div class="s4-dim s4-dim3">
+              <div class="s4-dim s4-d3">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                   <span style="font-family: 'Lora', serif; font-size: 18px; color: #c0c0c0;">洞察深度</span>
                   <span style="font-family: 'Playfair Display', serif; font-size: 18px; color: #6a9e6e; font-weight: 600;">85%</span>
                 </div>
-                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                  <div class="s4-bar s4-bar3" style="height: 100%; width: 85%; background: linear-gradient(90deg, #4a7a4d, #6a9e6e); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div class="s4-bar s4-b3" style="height: 100%; width: 0%; background: linear-gradient(90deg, #4a7a4d, #6a9e6e); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div class="s4-dim s4-dim4">
+              <div class="s4-dim s4-d4">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                   <span style="font-family: 'Lora', serif; font-size: 18px; color: #c0c0c0;">建议可行性</span>
                   <span style="font-family: 'Playfair Display', serif; font-size: 18px; color: #b478b4; font-weight: 600;">90%</span>
                 </div>
-                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                  <div class="s4-bar s4-bar4" style="height: 100%; width: 90%; background: linear-gradient(90deg, #8a5a8a, #b478b4); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div class="s4-bar s4-b4" style="height: 100%; width: 0%; background: linear-gradient(90deg, #8a5a8a, #b478b4); border-radius: 4px;"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 场景5：学生画像 + 教师端 (20-25s) -->
-    <div id="scene5" data-start="20" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s5-bg" data-layout-ignore style="
+      <!-- Scene 5: Learning Profile -->
+      <div id="s5" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 50% 40%, rgba(180, 120, 180, 0.08) 0%, transparent 50%),
-                    radial-gradient(ellipse at 50% 80%, rgba(107, 140, 175, 0.08) 0%, transparent 50%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 48px;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <div style="text-align: center; margin-bottom: 8px;">
-          <h2 class="s5-title" style="
-            font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700;
-            color: #f5f5f5; margin: 0 0 12px 0;
-          ">全方位学习画像</h2>
-          <p class="s5-subtitle" style="font-family: 'Lora', serif; font-size: 26px; color: #b478b4; margin: 0; font-style: italic;">
-            6大维度 · 40+指标 · 自动标签 · 学习风格识别
-          </p>
+        <div class="s5-header" style="text-align: center; margin-bottom: 48px;">
+          <div style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: #b478b4; margin-bottom: 12px;">Learning Profile</div>
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: #f5f5f5; margin: 0 0 16px 0;">全方位学习画像</h2>
+          <p style="font-family: 'Lora', serif; font-size: 26px; color: #8b949e; margin: 0; font-style: italic;">6大维度 · 40+指标 · 自动标签 · 学习风格识别</p>
         </div>
         <div style="display: flex; gap: 48px; align-items: stretch;">
-          <div style="flex: 1; padding: 36px; border: 1px solid rgba(180, 120, 180, 0.25); border-radius: 4px; background: rgba(180, 120, 180, 0.03);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #b478b4; margin-bottom: 24px; text-align: center;">能力雷达</div>
-            <div class="s5-radar" style="display: flex; flex-direction: column; gap: 14px;">
-              <div>
+          <div class="s5-radar" style="flex: 1; padding: 40px; border: 1px solid rgba(180, 120, 180, 0.25); border-radius: 4px; background: rgba(180, 120, 180, 0.03);">
+            <div style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #b478b4; margin-bottom: 32px; text-align: center;">能力雷达</div>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="s5-bar s5-b1">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-size: 16px; color: #aaa;">数据能力</span>
-                  <span style="font-size: 16px; color: #e6b455; font-weight: 600;">优秀</span>
+                  <span style="font-size: 18px; color: #aaa;">数据能力</span>
+                  <span style="font-size: 18px; color: #e6b455; font-weight: 600;">优秀</span>
                 </div>
-                <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                  <div class="s5-radar-bar s5-rb1" style="height: 100%; width: 88%; background: linear-gradient(90deg, #d48c52, #e6b455); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                  <div class="s5-prog s5-p1" style="height: 100%; width: 0%; background: linear-gradient(90deg, #d48c52, #e6b455); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div>
+              <div class="s5-bar s5-b2">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-size: 16px; color: #aaa;">分析思维</span>
-                  <span style="font-size: 16px; color: #6b8caf; font-weight: 600;">良好</span>
+                  <span style="font-size: 18px; color: #aaa;">分析思维</span>
+                  <span style="font-size: 18px; color: #6b8caf; font-weight: 600;">良好</span>
                 </div>
-                <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                  <div class="s5-radar-bar s5-rb2" style="height: 100%; width: 78%; background: linear-gradient(90deg, #4a6b8a, #6b8caf); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                  <div class="s5-prog s5-p2" style="height: 100%; width: 0%; background: linear-gradient(90deg, #4a6b8a, #6b8caf); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div>
+              <div class="s5-bar s5-b3">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-size: 16px; color: #aaa;">业务理解</span>
-                  <span style="font-size: 16px; color: #6a9e6e; font-weight: 600;">良好</span>
+                  <span style="font-size: 18px; color: #aaa;">业务理解</span>
+                  <span style="font-size: 18px; color: #6a9e6e; font-weight: 600;">良好</span>
                 </div>
-                <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                  <div class="s5-radar-bar s5-rb3" style="height: 100%; width: 75%; background: linear-gradient(90deg, #4a7a4d, #6a9e6e); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                  <div class="s5-prog s5-p3" style="height: 100%; width: 0%; background: linear-gradient(90deg, #4a7a4d, #6a9e6e); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div>
+              <div class="s5-bar s5-b4">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-size: 16px; color: #aaa;">沟通表达</span>
-                  <span style="font-size: 16px; color: #b478b4; font-weight: 600;">达标</span>
+                  <span style="font-size: 18px; color: #aaa;">沟通表达</span>
+                  <span style="font-size: 18px; color: #b478b4; font-weight: 600;">达标</span>
                 </div>
-                <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                  <div class="s5-radar-bar s5-rb4" style="height: 100%; width: 68%; background: linear-gradient(90deg, #8a5a8a, #b478b4); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                  <div class="s5-prog s5-p4" style="height: 100%; width: 0%; background: linear-gradient(90deg, #8a5a8a, #b478b4); border-radius: 4px;"></div>
                 </div>
               </div>
-              <div>
+              <div class="s5-bar s5-b5">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-size: 16px; color: #aaa;">协作能力</span>
-                  <span style="font-size: 16px; color: #c45e4b; font-weight: 600;">达标</span>
+                  <span style="font-size: 18px; color: #aaa;">协作能力</span>
+                  <span style="font-size: 18px; color: #c45e4b; font-weight: 600;">达标</span>
                 </div>
-                <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                  <div class="s5-radar-bar s5-rb5" style="height: 100%; width: 72%; background: linear-gradient(90deg, #9e4a3a, #c45e4b); border-radius: 3px;"></div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                  <div class="s5-prog s5-p5" style="height: 100%; width: 0%; background: linear-gradient(90deg, #9e4a3a, #c45e4b); border-radius: 4px;"></div>
                 </div>
               </div>
             </div>
           </div>
-          <div style="flex: 1; padding: 36px; border: 1px solid rgba(107, 140, 175, 0.25); border-radius: 4px; background: rgba(107, 140, 175, 0.03);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #6b8caf; margin-bottom: 24px; text-align: center;">自动标签</div>
-            <div class="s5-tags" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
-              <span class="s5-tag s5-t1" style="padding: 10px 20px; background: rgba(212, 140, 82, 0.1); color: #d48c52; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">视觉型学习者</span>
-              <span class="s5-tag s5-t2" style="padding: 10px 20px; background: rgba(106, 158, 110, 0.1); color: #6a9e6e; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">主动学习者</span>
-              <span class="s5-tag s5-t3" style="padding: 10px 20px; background: rgba(107, 140, 175, 0.1); color: #6b8caf; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">逻辑严谨</span>
-              <span class="s5-tag s5-t4" style="padding: 10px 20px; background: rgba(180, 120, 180, 0.1); color: #b478b4; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">序列型</span>
-              <span class="s5-tag s5-t5" style="padding: 10px 20px; background: rgba(196, 94, 75, 0.1); color: #c45e4b; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">数据洁癖</span>
-              <span class="s5-tag s5-t6" style="padding: 10px 20px; background: rgba(230, 180, 85, 0.1); color: #e6b455; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">实干派</span>
-              <span class="s5-tag s5-t7" style="padding: 10px 20px; background: rgba(106, 158, 110, 0.1); color: #6a9e6e; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">洞察敏锐</span>
-              <span class="s5-tag s5-t8" style="padding: 10px 20px; background: rgba(107, 140, 175, 0.1); color: #6b8caf; border-radius: 20px; font-size: 18px; font-family: 'Lora', serif;">细节控</span>
+          <div class="s5-tags" style="flex: 1; padding: 40px; border: 1px solid rgba(107, 140, 175, 0.25); border-radius: 4px; background: rgba(107, 140, 175, 0.03);">
+            <div style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #6b8caf; margin-bottom: 32px; text-align: center;">自动标签</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-content: center;">
+              <span class="s5-tag s5-t1" style="padding: 12px 24px; background: rgba(212, 140, 82, 0.1); color: #d48c52; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">视觉型学习者</span>
+              <span class="s5-tag s5-t2" style="padding: 12px 24px; background: rgba(106, 158, 110, 0.1); color: #6a9e6e; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">主动学习者</span>
+              <span class="s5-tag s5-t3" style="padding: 12px 24px; background: rgba(107, 140, 175, 0.1); color: #6b8caf; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">逻辑严谨</span>
+              <span class="s5-tag s5-t4" style="padding: 12px 24px; background: rgba(180, 120, 180, 0.1); color: #b478b4; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">序列型</span>
+              <span class="s5-tag s5-t5" style="padding: 12px 24px; background: rgba(196, 94, 75, 0.1); color: #c45e4b; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">数据洁癖</span>
+              <span class="s5-tag s5-t6" style="padding: 12px 24px; background: rgba(230, 180, 85, 0.1); color: #e6b455; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">实干派</span>
+              <span class="s5-tag s5-t7" style="padding: 12px 24px; background: rgba(106, 158, 110, 0.1); color: #6a9e6e; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">洞察敏锐</span>
+              <span class="s5-tag s5-t8" style="padding: 12px 24px; background: rgba(107, 140, 175, 0.1); color: #6b8caf; border-radius: 24px; font-size: 20px; font-family: 'Lora', serif; opacity: 0;">细节控</span>
             </div>
+            <p class="s5-footer" style="font-family: 'Lora', serif; font-size: 20px; color: #8b949e; margin-top: 32px; text-align: center; font-style: italic;">让你更了解自己的学习状态</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 场景6：结尾CTA (25-30s) -->
-    <div id="scene6" data-start="25" data-duration="5" data-track-index="1" style="position: absolute; inset: 0;">
-      <div class="bg-gradient s6-bg" data-layout-ignore style="
+      <!-- Scene 6: CTA -->
+      <div id="s6" class="scene" style="
         position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 50% 50%, rgba(212, 140, 82, 0.15) 0%, transparent 60%);
-      "></div>
-      <div class="scene-content" style="
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        width: 100%; height: 100%; padding: 120px 160px; gap: 0;
-        box-sizing: border-box; position: relative; z-index: 1;
+        padding: 120px 160px; box-sizing: border-box;
+        opacity: 0;
       ">
-        <div class="s6-logo-mark" style="
-          width: 96px; height: 96px; border: 3px solid #d48c52; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center; position: relative;
-          margin-bottom: 48px;
-        ">
-          <div class="s6-logo-inner" style="width: 48px; height: 48px; background: linear-gradient(135deg, #d48c52, #e6b455); border-radius: 50%;"></div>
-          <div class="s6-logo-ring" style="
-            position: absolute; inset: -12px; border: 1px solid rgba(230, 180, 85, 0.2); border-radius: 50%;
-          "></div>
+        <div class="s6-logo" style="width: 96px; height: 96px; border: 3px solid #d48c52; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 48px;">
+          <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #d48c52, #e6b455); border-radius: 50%;"></div>
         </div>
-        <h1 class="s6-title" style="
-          font-family: 'Playfair Display', serif; font-size: 96px; font-weight: 700;
-          color: #f5f5f5; line-height: 1.1; text-align: center; margin: 0 0 20px 0;
-          letter-spacing: -0.01em;
-        ">开启你的数据分析之旅</h1>
-        <p class="s6-subtitle" style="
-          font-family: 'Lora', serif; font-size: 32px; color: #d48c52;
-          text-align: center; margin: 0 0 56px 0; font-style: italic; letter-spacing: 0.02em;
-        ">从零基础到独立分析师，AI伴学全程陪伴</p>
-        <div class="s6-cta-wrap" style="position: relative;">
-          <div class="s6-cta-glow" style="
-            position: absolute; inset: -30px -60px;
-            background: radial-gradient(ellipse at center, rgba(212, 140, 82, 0.2) 0%, transparent 70%);
-            filter: blur(30px);
-          "></div>
-          <div class="s6-cta-button" style="
-            position: relative; padding: 32px 80px; border: 2px solid #d48c52;
-            border-radius: 2px; background: rgba(212, 140, 82, 0.08);
-          ">
-            <span class="s6-cta-text" style="
-              font-family: 'Lora', serif; font-size: 36px; font-weight: 600;
-              color: #e6b455; letter-spacing: 0.1em; white-space: nowrap;
-            ">立即开始学习</span>
-          </div>
-          <div class="s6-cta-arrow" style="
-            position: absolute; right: -60px; top: 50%; transform: translateY(-50%);
-            font-size: 28px; color: #e6b455;
-          ">→</div>
+        <h1 class="s6-title" style="font-family: 'Playfair Display', serif; font-size: 96px; font-weight: 700; color: #f5f5f5; line-height: 1.1; text-align: center; margin: 0 0 20px 0; letter-spacing: -0.01em;">开启你的数据分析之旅</h1>
+        <p class="s6-subtitle" style="font-family: 'Lora', serif; font-size: 32px; color: #d48c52; text-align: center; margin: 0 0 56px 0; font-style: italic; letter-spacing: 0.02em;">从零基础到独立分析师，AI伴学全程陪伴</p>
+        <div class="s6-cta" style="position: relative; padding: 32px 80px; border: 2px solid #d48c52; border-radius: 2px; background: rgba(212, 140, 82, 0.08);">
+          <span style="font-family: 'Lora', serif; font-size: 36px; font-weight: 600; color: #e6b455; letter-spacing: 0.1em; white-space: nowrap;">立即开始学习</span>
         </div>
-        <div class="s6-bottom-text" style="
-          margin-top: 64px; font-family: 'Lora', serif; font-size: 20px; color: #666; letter-spacing: 0.05em;
-        ">
-          MarketInsight · AI Agent 伴学平台
-        </div>
+        <div class="s6-brand" style="margin-top: 64px; font-family: 'Lora', serif; font-size: 22px; color: #666; letter-spacing: 0.05em;">MarketInsight · AI Agent 伴学平台</div>
       </div>
-    </div>
 
-    <!-- 转场遮罩 -->
-    <div id="transition-wipe" data-layout-ignore style="
-      position: absolute; inset: 0; background: #0d1117;
-      transform: scaleY(0); transform-origin: center; z-index: 100; pointer-events: none;
-    "></div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // 初始化所有场景为不可见
-      tl.set("#scene2, #scene3, #scene4, #scene5, #scene6", { opacity: 0 });
+      // Background fade in
+      tl.to(".bg-layer", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0);
 
-      // 场景1：开场标题 (0-5s)
-      tl.set(".s1-logo-wrap", { opacity: 0, y: 30 });
-      tl.set(".s1-title", { opacity: 0, y: 50 });
-      tl.set(".s1-underline", { scaleX: 0, transformOrigin: "center" });
-      tl.set(".s1-subtitle", { opacity: 0, y: 30 });
-      tl.set(".s1-tagline", { opacity: 0, y: 20 });
+      // ===== Scene 1: Title (0-18s) =====
+      tl.set("#s1", { opacity: 1 }, 0);
+      tl.from(".s1-logo", { opacity: 0, y: 30, duration: 1, ease: "back.out(1.2)" }, 1);
+      tl.from(".s1-title", { opacity: 0, y: 50, duration: 1.2, ease: "power3.out" }, 2);
+      tl.to(".s1-line", { scaleX: 1, duration: 1, ease: "power2.inOut" }, 3.2);
+      tl.from(".s1-subtitle", { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, 3.8);
+      tl.from(".s1-tagline", { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" }, 5.5);
+      tl.to("#s1", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, 16);
 
-      tl.to(".s1-bg", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0);
-      tl.to(".s1-logo-wrap", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.2)" }, 0.3);
-      tl.to(".s1-title", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 0.8);
-      tl.to(".s1-underline", { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.6);
-      tl.to(".s1-subtitle", { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 2.0);
-      tl.to(".s1-tagline", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 3.0);
+      // ===== Scene 2: AI Mentor (18-40s) =====
+      tl.set("#s2", { opacity: 1 }, 18);
+      tl.from(".s2-header", { opacity: 0, x: -30, duration: 1, ease: "power3.out" }, 19);
+      tl.from(".s2-desc", { opacity: 0, x: -20, duration: 0.8, ease: "power2.out" }, 20);
+      tl.from(".s2-c1", { opacity: 0, y: 40, duration: 0.8, ease: "back.out(1)" }, 21.5);
+      tl.from(".s2-c2", { opacity: 0, y: 40, duration: 0.8, ease: "back.out(1)" }, 22);
+      tl.from(".s2-c3", { opacity: 0, y: 40, duration: 0.8, ease: "back.out(1)" }, 22.5);
+      tl.to("#s2", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, 38);
 
-      // 转场到场景2 (4.5-5.0s)
-      tl.to("#transition-wipe", { scaleY: 1, duration: 0.3, ease: "power2.in" }, 4.5);
-      tl.set("#scene1", { opacity: 0 }, 4.8);
-      tl.set("#scene2", { opacity: 1 }, 4.8);
-      tl.to("#transition-wipe", { scaleY: 0, duration: 0.3, ease: "power2.out" }, 4.8);
+      // ===== Scene 3: Project (40-62s) =====
+      tl.set("#s3", { opacity: 1 }, 40);
+      tl.from(".s3-header", { opacity: 0, y: 40, duration: 1, ease: "power3.out" }, 41);
+      tl.from(".s3-s1", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 43);
+      tl.from(".s3-s2", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 43.5);
+      tl.from(".s3-s3", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 44);
+      tl.from(".s3-s4", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 44.5);
+      tl.from(".s3-s5", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 45);
+      tl.from(".s3-s6", { opacity: 0, y: 30, scale: 0.9, duration: 0.6, ease: "back.out(1.2)" }, 45.5);
+      tl.from(".s3-footer", { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" }, 48);
+      tl.to("#s3", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, 60);
 
-      // 场景2：AI智能导师 (5-10s)
-      tl.set(".s2-icon", { opacity: 0, scale: 0.5 });
-      tl.set(".s2-title", { opacity: 0, x: -30 });
-      tl.set(".s2-desc", { opacity: 0, x: -20 });
-      tl.set(".s2-mode-card", { opacity: 0, y: 40 });
+      // ===== Scene 4: AI Grading (62-82s) =====
+      tl.set("#s4", { opacity: 1 }, 62);
+      tl.from(".s4-header", { opacity: 0, x: -30, duration: 1, ease: "power3.out" }, 63);
+      tl.from(".s4-f1", { opacity: 0, x: -20, duration: 0.6, ease: "power2.out" }, 64.5);
+      tl.from(".s4-f2", { opacity: 0, x: -20, duration: 0.6, ease: "power2.out" }, 65);
+      tl.from(".s4-desc", { opacity: 0, x: -20, duration: 0.6, ease: "power2.out" }, 65.8);
+      tl.from(".s4-score", { opacity: 0, x: 20, duration: 0.8, ease: "power2.out" }, 64.5);
+      tl.from(".s4-d1", { opacity: 0, x: 20, duration: 0.5, ease: "power2.out" }, 65.2);
+      tl.from(".s4-d2", { opacity: 0, x: 20, duration: 0.5, ease: "power2.out" }, 65.6);
+      tl.from(".s4-d3", { opacity: 0, x: 20, duration: 0.5, ease: "power2.out" }, 66);
+      tl.from(".s4-d4", { opacity: 0, x: 20, duration: 0.5, ease: "power2.out" }, 66.4);
+      tl.to(".s4-b1", { width: "92%", duration: 1.2, ease: "power2.out" }, 65.5);
+      tl.to(".s4-b2", { width: "88%", duration: 1.2, ease: "power2.out" }, 65.9);
+      tl.to(".s4-b3", { width: "85%", duration: 1.2, ease: "power2.out" }, 66.3);
+      tl.to(".s4-b4", { width: "90%", duration: 1.2, ease: "power2.out" }, 66.7);
+      tl.to("#s4", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, 80);
 
-      tl.to(".s2-icon", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.5)" }, 5.2);
-      tl.to(".s2-title", { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" }, 5.4);
-      tl.to(".s2-desc", { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }, 5.7);
-      tl.to(".s2-mode-1", { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1)" }, 6.2);
-      tl.to(".s2-mode-2", { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1)" }, 6.5);
-      tl.to(".s2-mode-3", { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1)" }, 6.8);
+      // ===== Scene 5: Profile (82-102s) =====
+      tl.set("#s5", { opacity: 1 }, 82);
+      tl.from(".s5-header", { opacity: 0, y: 30, duration: 1, ease: "power3.out" }, 83);
+      tl.from(".s5-radar", { opacity: 0, x: -20, duration: 0.8, ease: "power2.out" }, 84.5);
+      tl.from(".s5-tags", { opacity: 0, x: 20, duration: 0.8, ease: "power2.out" }, 84.5);
+      tl.to(".s5-p1", { width: "88%", duration: 1, ease: "power2.out" }, 85.2);
+      tl.to(".s5-p2", { width: "78%", duration: 1, ease: "power2.out" }, 85.6);
+      tl.to(".s5-p3", { width: "75%", duration: 1, ease: "power2.out" }, 86);
+      tl.to(".s5-p4", { width: "68%", duration: 1, ease: "power2.out" }, 86.4);
+      tl.to(".s5-p5", { width: "72%", duration: 1, ease: "power2.out" }, 86.8);
+      tl.from(".s5-t1", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 86);
+      tl.from(".s5-t2", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 86.3);
+      tl.from(".s5-t3", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 86.6);
+      tl.from(".s5-t4", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 86.9);
+      tl.from(".s5-t5", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 87.2);
+      tl.from(".s5-t6", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 87.5);
+      tl.from(".s5-t7", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 87.8);
+      tl.from(".s5-t8", { opacity: 0, scale: 0.8, duration: 0.4, ease: "back.out(1.5)" }, 88.1);
+      tl.from(".s5-footer", { opacity: 0, duration: 0.8, ease: "power2.out" }, 90);
+      tl.to("#s5", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, 100);
 
-      // 转场到场景3 (9.5-10.0s)
-      tl.to("#transition-wipe", { scaleY: 1, duration: 0.3, ease: "power2.in" }, 9.5);
-      tl.set("#scene2", { opacity: 0 }, 9.8);
-      tl.set("#scene3", { opacity: 1 }, 9.8);
-      tl.to("#transition-wipe", { scaleY: 0, duration: 0.3, ease: "power2.out" }, 9.8);
-
-      // 场景3：真实项目实战 (10-15s)
-      tl.set(".s3-title", { opacity: 0, y: 40 });
-      tl.set(".s3-subtitle", { opacity: 0, y: 20 });
-      tl.set(".s3-stage", { opacity: 0, y: 30, scale: 0.9 });
-
-      tl.to(".s3-title", { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 10.2);
-      tl.to(".s3-subtitle", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 10.7);
-      tl.to(".s3-s1", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 11.2);
-      tl.to(".s3-s2", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 11.5);
-      tl.to(".s3-s3", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 11.8);
-      tl.to(".s3-s4", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 12.1);
-      tl.to(".s3-s5", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 12.4);
-      tl.to(".s3-s6", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.2)" }, 12.7);
-
-      // 转场到场景4 (14.5-15.0s)
-      tl.to("#transition-wipe", { scaleY: 1, duration: 0.3, ease: "power2.in" }, 14.5);
-      tl.set("#scene3", { opacity: 0 }, 14.8);
-      tl.set("#scene4", { opacity: 1 }, 14.8);
-      tl.to("#transition-wipe", { scaleY: 0, duration: 0.3, ease: "power2.out" }, 14.8);
-
-      // 场景4：AI智能评阅 (15-20s)
-      tl.set(".s4-title", { opacity: 0, x: -30 });
-      tl.set(".s4-ft1, .s4-ft2", { opacity: 0, x: -20 });
-      tl.set(".s4-dim", { opacity: 0, x: 20 });
-      tl.set(".s4-bar", { width: "0%" });
-
-      tl.to(".s4-title", { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" }, 15.2);
-      tl.to(".s4-ft1", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 15.8);
-      tl.to(".s4-ft2", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 16.1);
-      tl.to(".s4-dim1", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 15.9);
-      tl.to(".s4-dim2", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 16.2);
-      tl.to(".s4-dim3", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 16.5);
-      tl.to(".s4-dim4", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 16.8);
-      // 进度条动画
-      tl.to(".s4-bar1", { width: "92%", duration: 1, ease: "power2.out" }, 16.5);
-      tl.to(".s4-bar2", { width: "88%", duration: 1, ease: "power2.out" }, 16.7);
-      tl.to(".s4-bar3", { width: "85%", duration: 1, ease: "power2.out" }, 16.9);
-      tl.to(".s4-bar4", { width: "90%", duration: 1, ease: "power2.out" }, 17.1);
-
-      // 转场到场景5 (19.5-20.0s)
-      tl.to("#transition-wipe", { scaleY: 1, duration: 0.3, ease: "power2.in" }, 19.5);
-      tl.set("#scene4", { opacity: 0 }, 19.8);
-      tl.set("#scene5", { opacity: 1 }, 19.8);
-      tl.to("#transition-wipe", { scaleY: 0, duration: 0.3, ease: "power2.out" }, 19.8);
-
-      // 场景5：学习画像 (20-25s)
-      tl.set(".s5-title", { opacity: 0, y: 30 });
-      tl.set(".s5-subtitle", { opacity: 0, y: 20 });
-      tl.set(".s5-radar-bar", { width: "0%" });
-      tl.set(".s5-tag", { opacity: 0, scale: 0.8 });
-
-      tl.to(".s5-title", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 20.2);
-      tl.to(".s5-subtitle", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 20.6);
-      // 雷达条动画
-      tl.to(".s5-rb1", { width: "88%", duration: 1, ease: "power2.out" }, 21.0);
-      tl.to(".s5-rb2", { width: "78%", duration: 1, ease: "power2.out" }, 21.2);
-      tl.to(".s5-rb3", { width: "75%", duration: 1, ease: "power2.out" }, 21.4);
-      tl.to(".s5-rb4", { width: "68%", duration: 1, ease: "power2.out" }, 21.6);
-      tl.to(".s5-rb5", { width: "72%", duration: 1, ease: "power2.out" }, 21.8);
-      // 标签动画
-      tl.to(".s5-t1", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 21.5);
-      tl.to(".s5-t2", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 21.7);
-      tl.to(".s5-t3", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 21.9);
-      tl.to(".s5-t4", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 22.1);
-      tl.to(".s5-t5", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 22.3);
-      tl.to(".s5-t6", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 22.5);
-      tl.to(".s5-t7", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 22.7);
-      tl.to(".s5-t8", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 22.9);
-
-      // 转场到场景6 (24.5-25.0s)
-      tl.to("#transition-wipe", { scaleY: 1, duration: 0.3, ease: "power2.in" }, 24.5);
-      tl.set("#scene5", { opacity: 0 }, 24.8);
-      tl.set("#scene6", { opacity: 1 }, 24.8);
-      tl.to("#transition-wipe", { scaleY: 0, duration: 0.3, ease: "power2.out" }, 24.8);
-
-      // 场景6：结尾CTA (25-30s)
-      tl.set(".s6-logo-mark", { opacity: 0, scale: 0.5 });
-      tl.set(".s6-title", { opacity: 0, y: 40 });
-      tl.set(".s6-subtitle", { opacity: 0, y: 20 });
-      tl.set(".s6-cta-wrap", { opacity: 0, y: 30 });
-      tl.set(".s6-bottom-text", { opacity: 0 });
-
-      tl.to(".s6-logo-mark", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" }, 25.2);
-      tl.to(".s6-title", { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 25.7);
-      tl.to(".s6-subtitle", { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 26.3);
-      tl.to(".s6-cta-wrap", { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 27.0);
-      // CTA 呼吸效果
-      tl.to(".s6-cta-glow", {
-        scale: 1.2, opacity: 0.9, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 2
-      }, 27.5);
-      tl.to(".s6-cta-arrow", {
-        x: 12, duration: 0.8, ease: "power2.inOut", yoyo: true, repeat: 2
-      }, 27.8);
-      tl.to(".s6-bottom-text", { opacity: 1, duration: 0.6, ease: "power2.out" }, 28.5);
+      // ===== Scene 6: CTA (102-120s) =====
+      tl.set("#s6", { opacity: 1 }, 102);
+      tl.from(".s6-logo", { opacity: 0, scale: 0.5, duration: 1, ease: "back.out(1.2)" }, 103);
+      tl.from(".s6-title", { opacity: 0, y: 40, duration: 1.2, ease: "power3.out" }, 104);
+      tl.from(".s6-subtitle", { opacity: 0, y: 20, duration: 1, ease: "power2.out" }, 105.5);
+      tl.from(".s6-cta", { opacity: 0, y: 30, duration: 1, ease: "power3.out" }, 107);
+      tl.from(".s6-brand", { opacity: 0, duration: 0.8, ease: "power2.out" }, 109.5);
 
       window.__timelines["promo"] = tl;
+
+      // Autoplay
+      function startPlayback() {
+        const audio = document.getElementById('narration');
+        // Sync animation to audio duration
+        function syncToAudio() {
+          const audioDuration = audio.duration;
+          const animDuration = tl.duration();
+          if (audioDuration > 0 && animDuration > 0) {
+            tl.timeScale(animDuration / audioDuration);
+          }
+        }
+        if (audio.readyState >= 1) {
+          syncToAudio();
+        } else {
+          audio.addEventListener('loadedmetadata', syncToAudio, { once: true });
+        }
+        tl.play(0);
+        const audioPromise = audio.play();
+        if (audioPromise !== undefined) {
+          audioPromise.catch(() => {
+            document.body.addEventListener('click', function onClick() {
+              audio.play();
+              document.body.removeEventListener('click', onClick);
+            }, { once: true });
+          });
+        }
+      }
+
+      // Scale to fit
+      function fitToScreen() {
+        const stage = document.getElementById('stage');
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const scale = Math.min(w / 1920, h / 1080);
+        stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      }
+      fitToScreen();
+      window.addEventListener('resize', fitToScreen);
+
+      if (document.readyState === 'complete') {
+        setTimeout(startPlayback, 200);
+      } else {
+        window.addEventListener('load', function() {
+          setTimeout(startPlayback, 200);
+        });
+      }
     </script>
+  </div>
   </div>
 </body>
 </html>
