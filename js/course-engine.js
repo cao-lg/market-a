@@ -72,6 +72,67 @@ async function getLessonType(stageId, lessonId) {
 }
 
 /**
+ * 获取课时提交配置
+ * @param {string} stageId - 阶段ID
+ * @param {string} lessonId - 课时ID
+ * @returns {Object|null} 提交配置对象，如无配置则返回null
+ */
+async function getLessonSubmissionConfig(stageId, lessonId) {
+  const lesson = await getLesson(stageId, lessonId);
+  return lesson?.submission || null;
+}
+
+/**
+ * 检查课时是否需要文件提交
+ * @param {string} stageId - 阶段ID
+ * @param {string} lessonId - 课时ID
+ * @returns {boolean} 是否需要文件提交
+ */
+async function requiresFileSubmission(stageId, lessonId) {
+  const config = await getLessonSubmissionConfig(stageId, lessonId);
+  if (!config || !config.submissionTypes) return false;
+  return config.submissionTypes.includes('file') || config.submissionTypes.includes('both');
+}
+
+/**
+ * 检查课时是否需要文本提交
+ * @param {string} stageId - 阶段ID
+ * @param {string} lessonId - 课时ID
+ * @returns {boolean} 是否需要文本提交
+ */
+async function requiresTextSubmission(stageId, lessonId) {
+  const config = await getLessonSubmissionConfig(stageId, lessonId);
+  if (!config) return false;
+  // 兼容旧配置：如果没有submissionTypes但有type为text，也视为需要文本提交
+  if (!config.submissionTypes) {
+    return config.type === 'text' || config.required === true;
+  }
+  return config.submissionTypes.includes('text') || config.submissionTypes.includes('both');
+}
+
+/**
+ * 检查课时是否需要AI评阅
+ * @param {string} stageId - 阶段ID
+ * @param {string} lessonId - 课时ID
+ * @returns {boolean} 是否需要AI评阅
+ */
+async function requiresGrading(stageId, lessonId) {
+  const config = await getLessonSubmissionConfig(stageId, lessonId);
+  return config?.requireGrading === true;
+}
+
+/**
+ * 获取课时的评阅类型
+ * @param {string} stageId - 阶段ID
+ * @param {string} lessonId - 课时ID
+ * @returns {string|null} 评阅类型：'data' | 'report' | 'auto' | null
+ */
+async function getGradingType(stageId, lessonId) {
+  const config = await getLessonSubmissionConfig(stageId, lessonId);
+  return config?.gradingType || null;
+}
+
+/**
  * Get test questions for a stage
  */
 async function getTestQuestions(stageId) {
@@ -392,6 +453,13 @@ window.CourseEngine = {
   getLesson,
   getLessonType,
   getTestQuestions,
+  
+  // Submission config
+  getLessonSubmissionConfig,
+  requiresFileSubmission,
+  requiresTextSubmission,
+  requiresGrading,
+  getGradingType,
   
   // Progress management
   calculateOverallProgress,

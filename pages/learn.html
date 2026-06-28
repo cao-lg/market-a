@@ -743,14 +743,25 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="../js/student-manager.js"></script>
+  <script src="../js/student-profile-service.js"></script>
   <script src="../js/db.js"></script>
+  <script src="../js/exam-tracker.js"></script>
+  <script src="../js/reading-tracker.js"></script>
   <script src="../js/prompts.js?v=20260629"></script>
   <script src="../js/ai.js?v=20250726"></script>
   <script src="../js/agent.js?v=20260628"></script>
   <script src="../js/course-engine.js"></script>
   <script src="../js/marked.min.js"></script>
+  <script src="../js/ai-tracker.js"></script>
   <script src="../js/dialog-logger.js"></script>
   <script src="../js/issue-tracker.js"></script>
+  <script src="../js/data-parser.js"></script>
+  <script src="../js/report-analyzer.js"></script>
+  <script src="../js/file-uploader.js"></script>
+  <script src="../js/grading-engine.js"></script>
+  <script src="../js/grading-report.js"></script>
+  <script src="../js/grading-integration.js"></script>
   <script>
     // ==================== State ====================
     let currentStage = null;
@@ -762,6 +773,16 @@
     let sessionStartTime = null;
     let interactionCount = 0;
     let helpRequestCount = 0;
+    let lastUserMessageTimestamp = 0;
+    let lastUserMessageText = '';
+    let modeSwitchStartTime = 0;
+    let msgIdToDbIdMap = {};
+    let examinerCurrentQuestion = null;
+    let examinerQuestionStartTime = 0;
+    let examinerModificationCount = 0;
+    let examinerLastAnswer = '';
+    let examinerQuestionCount = 0;
+    let gradingIntegration = null;
 
     // ==================== Safe Logging ====================
     function safeLogAdd(params) {
@@ -862,8 +883,46 @@
       }
     }
 
+    async function switchMode(newMode) {
+      const oldMode = currentMode;
+      if (oldMode === newMode) return;
+
+      const now = Date.now();
+      const duration = modeSwitchStartTime > 0 ? now - modeSwitchStartTime : 0;
+
+      currentMode = newMode;
+      modeSwitchStartTime = now;
+
+      updateModeIndicator();
+
+      try {
+        if (window.AITracker && window.DB?.eventLogs) {
+          await AITracker.logEvent({
+            eventType: 'mode_switch',
+            eventName: '模式切换',
+            sessionId,
+            stageId: currentStage?.id,
+            lessonId: currentLesson?.id,
+            mode: newMode,
+            properties: {
+              fromMode: oldMode,
+              toMode: newMode,
+              previousModeDuration: duration
+            },
+            timestamp: now
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to log mode switch:', e);
+      }
+    }
+
     // ==================== Initialization ====================
     document.addEventListener('DOMContentLoaded', async () => {
+      if (window.StudentManager && typeof window.StudentManager.initUI === 'function') {
+        window.StudentManager.initUI();
+      }
+
       // Get URL parameters
       const params = new URLSearchParams(window.location.search);
       const stageId = params.get('stage');
@@ -902,6 +961,10 @@
 
     // ==================== Load Course Content ====================
     async function loadLessonContent(stageId, lessonId, urlMode) {
+      if (window.ReadingTracker && ReadingTracker.isActive()) {
+        await ReadingTracker.endSession();
+      }
+
       const stages = await CourseEngine.getAllStages();
 
       if (!stageId && stages.length > 0) {
@@ -931,8 +994,7 @@
         displayWrongAnswers();
 
         // Set mode to examiner
-        currentMode = 'examiner';
-        updateModeIndicator();
+        await switchMode('examiner');
         return;
       }
 
@@ -951,6 +1013,7 @@
         displaySimulatedTestInterface();
 
         currentMode = 'simulatedTest';
+        modeSwitchStartTime = Date.now();
         updateModeIndicator();
         return;
       }
@@ -975,14 +1038,20 @@
       const lessonType = currentLesson.type || 'content-reading';
       // Priority: URL mode param > lesson's agentMode > default 'knowledge'
       const validModes = ['onboard', 'knowledge', 'socratic', 'reviewer', 'examiner', 'simulatedTest', 'assistant'];
+      let newMode;
       if (urlMode && validModes.includes(urlMode)) {
-        currentMode = urlMode;
+        newMode = urlMode;
       } else {
-        currentMode = currentLesson.agentMode || 'knowledge';
+        newMode = currentLesson.agentMode || 'knowledge';
       }
 
-      // Update mode badge
-      updateModeIndicator();
+      if (modeSwitchStartTime === 0) {
+        currentMode = newMode;
+        modeSwitchStartTime = Date.now();
+        updateModeIndicator();
+      } else if (currentMode !== newMode) {
+        await switchMode(newMode);
+      }
 
       // Update navigation
       updateNavigation();
@@ -992,6 +1061,11 @@
 
       // Update chat locked state
       updateChatLockedState();
+
+      // Start reading tracker session
+      if (window.ReadingTracker && currentStage && currentLesson && lessonType !== 'test') {
+        await ReadingTracker.startSession(currentStage.id, currentLesson.id);
+      }
 
       // Save last lesson
       await DB.settings.set('lastLesson', {
@@ -1005,7 +1079,11 @@
       const contentArea = document.getElementById('content-area');
       const submissionArea = document.getElementById('submission-area');
 
-      // Hide submission area by default
+      if (gradingIntegration) {
+        gradingIntegration.destroy();
+        gradingIntegration = null;
+      }
+
       submissionArea.classList.add('hidden');
 
       switch (lessonType) {
@@ -1019,16 +1097,37 @@
         case 'variant':
           await renderContentReading();
           submissionArea.classList.remove('hidden');
+          await initGradingIntegration();
           break;
         case 'hands-on':
           await renderHandsOn();
           submissionArea.classList.remove('hidden');
+          await initGradingIntegration();
           break;
         case 'test':
           await renderTest();
           break;
         default:
           await renderContentReading();
+      }
+    }
+
+    async function initGradingIntegration() {
+      if (!currentStage || !currentLesson) return;
+      
+      const submissionArea = document.getElementById('submission-area');
+      if (!submissionArea) return;
+
+      const submissionConfig = currentLesson.submission || null;
+      if (!submissionConfig) return;
+
+      if (window.GradingIntegration) {
+        gradingIntegration = new GradingIntegration({
+          stageId: currentStage.id,
+          lessonId: currentLesson.id,
+          container: submissionArea,
+          submissionConfig: submissionConfig
+        });
       }
     }
 
@@ -1771,27 +1870,22 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
     }
 
     // Submit message feedback
-    function submitFeedback(msgId, helpful, suggestion = '') {
+    async function submitFeedback(msgId, helpful, suggestion = '') {
       const feedbackDiv = document.getElementById(`feedback-${msgId}`);
       if (!feedbackDiv) return;
       
-      // Get the selected button
       const selectedBtn = feedbackDiv.querySelector(`.feedback-btn.${helpful ? 'helpful' : 'unhelpful'}`);
       
-      // Check if already submitted
       if (feedbackDiv.dataset.submitted) return;
       
-      // Mark as submitted
       feedbackDiv.dataset.submitted = 'true';
       
-      // Add selected animation
       if (selectedBtn) {
         selectedBtn.classList.add('selected');
         selectedBtn.style.transform = 'scale(1.2)';
         selectedBtn.style.borderColor = helpful ? 'var(--accent-success)' : 'var(--accent-secondary)';
       }
       
-      // If unhelpful, show suggestion input
       if (!helpful) {
         const suggestionHtml = `
           <div class="feedback-suggestion">
@@ -1805,18 +1899,17 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
         feedbackDiv.insertAdjacentHTML('beforeend', suggestionHtml);
         feedbackDiv.querySelector(`#suggestion-${msgId}`).focus();
       } else {
-        // Save feedback directly for helpful
-        saveFeedbackToStorage(msgId, helpful, '');
+        await saveFeedbackToStorage(msgId, helpful, '');
         showToast('success', '感谢反馈', '您的支持是我们改进的动力！');
       }
     }
 
     // Save feedback suggestion
-    function saveFeedbackSuggestion(msgId) {
+    async function saveFeedbackSuggestion(msgId) {
       const textarea = document.getElementById(`suggestion-${msgId}`);
       if (!textarea) return;
       const suggestion = textarea.value.trim();
-      saveFeedbackToStorage(msgId, false, suggestion);
+      await saveFeedbackToStorage(msgId, false, suggestion);
       closeFeedback(msgId);
       showToast('success', '感谢反馈', '您的建议将帮助我们做得更好！');
     }
@@ -1840,8 +1933,8 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       if (label) label.textContent = '已收到反馈';
     }
 
-    // Save feedback to localStorage
-    function saveFeedbackToStorage(msgId, helpful, suggestion) {
+    // Save feedback to localStorage and update DB
+    async function saveFeedbackToStorage(msgId, helpful, suggestion) {
       const feedback = {
         msgId,
         helpful,
@@ -1852,12 +1945,46 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       
       try {
         const existing = JSON.parse(localStorage.getItem('messageFeedback') || '[]');
-        // Check if already has feedback for this msgId
         const filtered = existing.filter(f => f.msgId !== msgId);
         filtered.push(feedback);
         localStorage.setItem('messageFeedback', JSON.stringify(filtered));
       } catch (e) {
         console.error('Failed to save feedback:', e);
+      }
+
+      try {
+        const convRecord = msgIdToDbIdMap[msgId];
+        if (convRecord && convRecord.id && window.DB?.conversations?.update) {
+          await DB.conversations.update(convRecord.id, {
+            feedback: helpful ? 'positive' : 'negative',
+            feedbackSuggestion: suggestion || '',
+            feedbackAt: Date.now()
+          });
+        }
+      } catch (e) {
+        console.error('Failed to update conversation feedback:', e);
+      }
+
+      try {
+        if (window.AITracker && window.DB?.eventLogs) {
+          await AITracker.logEvent({
+            eventType: 'ai_feedback',
+            eventName: '用户反馈',
+            sessionId,
+            stageId: currentStage?.id,
+            lessonId: currentLesson?.id,
+            mode: currentMode,
+            properties: {
+              msgId,
+              helpful,
+              suggestion: suggestion ? suggestion.substring(0, 200) : '',
+              feedback: helpful ? 'positive' : 'negative'
+            },
+            timestamp: Date.now()
+          });
+        }
+      } catch (e) {
+        console.error('Failed to log feedback event:', e);
       }
     }
 
@@ -1888,45 +2015,302 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       }
     }
 
+    function isExaminerQuestion(text) {
+      if (!text) return false;
+      const patterns = [
+        /第[一二三四五六七八九十\d]+题/,
+        /题目[：:]/,
+        /请回答/,
+        /请问/,
+        /以下哪项/,
+        /以下哪个/,
+        /请判断/,
+        /请选择/,
+        /请填写/,
+        /请简述/,
+        /怎么办？/,
+        /如何/,
+        /为什么/
+      ];
+      return patterns.some(p => p.test(text));
+    }
+
+    function extractQuestionText(text) {
+      if (!text) return '';
+      let cleaned = text;
+      cleaned = cleaned.replace(/^【[^】]+】\s*/, '');
+      cleaned = cleaned.replace(/^第[一二三四五六七八九十\d]+题[：:\s]*/, '');
+      cleaned = cleaned.replace(/^题目[：:]\s*/, '');
+      cleaned = cleaned.trim();
+      return cleaned.substring(0, 500);
+    }
+
+    function detectExaminerQuestionType(text) {
+      if (!text) return 'choice';
+      
+      const lowerText = text.toLowerCase();
+      
+      if (lowerText.includes('判断') || lowerText.includes('是否') || lowerText.includes('对错')) {
+        return 'truefalse';
+      }
+      
+      if (lowerText.includes('填空') || lowerText.includes('请填写') || text.includes('____') || text.includes('（ ）')) {
+        return 'shortanswer';
+      }
+      
+      if (lowerText.includes('案例') || lowerText.includes('分析') || lowerText.includes('请回答') || 
+          lowerText.includes('简述') || lowerText.includes('论述') || lowerText.includes('怎么办') || 
+          lowerText.includes('如何')) {
+        if (text.length > 30) return 'case';
+      }
+      
+      if (lowerText.includes('多选') || lowerText.includes('至少') || lowerText.includes('哪些')) {
+        return 'choice';
+      }
+      
+      if (lowerText.includes('单选') || lowerText.includes('以下哪项') || lowerText.includes('哪个是')) {
+        return 'choice';
+      }
+      
+      if (/[A-D][.、．]/.test(text) || /A\s*[.、．]/.test(text)) {
+        return 'choice';
+      }
+      
+      return 'choice';
+    }
+
+    function isCorrectFeedback(text) {
+      if (!text) return null;
+      const correctPatterns = [
+        /回答正确/,
+        /答对了/,
+        /没错/,
+        /正确/,
+        /很棒/,
+        /不错/,
+        /完全正确/,
+        /非常好/
+      ];
+      const incorrectPatterns = [
+        /回答错误/,
+        /答错了/,
+        /不对/,
+        /错误/,
+        /不正确/,
+        /再想想/,
+        /再考虑/,
+        /不是很准确/
+      ];
+      
+      if (correctPatterns.some(p => p.test(text))) {
+        return true;
+      }
+      if (incorrectPatterns.some(p => p.test(text))) {
+        return false;
+      }
+      return null;
+    }
+
+    function extractCorrectAnswer(text) {
+      if (!text) return '';
+      const patterns = [
+        /正确答案[是为：:]\s*([^\n。]+)/,
+        /答案[是为：:]\s*([^\n。]+)/,
+        /正确选项[是为：:]\s*([^\n。]+)/,
+        /选([A-D])/
+      ];
+      
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match && match[1]) {
+          return match[1].trim().substring(0, 100);
+        }
+      }
+      return '';
+    }
+
+    async function handleExaminerQuestion(questionText) {
+      try {
+        if (!window.ExamTracker || !window.DB?.eventLogs) return;
+        
+        const questionType = detectExaminerQuestionType(questionText);
+        const topic = ExamTracker.extractTopic(questionText, currentStage?.id);
+        const questionId = 'examiner_q_' + (++examinerQuestionCount);
+        
+        examinerCurrentQuestion = {
+          questionId,
+          questionText,
+          questionType,
+          topic,
+          stageId: currentStage?.id || '',
+          lessonId: currentLesson?.id || '',
+          sessionId: sessionId,
+          source: 'examiner'
+        };
+        examinerQuestionStartTime = Date.now();
+        examinerModificationCount = 0;
+        examinerLastAnswer = '';
+        
+        await DB.eventLogs.add({
+          eventType: 'examiner_question',
+          eventName: '考官出题',
+          sessionId: sessionId,
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          questionId: questionId,
+          properties: {
+            questionType,
+            topic,
+            questionText: questionText.substring(0, 200)
+          },
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.warn('Failed to handle examiner question:', e);
+      }
+    }
+
+    async function handleExaminerAnswer(answerText) {
+      try {
+        if (!examinerCurrentQuestion || !window.DB?.eventLogs) return;
+        
+        if (examinerLastAnswer && examinerLastAnswer !== answerText) {
+          examinerModificationCount++;
+        }
+        examinerLastAnswer = answerText;
+        
+        await DB.eventLogs.add({
+          eventType: 'examiner_answer',
+          eventName: '学生回答',
+          sessionId: sessionId,
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          questionId: examinerCurrentQuestion.questionId,
+          properties: {
+            answer: answerText.substring(0, 200),
+            modificationCount: examinerModificationCount
+          },
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.warn('Failed to handle examiner answer:', e);
+      }
+    }
+
+    async function handleExaminerFeedback(feedbackText) {
+      try {
+        if (!examinerCurrentQuestion || !window.DB?.examBehavior || !window.DB?.eventLogs) return;
+        
+        const isCorrect = isCorrectFeedback(feedbackText);
+        if (isCorrect === null) return;
+        
+        const correctAnswer = extractCorrectAnswer(feedbackText);
+        const endTime = Date.now();
+        const duration = examinerQuestionStartTime ? 
+          Math.floor((endTime - examinerQuestionStartTime) / 1000) : 0;
+        
+        await DB.examBehavior.add({
+          studentId: null,
+          stageId: currentStage?.id || '',
+          lessonId: currentLesson?.id || '',
+          sessionId: sessionId,
+          questionId: examinerCurrentQuestion.questionId,
+          questionType: examinerCurrentQuestion.questionType,
+          topic: examinerCurrentQuestion.topic,
+          startTime: examinerQuestionStartTime,
+          endTime: endTime,
+          duration: duration,
+          isCorrect: isCorrect,
+          userAnswer: examinerLastAnswer,
+          correctAnswer: correctAnswer,
+          modificationCount: examinerModificationCount,
+          skipped: false,
+          checkedCount: 0,
+          score: isCorrect ? 10 : 0,
+          createdAt: Date.now()
+        });
+        
+        await DB.eventLogs.add({
+          eventType: 'examiner_feedback',
+          eventName: isCorrect ? '回答正确' : '回答错误',
+          sessionId: sessionId,
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          questionId: examinerCurrentQuestion.questionId,
+          properties: {
+            isCorrect,
+            duration,
+            modificationCount: examinerModificationCount,
+            topic: examinerCurrentQuestion.topic,
+            correctAnswer
+          },
+          timestamp: Date.now()
+        });
+        
+        examinerCurrentQuestion = null;
+        examinerQuestionStartTime = 0;
+        examinerModificationCount = 0;
+        examinerLastAnswer = '';
+      } catch (e) {
+        console.warn('Failed to handle examiner feedback:', e);
+      }
+    }
+
     async function sendMessage() {
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
 
       if (!message || isStreaming) return;
 
-      // Check if AI is enabled
       if (!currentLesson?.aiEnabled) {
         showToast('warning', 'AI已禁用', '当前环节需要独立完成');
         return;
       }
 
-      // Track if this is a help request
       const isHelpReq = Agent.isHelpRequest(message);
+      const userTimestamp = Date.now();
+      lastUserMessageTimestamp = userTimestamp;
+      lastUserMessageText = message;
 
-      // Add user message
       input.value = '';
-      addMessageToUI({
+      const msgId = addMessageToUI({
         role: 'student',
         content: message,
-        timestamp: Date.now()
+        timestamp: userTimestamp
       });
 
-      // Track interaction
       trackInteraction(isHelpReq);
 
-      // Save to DB
-      await DB.conversations.save({
+      let userAnalysis = null;
+      if (window.AITracker) {
+        userAnalysis = AITracker.analyzeUserMessage({
+          text: message,
+          role: 'student',
+          sessionId,
+          timestamp: userTimestamp
+        });
+      }
+
+      const savedConv = await DB.conversations.save({
         sessionId,
         stageId: currentStage?.id,
         lessonId: currentLesson?.id,
         role: 'student',
         content: message,
-        timestamp: Date.now(),
+        timestamp: userTimestamp,
         mode: currentMode,
-        isHelpRequest: isHelpReq
+        isHelpRequest: isHelpReq,
+        messageType: userAnalysis?.messageType || 'question',
+        questionCategory: userAnalysis?.questionCategory || null,
+        questionDepth: userAnalysis?.questionDepth || 3,
+        messageLength: userAnalysis?.messageLength || message.length,
+        hasImage: userAnalysis?.hasImage || false,
+        imageCount: userAnalysis?.imageCount || 0,
+        followUpCount: userAnalysis?.followUpCount || 0
       });
 
-      // Log student message
+      msgIdToDbIdMap[msgId] = savedConv;
+
       safeLogAdd({
         sessionId,
         role: 'student',
@@ -1938,7 +2322,40 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
         }
       });
 
-      // Check for help requests in socratic mode
+      if (window.AITracker && window.DB?.eventLogs) {
+        AITracker.logEvent({
+          eventType: 'ai_message_sent',
+          eventName: '用户发送消息',
+          sessionId,
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          mode: currentMode,
+          properties: {
+            messageLength: userAnalysis?.messageLength || message.length,
+            questionCategory: userAnalysis?.questionCategory || null,
+            questionDepth: userAnalysis?.questionDepth || 3,
+            isHelpRequest: isHelpReq,
+            followUpCount: userAnalysis?.followUpCount || 0
+          },
+          timestamp: userTimestamp
+        });
+
+        if (isHelpReq) {
+          AITracker.logEvent({
+            eventType: 'help_request',
+            eventName: '求助请求',
+            sessionId,
+            stageId: currentStage?.id,
+            lessonId: currentLesson?.id,
+            mode: currentMode,
+            properties: {
+              message: message.substring(0, 100)
+            },
+            timestamp: userTimestamp
+          });
+        }
+      }
+
       if (currentMode === 'socratic' && isHelpReq) {
         const count = Agent.incrementHelpRequest(sessionId);
         if (count >= 3) {
@@ -1946,9 +2363,12 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
         }
       }
 
+      if (currentMode === 'examiner' && examinerCurrentQuestion) {
+        handleExaminerAnswer(message);
+      }
+
       scrollChatToBottom();
 
-      // Get response
       await getAIResponse(message);
     }
 
@@ -2046,6 +2466,19 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
             },
             onComplete: async (full) => {
               fullResponse = full;
+              const agentTimestamp = Date.now();
+              const waitDuration = lastUserMessageTimestamp > 0 ? agentTimestamp - lastUserMessageTimestamp : 0;
+
+              let agentAnalysis = null;
+              if (window.AITracker) {
+                agentAnalysis = AITracker.analyzeAgentResponse({
+                  text: fullResponse,
+                  role: 'agent',
+                  userTimestamp: lastUserMessageTimestamp,
+                  agentTimestamp
+                });
+              }
+
               responseDiv.innerHTML = `
                 ${renderMarkdown(fullResponse)}
                 <div class="message-actions">
@@ -2063,7 +2496,7 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
                   </button>
                 </div>
                 <div class="message-meta">
-                  <span class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span class="message-time">${new Date(agentTimestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div class="message-feedback" id="feedback-${msgId}">
                   <span class="feedback-label">回复是否有帮助？</span>
@@ -2074,35 +2507,59 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
                 </div>
               `;
 
-              // Save to DB
-              await DB.conversations.save({
+              const savedAgentConv = await DB.conversations.save({
                 sessionId,
                 stageId: currentStage?.id,
                 lessonId: currentLesson?.id,
                 role: 'agent',
                 content: fullResponse,
-                timestamp: Date.now(),
-                mode: currentMode
+                timestamp: agentTimestamp,
+                mode: currentMode,
+                messageType: agentAnalysis?.messageType || 'answer',
+                messageLength: agentAnalysis?.messageLength || fullResponse.length,
+                hasImage: agentAnalysis?.hasImage || false,
+                imageCount: agentAnalysis?.imageCount || 0,
+                waitDuration: waitDuration,
+                feedback: null
               });
 
-              // Log agent response
+              msgIdToDbIdMap[msgId] = savedAgentConv;
+
               safeLogAdd({
                 sessionId,
                 role: 'agent',
                 agentMode: currentMode,
                 message: fullResponse,
+                userTimestamp: lastUserMessageTimestamp,
                 metadata: {
                   stageId: currentStage?.id,
                   lessonId: currentLesson?.id
                 }
               });
 
+              if (window.AITracker && window.DB?.eventLogs) {
+                AITracker.logEvent({
+                  eventType: 'ai_response_received',
+                  eventName: 'AI回复完成',
+                  sessionId,
+                  stageId: currentStage?.id,
+                  lessonId: currentLesson?.id,
+                  mode: currentMode,
+                  properties: {
+                    messageLength: agentAnalysis?.messageLength || fullResponse.length,
+                    waitDuration: waitDuration,
+                    hasImage: agentAnalysis?.hasImage || false,
+                    imageCount: agentAnalysis?.imageCount || 0
+                  },
+                  timestamp: agentTimestamp
+                });
+              }
+
               sendBtn.disabled = false;
               input.disabled = false;
               isStreaming = false;
               scrollChatToBottom();
 
-              // Smart image generation
               try {
                 const imageCheck = AI.image.shouldGenerate(userMessage, fullResponse);
                 if (imageCheck.should) {
@@ -2113,6 +2570,15 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
                 }
               } catch (e) {
                 console.log('Image generation check skipped:', e);
+              }
+
+              if (currentMode === 'examiner') {
+                if (isExaminerQuestion(fullResponse)) {
+                  const questionText = extractQuestionText(fullResponse);
+                  handleExaminerQuestion(questionText);
+                } else if (isCorrectFeedback(fullResponse) !== null) {
+                  handleExaminerFeedback(fullResponse);
+                }
               }
             },
             onError: (error) => {
@@ -2182,6 +2648,7 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       if (!msgDiv) return;
 
       const imageContainerId = `img-${msgId}`;
+      const imageGenStartTime = Date.now();
       
       const imgContainer = document.createElement('div');
       imgContainer.id = imageContainerId;
@@ -2204,6 +2671,7 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
 
       try {
         const images = await AI.image.generate(prompt, { size: '1024x1024' });
+        const imageGenDuration = Date.now() - imageGenStartTime;
         
         if (images && images.length > 0) {
           const imageData = images[0];
@@ -2232,15 +2700,81 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
               </div>
             `;
             scrollChatToBottom();
+
+            try {
+              const convRecord = msgIdToDbIdMap[msgId];
+              if (convRecord && convRecord.id && window.DB?.conversations?.update) {
+                const currentImageCount = convRecord.imageCount || 0;
+                await DB.conversations.update(convRecord.id, {
+                  hasImage: true,
+                  imageCount: currentImageCount + images.length
+                });
+                if (msgIdToDbIdMap[msgId]) {
+                  msgIdToDbIdMap[msgId].hasImage = true;
+                  msgIdToDbIdMap[msgId].imageCount = currentImageCount + images.length;
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to update conversation image info:', e);
+            }
+
+            try {
+              if (window.AITracker && window.DB?.eventLogs) {
+                await AITracker.logEvent({
+                  eventType: 'image_generated',
+                  eventName: '图片生成',
+                  sessionId,
+                  stageId: currentStage?.id,
+                  lessonId: currentLesson?.id,
+                  mode: currentMode,
+                  properties: {
+                    prompt: prompt.substring(0, 100),
+                    imageCount: images.length,
+                    success: true,
+                    duration: imageGenDuration
+                  },
+                  timestamp: Date.now()
+                });
+              }
+            } catch (e) {
+              console.warn('Failed to log image generated event:', e);
+            }
           } else {
             imgContainer.remove();
+            logImageGenerationFailed(prompt, imageGenDuration, 'No image URL');
           }
         } else {
           imgContainer.remove();
+          logImageGenerationFailed(prompt, imageGenDuration, 'No images returned');
         }
       } catch (error) {
         console.log('Image generation failed:', error);
         imgContainer.remove();
+        logImageGenerationFailed(prompt, Date.now() - imageGenStartTime, error.message || 'Unknown error');
+      }
+    }
+
+    async function logImageGenerationFailed(prompt, duration, errorMsg) {
+      try {
+        if (window.AITracker && window.DB?.eventLogs) {
+          await AITracker.logEvent({
+            eventType: 'image_generated',
+            eventName: '图片生成失败',
+            sessionId,
+            stageId: currentStage?.id,
+            lessonId: currentLesson?.id,
+            mode: currentMode,
+            properties: {
+              prompt: prompt.substring(0, 100),
+              success: false,
+              duration: duration,
+              error: errorMsg
+            },
+            timestamp: Date.now()
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to log image generation failure:', e);
       }
     }
 
@@ -2293,25 +2827,45 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
       const content = input.value.trim();
       const ownWork = document.getElementById('own-work-checkbox').checked;
 
-      if (!content) {
-        showToast('warning', '请输入答案', '');
+      const submissionConfig = currentLesson?.submission || null;
+      const supportsFile = submissionConfig?.submissionTypes?.includes('file') || 
+                          submissionConfig?.submissionTypes?.includes('both');
+      const requireGrading = submissionConfig?.requireGrading === true;
+
+      if (!content && (!supportsFile || !gradingIntegration?.fileUploader?.uploadedFiles?.length)) {
+        showToast('warning', '请输入答案或上传文件', '');
         return;
       }
 
-      // Save submission
-      await DB.submissions.save({
-        stageId: currentStage?.id,
-        lessonId: currentLesson?.id,
-        content,
-        ownWork,
-        timestamp: Date.now()
-      });
+      if (gradingIntegration) {
+        const result = await gradingIntegration.handleSubmit({
+          content,
+          ownWork
+        });
 
-      showToast('success', '提交成功', '李主管将审核你的答案');
+        if (result.success) {
+          if (requireGrading) {
+            showToast('success', '提交成功', '已提交，AI正在评阅中...');
+          } else {
+            showToast('success', '提交成功', '李主管将审核你的答案');
+          }
+        } else {
+          showToast('error', '提交失败', result.error || '未知错误');
+          return;
+        }
+      } else {
+        await DB.submissions.save({
+          stageId: currentStage?.id,
+          lessonId: currentLesson?.id,
+          content,
+          ownWork,
+          timestamp: Date.now()
+        });
 
-      // If in reviewer mode, show feedback
-      if (currentMode === 'reviewer') {
-        // Generate feedback
+        showToast('success', '提交成功', '李主管将审核你的答案');
+      }
+
+      if (currentMode === 'reviewer' && !requireGrading) {
         const feedback = Agent.validateSubmission(content, currentLesson?.rubric);
         addMessageToUI({
           role: 'agent',
@@ -2324,6 +2878,11 @@ ${window.wrongAnswers?.map((q, i) => `${i+1}. ${q.question}`).join('\n') || ''}
     // ==================== Complete Lesson ====================
     async function markComplete() {
       if (!currentLesson) return;
+
+      // End reading tracker session before navigating
+      if (window.ReadingTracker && ReadingTracker.isActive()) {
+        await ReadingTracker.endSession();
+      }
 
       // Track lesson completion
       trackLessonComplete();

@@ -6,6 +6,280 @@
   <title>教师视图 - 市场数据分析AI伴学平台</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <style>
+    .student-list-section {
+      margin-top: var(--space-lg);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .section-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .student-list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .student-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .student-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .student-card:hover::before {
+      opacity: 1;
+    }
+
+    .student-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .student-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .student-card-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-inverse);
+      flex-shrink: 0;
+    }
+
+    .student-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .student-card-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .student-card-stage {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+    }
+
+    .student-card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .student-card-stat {
+      text-align: center;
+    }
+
+    .student-card-stat-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      font-family: var(--font-display);
+      line-height: 1;
+    }
+
+    .student-card-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: var(--font-ui);
+    }
+
+    .student-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: var(--space-sm);
+    }
+
+    .student-card-tag {
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: 0.65rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .tag-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .tag-filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .tag-filter-label {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      font-family: var(--font-ui);
+    }
+
+    .tag-filter-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: 1px solid transparent;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .tag-filter-item:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .tag-filter-item.active {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-state-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent-blue) !important;
+      background: rgba(88, 166, 255, 0.05) !important;
+    }
+
+    .batch-export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-ui);
+    }
+
+    .batch-export-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      background: var(--accent-primary-light);
+    }
+
+    .batch-export-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .loading-skeleton {
+      background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-quaternary) 50%, var(--bg-tertiary) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: var(--radius-md);
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
 </head>
 <body class="min-h-screen" style="background: var(--bg-primary);">
   
@@ -24,13 +298,13 @@
 
   <!-- Main Content -->
   <main class="page-content">
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-5xl mx-auto">
       
       <!-- Upload Section -->
       <div class="card">
         <div class="card-header">
           <h2 class="card-title flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="17 8 12 3 7 8"/>
               <line x1="12" y1="3" x2="12" y2="15"/>
@@ -62,7 +336,7 @@
           <div id="file-preview" class="hidden mt-4 p-4 rounded-lg" style="background: var(--bg-tertiary);">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
@@ -79,11 +353,128 @@
         </div>
       </div>
 
+      <!-- Grading Stats Overview -->
+      <div class="card mt-6" id="grading-stats-card" style="display: none;">
+        <div class="card-header">
+          <h2 class="card-title flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            评阅统计概览
+          </h2>
+        </div>
+        <div class="card-body">
+          <div class="stats-overview">
+            <div class="stat-item">
+              <div class="stat-value" id="stats-total-gradings">0</div>
+              <div class="stat-label">总评阅次数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="stats-avg-score">--</div>
+              <div class="stat-label">班级平均分</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="stats-grade-a">0</div>
+              <div class="stat-label">A级人数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="stats-review-rate">0%</div>
+              <div class="stat-label">审核完成率</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-xs mb-2" style="color: var(--text-tertiary);">等级分布</div>
+            <div class="flex items-stretch gap-1" style="height: 8px;">
+              <div id="grade-bar-a" style="background: linear-gradient(135deg, #6a9e6e, #5a9e8f); border-radius: 4px 0 0 4px; width: 0%;"></div>
+              <div id="grade-bar-b" style="background: linear-gradient(135deg, #6b8caf, #5a9e8f); width: 0%;"></div>
+              <div id="grade-bar-c" style="background: linear-gradient(135deg, #d48c52, #c99a4a); width: 0%;"></div>
+              <div id="grade-bar-d" style="background: linear-gradient(135deg, #c45e4b, #c4653e); border-radius: 0 4px 4px 0; width: 0%;"></div>
+            </div>
+            <div class="flex justify-between mt-2 text-xs" style="color: var(--text-tertiary);">
+              <span>A</span>
+              <span>B</span>
+              <span>C</span>
+              <span>D</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Local Students Section -->
+      <div class="card mt-6">
+        <div class="card-header">
+          <h2 class="card-title flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            本地学生列表
+          </h2>
+          <button class="batch-export-btn" id="batch-export-btn" onclick="batchExport()" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            批量导出
+          </button>
+        </div>
+        <div class="card-body">
+          <p class="text-sm mb-4" style="color: var(--text-secondary);">
+            查看本设备上存储的所有学生数据，点击学生卡片可查看详细学习记录和画像。
+          </p>
+
+          <!-- Filter & Sort Bar -->
+          <div class="tag-filter-bar mb-4">
+            <div class="tag-filter-group">
+              <span class="tag-filter-label">等级筛选：</span>
+              <span class="tag-filter-item active" onclick="filterByGrade('all')" data-grade-filter="all">全部</span>
+              <span class="tag-filter-item" onclick="filterByGrade('A')" data-grade-filter="A">A级</span>
+              <span class="tag-filter-item" onclick="filterByGrade('B')" data-grade-filter="B">B级</span>
+              <span class="tag-filter-item" onclick="filterByGrade('C')" data-grade-filter="C">C级</span>
+              <span class="tag-filter-item" onclick="filterByGrade('D')" data-grade-filter="D">D级</span>
+            </div>
+            <div class="tag-filter-group" style="margin-left: auto;">
+              <span class="tag-filter-label">排序：</span>
+              <select id="sort-select" onchange="sortStudents()" 
+                      class="text-xs px-2 py-1 rounded-lg"
+                      style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer;">
+                <option value="name">按姓名</option>
+                <option value="avgScore">按平均分</option>
+                <option value="gradingCount">按评阅次数</option>
+                <option value="progress">按课程进度</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tag Filter Bar -->
+          <div class="tag-filter-bar" id="local-tag-filter" style="display: none;">
+            <span class="tag-filter-label">标签筛选：</span>
+            <div class="tag-filter-group" id="local-tag-filter-group">
+            </div>
+          </div>
+
+          <!-- Student List -->
+          <div id="student-list-container">
+            <div class="empty-state">
+              <div class="loading-skeleton" style="height: 60px; width: 200px; margin: 0 auto 16px;"></div>
+              <div class="loading-skeleton" style="height: 20px; width: 300px; margin: 0 auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Instructions -->
       <div class="card mt-6">
         <div class="card-header">
           <h3 class="card-title flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 16v-4"/>
               <path d="M12 8h.01"/>
@@ -95,7 +486,7 @@
           <div class="space-y-4">
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-medium" 
-                   style="background: var(--accent-blue); color: white;">1</div>
+                   style="background: var(--accent-primary); color: white;">1</div>
               <div>
                 <h4 class="font-medium mb-1">学生导出数据</h4>
                 <p class="text-sm" style="color: var(--text-secondary);">
@@ -105,7 +496,7 @@
             </div>
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-medium" 
-                   style="background: var(--accent-green); color: white;">2</div>
+                   style="background: var(--accent-success); color: white;">2</div>
               <div>
                 <h4 class="font-medium mb-1">教师上传文件</h4>
                 <p class="text-sm" style="color: var(--text-secondary);">
@@ -115,11 +506,21 @@
             </div>
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-medium" 
-                   style="background: var(--accent-purple); color: white;">3</div>
+                   style="background: var(--accent-teal); color: white;">3</div>
               <div>
                 <h4 class="font-medium mb-1">查看学习报告</h4>
                 <p class="text-sm" style="color: var(--text-secondary);">
                   全面了解学生学习进度、对话记录、测试成绩和行为分析
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-medium" 
+                   style="background: var(--accent-gold); color: white;">4</div>
+              <div>
+                <h4 class="font-medium mb-1">学生画像分析</h4>
+                <p class="text-sm" style="color: var(--text-secondary);">
+                  通过学生画像看板，深入了解学生学习风格、能力特点和知识掌握情况
                 </p>
               </div>
             </div>
@@ -128,9 +529,9 @@
       </div>
 
       <!-- Privacy Notice -->
-      <div class="card mt-6" style="background: rgba(88, 166, 255, 0.1); border-color: rgba(88, 166, 255, 0.3);">
+      <div class="card mt-6" style="background: rgba(212, 140, 82, 0.08); border-color: rgba(212, 140, 82, 0.25);">
         <div class="flex items-start gap-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
@@ -148,15 +549,565 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <script>
-    // Current loaded record
-    let currentRecord = null;
+  <script src="../js/db.js"></script>
+  <script src="../js/student-manager.js"></script>
+  <script src="../js/student-profile-service.js"></script>
+  <script src="../js/teacher-grading.js"></script>
 
-    // Drag and drop handlers
+  <script>
+    let currentRecord = null;
+    let localStudents = [];
+    let studentProfiles = {};
+    let activeLocalTagFilter = null;
+    let allTags = new Set();
+    let studentGradingStats = {};
+    let activeGradeFilter = 'all';
+    let currentSort = 'name';
+
+    const STAGE_NAMES = {
+      1: '入门阶段',
+      2: '基础阶段',
+      3: '进阶阶段',
+      4: '实战阶段',
+      5: '综合阶段',
+      6: '高阶阶段'
+    };
+
+    const TAG_CATEGORY_COLORS = {
+      stage: 'tag-category-stage',
+      habit: 'tag-category-habit',
+      ability: 'tag-category-ability',
+      style: 'tag-category-style',
+      progress: 'tag-category-progress'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLocalStudents();
+    });
+
+    async function loadLocalStudents() {
+      try {
+        const students = await window.StudentManager.listStudents();
+        localStudents = students;
+
+        if (students.length === 0) {
+          renderEmptyStudentList();
+          return;
+        }
+
+        await loadStudentProfiles(students);
+        await loadAllStudentGradingStats(students);
+        collectAllTags();
+        renderStudentList();
+        renderTagFilter();
+        renderGradingStatsOverview();
+        
+        const exportBtn = document.getElementById('batch-export-btn');
+        if (exportBtn) {
+          exportBtn.disabled = false;
+        }
+      } catch (e) {
+        console.error('Load students error:', e);
+        renderEmptyStudentList();
+      }
+    }
+
+    async function loadStudentProfiles(students) {
+      const service = window.StudentProfileService;
+      if (!service || !service.getProfile) return;
+
+      for (const student of students) {
+        try {
+          const profile = await service.getProfile(student.id);
+          if (profile && profile.basics) {
+            studentProfiles[student.id] = profile;
+          }
+        } catch (e) {
+          console.warn('Failed to load profile for student:', student.id, e);
+        }
+      }
+    }
+
+    function collectAllTags() {
+      allTags.clear();
+      Object.values(studentProfiles).forEach(profile => {
+        (profile.tags || []).forEach(tag => {
+          allTags.add(JSON.stringify({ id: tag.id, name: tag.name, category: tag.category }));
+        });
+      });
+    }
+
+    function renderTagFilter() {
+      const filterBar = document.getElementById('local-tag-filter');
+      const filterGroup = document.getElementById('local-tag-filter-group');
+      
+      if (allTags.size === 0) {
+        filterBar.style.display = 'none';
+        return;
+      }
+
+      filterBar.style.display = 'flex';
+      
+      let html = '<span class="tag-filter-item ' + (!activeLocalTagFilter ? 'active' : '') + '" onclick="filterLocalStudents(null)">全部</span>';
+      
+      const tags = Array.from(allTags).map(t => JSON.parse(t));
+      const categories = {};
+      tags.forEach(tag => {
+        if (!categories[tag.category]) categories[tag.category] = [];
+        categories[tag.category].push(tag);
+      });
+
+      Object.values(categories).flat().forEach(tag => {
+        const isActive = activeLocalTagFilter === tag.id;
+        html += `<span class="tag-filter-item ${isActive ? 'active' : ''}" onclick="filterLocalStudents('${tag.id}')">${tag.name}</span>`;
+      });
+
+      filterGroup.innerHTML = html;
+    }
+
+    function filterLocalStudents(tagId) {
+      activeLocalTagFilter = tagId;
+      renderTagFilter();
+      renderStudentList();
+    }
+
+    function renderStudentList() {
+      const container = document.getElementById('student-list-container');
+      
+      let students = [...localStudents];
+      
+      if (activeLocalTagFilter) {
+        students = students.filter(s => {
+          const profile = studentProfiles[s.id];
+          if (!profile || !profile.tags) return false;
+          return profile.tags.some(t => t.id === activeLocalTagFilter);
+        });
+      }
+
+      if (activeGradeFilter !== 'all') {
+        students = students.filter(s => {
+          const stats = studentGradingStats[s.id];
+          if (!stats || stats.totalCount === 0) return false;
+          const topGrade = getTopGrade(stats.gradeDistribution);
+          return topGrade === activeGradeFilter;
+        });
+      }
+
+      if (students.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <div class="empty-state-title">暂无学生数据</div>
+            <div class="empty-state-desc">
+              ${activeLocalTagFilter ? '没有符合该标签筛选条件的学生' : 
+                activeGradeFilter !== 'all' ? `没有${activeGradeFilter}等级的学生` : 
+                '本设备上暂无学生学习数据'}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (currentSort === 'avgScore') {
+        students.sort((a, b) => {
+          const statsA = studentGradingStats[a.id];
+          const statsB = studentGradingStats[b.id];
+          return (statsB?.avgScore || 0) - (statsA?.avgScore || 0);
+        });
+      } else if (currentSort === 'gradingCount') {
+        students.sort((a, b) => {
+          const statsA = studentGradingStats[a.id];
+          const statsB = studentGradingStats[b.id];
+          return (statsB?.totalCount || 0) - (statsA?.totalCount || 0);
+        });
+      } else if (currentSort === 'progress') {
+        students.sort((a, b) => {
+          const profileA = studentProfiles[a.id];
+          const profileB = studentProfiles[b.id];
+          const progressA = profileA?.basics?.completedLessons || 0;
+          const progressB = profileB?.basics?.completedLessons || 0;
+          return progressB - progressA;
+        });
+      } else {
+        students.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'zh-CN'));
+      }
+
+      let html = '<div class="student-list-grid">';
+      
+      students.forEach(student => {
+        const profile = studentProfiles[student.id];
+        const basics = profile?.basics || {};
+        const tags = profile?.tags || [];
+        const gradingStats = studentGradingStats[student.id] || { totalCount: 0, avgScore: 0 };
+        
+        const stageNum = basics.currentStage || 1;
+        const stageName = STAGE_NAMES[stageNum] || `第${stageNum}阶段`;
+        const completedLessons = basics.completedLessons || 0;
+        const totalLessons = basics.totalLessons || 54;
+        const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        
+        const totalMinutes = Math.round((basics.totalStudyTime || 0) / 60000);
+        const studyTimeStr = formatDuration(totalMinutes);
+        
+        const displayTags = tags.slice(0, 3);
+        const firstChar = (student.name || '?').charAt(0).toUpperCase();
+
+        const topGrade = getTopGrade(gradingStats.gradeDistribution);
+        const gradeBadge = topGrade ? `<span class="student-card-tag" style="background: ${
+          topGrade === 'A' ? 'rgba(106, 158, 110, 0.2)' :
+          topGrade === 'B' ? 'rgba(107, 140, 175, 0.2)' :
+          topGrade === 'C' ? 'rgba(212, 140, 82, 0.2)' :
+          'rgba(196, 94, 75, 0.2)'
+        }; color: ${
+          topGrade === 'A' ? '#6a9e6e' :
+          topGrade === 'B' ? '#6b8caf' :
+          topGrade === 'C' ? '#d48c52' :
+          '#c45e4b'
+        };">${topGrade}级</span>` : '';
+
+        html += `
+          <div class="student-card" onclick="viewLocalStudent('${student.id}')">
+            <div class="student-card-header">
+              <div class="student-card-avatar">${student.avatar || firstChar}</div>
+              <div class="student-card-info">
+                <div class="student-card-name">${escapeHtml(student.name)}</div>
+                <div class="student-card-stage">${stageName}</div>
+              </div>
+            </div>
+            <div class="student-card-stats">
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${progress}%</div>
+                <div class="student-card-stat-label">课程进度</div>
+              </div>
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${gradingStats.totalCount || 0}</div>
+                <div class="student-card-stat-label">评阅次数</div>
+              </div>
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${gradingStats.avgScore ? gradingStats.avgScore.toFixed(1) : '--'}</div>
+                <div class="student-card-stat-label">平均分</div>
+              </div>
+            </div>
+            ${displayTags.length > 0 || gradeBadge ? `
+              <div class="student-card-tags">
+                ${gradeBadge}
+                ${displayTags.map(t => `<span class="student-card-tag">${t.name}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    async function loadAllStudentGradingStats(students) {
+      try {
+        const manager = window.TeacherGradingManager;
+        if (!manager) return;
+
+        for (const student of students) {
+          try {
+            const gradings = await manager.loadStudentGradings(student.id);
+            if (gradings && gradings.length > 0) {
+              const stats = manager.getGradingStats(student.id);
+              studentGradingStats[student.id] = stats;
+            } else {
+              studentGradingStats[student.id] = {
+                totalCount: 0,
+                avgScore: 0,
+                gradeDistribution: { A: 0, B: 0, C: 0, D: 0 }
+              };
+            }
+          } catch (e) {
+            console.warn('Failed to load grading stats for:', student.id, e);
+            studentGradingStats[student.id] = {
+              totalCount: 0,
+              avgScore: 0,
+              gradeDistribution: { A: 0, B: 0, C: 0, D: 0 }
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Load all grading stats error:', e);
+      }
+    }
+
+    function renderGradingStatsOverview() {
+      const statsCard = document.getElementById('grading-stats-card');
+      if (!statsCard) return;
+
+      const statsValues = Object.values(studentGradingStats);
+      if (statsValues.length === 0) {
+        statsCard.style.display = 'none';
+        return;
+      }
+
+      const totalGradings = statsValues.reduce((sum, s) => sum + (s.totalCount || 0), 0);
+      if (totalGradings === 0) {
+        statsCard.style.display = 'none';
+        return;
+      }
+
+      statsCard.style.display = 'block';
+
+      const studentsWithScore = statsValues.filter(s => s.totalCount > 0);
+      const avgScore = studentsWithScore.length > 0
+        ? Math.round(studentsWithScore.reduce((sum, s) => sum + s.avgScore, 0) / studentsWithScore.length)
+        : 0;
+
+      const gradeDist = { A: 0, B: 0, C: 0, D: 0 };
+      studentsWithScore.forEach(s => {
+        Object.keys(gradeDist).forEach(g => {
+          gradeDist[g] += s.gradeDistribution?.[g] || 0;
+        });
+      });
+
+      const totalGradesCount = Object.values(gradeDist).reduce((a, b) => a + b, 0);
+      const gradeAStudents = studentsWithScore.filter(s => {
+        const topGrade = getTopGrade(s.gradeDistribution);
+        return topGrade === 'A';
+      }).length;
+
+      const reviewedCount = studentsWithScore.reduce((sum, s) => sum + (s.reviewedCount || 0), 0);
+      const reviewRate = totalGradings > 0 ? Math.round((reviewedCount / totalGradings) * 100) : 0;
+
+      document.getElementById('stats-total-gradings').textContent = totalGradings;
+      document.getElementById('stats-avg-score').textContent = avgScore || '--';
+      document.getElementById('stats-grade-a').textContent = gradeAStudents;
+      document.getElementById('stats-review-rate').textContent = reviewRate + '%';
+
+      if (totalGradesCount > 0) {
+        document.getElementById('grade-bar-a').style.width = (gradeDist.A / totalGradesCount * 100) + '%';
+        document.getElementById('grade-bar-b').style.width = (gradeDist.B / totalGradesCount * 100) + '%';
+        document.getElementById('grade-bar-c').style.width = (gradeDist.C / totalGradesCount * 100) + '%';
+        document.getElementById('grade-bar-d').style.width = (gradeDist.D / totalGradesCount * 100) + '%';
+      }
+    }
+
+    function getTopGrade(gradeDist) {
+      if (!gradeDist) return null;
+      let top = 'D';
+      let max = 0;
+      ['A', 'B', 'C', 'D'].forEach(g => {
+        if ((gradeDist[g] || 0) > max) {
+          max = gradeDist[g];
+          top = g;
+        }
+      });
+      return max > 0 ? top : null;
+    }
+
+    function filterByGrade(grade) {
+      activeGradeFilter = grade;
+
+      document.querySelectorAll('[data-grade-filter]').forEach(el => {
+        el.classList.toggle('active', el.dataset.gradeFilter === grade);
+      });
+
+      renderStudentList();
+    }
+
+    function sortStudents() {
+      const select = document.getElementById('sort-select');
+      currentSort = select?.value || 'name';
+      renderStudentList();
+    }
+
+    function renderEmptyStudentList() {
+      const container = document.getElementById('student-list-container');
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">👥</div>
+          <div class="empty-state-title">暂无学生数据</div>
+          <div class="empty-state-desc">本设备上暂无学生学习数据，请上传学生的学习记录文件</div>
+        </div>
+      `;
+    }
+
+    async function viewLocalStudent(studentId) {
+      try {
+        const exportData = await buildExportData(studentId);
+        if (!exportData) {
+          showToast('error', '数据不足', '该学生数据不足，无法生成报告');
+          return;
+        }
+        sessionStorage.setItem('teacherRecord', JSON.stringify(exportData));
+        window.location.href = 'viewer.html';
+      } catch (e) {
+        console.error('View local student error:', e);
+        showToast('error', '查看失败', e.message || '无法查看学生数据');
+      }
+    }
+
+    async function buildExportData(studentId) {
+      try {
+        const hasDB = window.DB && typeof window.DB.init === 'function';
+        if (!hasDB) return null;
+
+        await window.DB.init();
+
+        const student = await window.StudentManager.getCurrentStudent();
+        if (student && student.id !== studentId) {
+          await window.StudentManager.setCurrentStudent(studentId);
+        }
+
+        const profile = studentProfiles[studentId];
+        const basics = profile?.basics || {};
+
+        const progress = await window.DB.progress.getAll();
+        const stages = groupProgressByStage(progress);
+
+        const examRecords = await getAllFromStore('exam_behavior', studentId);
+        const readingRecords = await getAllFromStore('reading_behavior', studentId);
+        const conversations = await window.DB.conversations.getAll();
+        const eventLogs = await window.DB.eventLogs.query(studentId, {});
+
+        const assessments = Object.entries(stages)
+          .filter(([_, s]) => s.testScore !== undefined)
+          .map(([stageId, s]) => ({
+            testId: `${stageId}-test`,
+            score: s.testScore || 0,
+            totalScore: 100,
+            passed: (s.testScore || 0) >= 60
+          }));
+
+        const completedHours = basics.completedLessons || 0;
+        const totalHours = basics.totalLessons || 54;
+
+        const conversations_summary = {
+          total: conversations.length,
+          by_stage: groupConversationsByStage(conversations, stages)
+        };
+
+        const learning_behaviors = {
+          ai_dependency_index: profile?.aiInteraction?.dependencyScore ? profile.aiInteraction.dependencyScore / 100 : 0,
+          self_correction_rate: 0.3,
+          totalLearningMinutes: Math.round((basics.totalStudyTime || 0) / 60000),
+          totalSessions: profile?.learningBehavior?.studyFrequency || 0
+        };
+
+        return {
+          exportVersion: '1.0',
+          studentId: studentId,
+          exportDate: new Date().toISOString(),
+          studentName: student?.name || '学生',
+          courseInfo: {
+            completedHours: completedHours,
+            totalHours: totalHours
+          },
+          stages: Object.entries(stages).map(([stageId, s]) => ({
+            stageId: stageId,
+            lessons: s.lessons || [],
+            testScore: s.testScore,
+            durationMinutes: s.durationMinutes || 0
+          })),
+          assessments: assessments,
+          conversations: conversations,
+          conversations_summary: conversations_summary,
+          learning_behaviors: learning_behaviors,
+          readingRecords: readingRecords,
+          examRecords: examRecords,
+          eventLogs: eventLogs
+        };
+      } catch (e) {
+        console.error('Build export data error:', e);
+        return null;
+      }
+    }
+
+    function groupProgressByStage(progress) {
+      const stages = {};
+      progress.forEach(p => {
+        const sid = p.stageId || 'stage-1';
+        if (!stages[sid]) {
+          stages[sid] = { lessons: [], testScore: undefined, durationMinutes: 0 };
+        }
+        if (p.status === 'completed' || p.completed) {
+          stages[sid].lessons.push({
+            lessonId: p.lessonId,
+            completedAt: p.completedAt || p.updatedAt || Date.now()
+          });
+        }
+        if (p.testScore !== undefined) {
+          stages[sid].testScore = p.testScore;
+        }
+        stages[sid].durationMinutes += p.duration ? Math.round(p.duration / 60000) : 0;
+      });
+      return stages;
+    }
+
+    function groupConversationsByStage(conversations, stages) {
+      const byStage = {};
+      const stageIds = Object.keys(stages).sort();
+      
+      const perStage = Math.ceil(conversations.length / Math.max(1, stageIds.length));
+      stageIds.forEach((sid, i) => {
+        byStage[sid] = Math.min(perStage, Math.max(0, conversations.length - i * perStage));
+      });
+      
+      return byStage;
+    }
+
+    function getAllFromStore(storeName, studentId) {
+      return new Promise((resolve) => {
+        const req = indexedDB.open('MarketDataAnalysisDB', 3);
+        req.onsuccess = () => {
+          const db = req.result;
+          const tx = db.transaction(storeName, 'readonly');
+          const store = tx.objectStore(storeName);
+          const index = store.index('studentId');
+          const getReq = index.getAll(studentId);
+          getReq.onsuccess = () => resolve(getReq.result || []);
+          getReq.onerror = () => resolve([]);
+        };
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    async function batchExport() {
+      if (localStudents.length === 0) {
+        showToast('warning', '无数据', '没有可导出的学生数据');
+        return;
+      }
+
+      showToast('info', '正在导出', '正在准备导出数据，请稍候...');
+
+      const exportData = [];
+      for (const student of localStudents) {
+        const data = await buildExportData(student.id);
+        if (data) {
+          exportData.push({
+            student: { id: student.id, name: student.name, avatar: student.avatar },
+            profile: studentProfiles[student.id] || null,
+            record: data
+          });
+        }
+      }
+
+      if (exportData.length === 0) {
+        showToast('error', '导出失败', '没有可导出的有效数据');
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `students-batch-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('success', '导出成功', `已导出 ${exportData.length} 名学生的数据`);
+    }
+
     function handleDragOver(e) {
       e.preventDefault();
-      e.currentTarget.style.borderColor = 'var(--accent-blue)';
-      e.currentTarget.style.background = 'rgba(88, 166, 255, 0.1)';
+      e.currentTarget.style.borderColor = 'var(--accent-primary)';
+      e.currentTarget.style.background = 'rgba(212, 140, 82, 0.1)';
     }
 
     function handleDragLeave(e) {
@@ -183,7 +1134,6 @@
       }
     }
 
-    // Process uploaded file
     function processFile(file) {
       if (!file.name.endsWith('.json')) {
         showToast('error', '文件格式错误', '请上传JSON格式的学习记录文件');
@@ -195,14 +1145,12 @@
         try {
           const data = JSON.parse(e.target.result);
           
-          // Validate format
           if (!data.exportVersion || !data.studentId) {
             throw new Error('无效的学习记录格式');
           }
           
           currentRecord = data;
           
-          // Show preview
           document.getElementById('file-preview').classList.remove('hidden');
           document.getElementById('file-name').textContent = file.name;
           document.getElementById('file-info').textContent = 
@@ -218,28 +1166,40 @@
       reader.readAsText(file);
     }
 
-    // View record
     function viewRecord() {
       if (!currentRecord) {
         showToast('error', '未加载数据', '请先上传学习记录文件');
         return;
       }
       
-      // Save to session storage and navigate
       sessionStorage.setItem('teacherRecord', JSON.stringify(currentRecord));
       window.location.href = 'viewer.html';
     }
 
-    // Toast notification
+    function formatDuration(minutes) {
+      if (!minutes) return '0分钟';
+      if (minutes < 60) return `${minutes}分钟`;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours}小时${mins}分钟` : `${hours}小时`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     function showToast(type, title, message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
       
       const icons = {
-        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-info)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-warning)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
       };
       
       toast.innerHTML = `
@@ -258,12 +1218,5 @@
       }, 4000);
     }
   </script>
-
-  <style>
-    .drop-zone:hover {
-      border-color: var(--accent-blue) !important;
-      background: rgba(88, 166, 255, 0.05) !important;
-    }
-  </style>
 </body>
 </html>

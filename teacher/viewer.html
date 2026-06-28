@@ -6,8 +6,1197 @@
   <title>学习记录查看 - 教师视图</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-  <!-- ECharts for charts -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    .tabs-nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: var(--space-lg);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 0 var(--space-lg);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+    }
+
+    .tab-btn {
+      padding: var(--space-4) var(--space-6);
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      position: relative;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-secondary);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-primary);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
+      border-radius: 2px 2px 0 0;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-wrapper {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: var(--space-lg);
+      border-top: none;
+    }
+
+    .dimension-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    @media (max-width: 768px) {
+      .dimension-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .dimension-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-normal);
+    }
+
+    .dimension-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .dimension-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+    }
+
+    .dimension-card.score-high::before {
+      background: linear-gradient(180deg, var(--accent-success), var(--accent-teal));
+    }
+
+    .dimension-card.score-medium::before {
+      background: linear-gradient(180deg, var(--accent-warning), var(--accent-gold));
+    }
+
+    .dimension-card.score-low::before {
+      background: linear-gradient(180deg, var(--accent-danger), var(--accent-secondary));
+    }
+
+    .dimension-label {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: var(--font-ui);
+      margin-bottom: var(--space-1);
+    }
+
+    .dimension-score {
+      font-size: 1.75rem;
+      font-weight: 700;
+      font-family: var(--font-display);
+      line-height: 1;
+      margin-bottom: var(--space-2);
+    }
+
+    .dimension-score.high {
+      color: var(--accent-success);
+    }
+
+    .dimension-score.medium {
+      color: var(--accent-warning);
+    }
+
+    .dimension-score.low {
+      color: var(--accent-danger);
+    }
+
+    .dimension-bar {
+      height: 4px;
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .dimension-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width var(--transition-slow);
+    }
+
+    .dimension-bar-fill.high {
+      background: linear-gradient(90deg, var(--accent-success), var(--accent-teal));
+    }
+
+    .dimension-bar-fill.medium {
+      background: linear-gradient(90deg, var(--accent-warning), var(--accent-gold));
+    }
+
+    .dimension-bar-fill.low {
+      background: linear-gradient(90deg, var(--accent-danger), var(--accent-secondary));
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-grid-full {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 1024px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .profile-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .card-title-accent {
+      width: 3px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--accent-primary), var(--accent-gold));
+      border-radius: 2px;
+    }
+
+    .card-title-text {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-subtitle-text {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: var(--font-ui);
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 280px;
+    }
+
+    .student-info-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .student-avatar-lg {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-inverse);
+      flex-shrink: 0;
+    }
+
+    .student-detail-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .student-name-lg {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .student-meta-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: 0.2rem 0.6rem;
+      background: var(--accent-primary-light);
+      border: 1px solid var(--accent-primary-light);
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--accent-primary);
+      font-family: var(--font-ui);
+    }
+
+    .tag-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .tag-filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .tag-filter-label {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      font-family: var(--font-ui);
+    }
+
+    .tag-filter-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: 1px solid transparent;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .tag-filter-item:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .tag-filter-item.active {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .vark-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .vark-item {
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .vark-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-1);
+    }
+
+    .vark-item-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+    }
+
+    .vark-item-score {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+    }
+
+    .vark-progress {
+      height: 4px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .vark-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
+      border-radius: var(--radius-full);
+      transition: width var(--transition-slow);
+    }
+
+    .felder-section {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .felder-item {
+      margin-bottom: var(--space-sm);
+    }
+
+    .felder-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .felder-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-1);
+      font-size: 0.72rem;
+      font-family: var(--font-ui);
+    }
+
+    .felder-left {
+      color: var(--accent-teal);
+      font-weight: 500;
+    }
+
+    .felder-right {
+      color: var(--accent-gold);
+      font-weight: 500;
+    }
+
+    .felder-slider {
+      height: 6px;
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-full);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .felder-slider-fill {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: all var(--transition-slow);
+    }
+
+    .felder-slider-fill.left {
+      right: 50%;
+      background: linear-gradient(90deg, var(--accent-teal), var(--accent-teal-hover));
+    }
+
+    .felder-slider-fill.right {
+      left: 50%;
+      background: linear-gradient(90deg, var(--accent-gold), var(--accent-primary));
+    }
+
+    .felder-center-marker {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 10px;
+      background: var(--text-tertiary);
+      border-radius: 1px;
+    }
+
+    .style-confidence-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .confidence-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+    }
+
+    .confidence-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent-success);
+      font-family: var(--font-mono);
+    }
+
+    .primary-style-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: 0.35rem 0.75rem;
+      background: linear-gradient(135deg, var(--accent-primary-light), var(--accent-gold-light));
+      border: 1px solid var(--accent-primary);
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      font-family: var(--font-ui);
+      margin-top: var(--space-sm);
+    }
+
+    .style-desc {
+      margin-top: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent-primary);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+    }
+
+    .teaching-tips {
+      margin-top: var(--space-sm);
+    }
+
+    .teaching-tips h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      font-family: var(--font-ui);
+    }
+
+    .tips-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tips-list li {
+      position: relative;
+      padding-left: var(--space-4);
+      margin-bottom: var(--space-1);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      font-family: var(--font-ui);
+    }
+
+    .tips-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 0.65rem;
+      color: var(--accent-primary);
+      width: 14px;
+      height: 14px;
+      background: var(--accent-primary-light);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .tag-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+      border: 1px solid transparent;
+    }
+
+    .tag-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .tag-category-stage {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary-light);
+    }
+
+    .tag-category-habit {
+      background: var(--accent-teal-light);
+      color: var(--accent-teal);
+      border-color: var(--accent-teal-light);
+    }
+
+    .tag-category-ability {
+      background: var(--accent-gold-light);
+      color: var(--accent-gold);
+      border-color: var(--accent-gold-light);
+    }
+
+    .tag-category-style {
+      background: var(--accent-success-light);
+      color: var(--accent-success);
+      border-color: var(--accent-success-light);
+    }
+
+    .tag-category-progress {
+      background: var(--accent-info-light);
+      color: var(--accent-info);
+      border-color: var(--accent-info-light);
+    }
+
+    .tag-weight-1 { font-size: 0.68rem; opacity: 0.7; }
+    .tag-weight-2 { font-size: 0.75rem; opacity: 0.8; }
+    .tag-weight-3 { font-size: 0.82rem; opacity: 0.9; }
+    .tag-weight-4 { font-size: 0.9rem; font-weight: 600; }
+    .tag-weight-5 { font-size: 1rem; font-weight: 600; }
+
+    .tag-group-section {
+      margin-bottom: var(--space-md);
+    }
+
+    .tag-group-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: var(--font-ui);
+      margin-bottom: var(--space-2);
+    }
+
+    .knowledge-overall {
+      margin-bottom: var(--space-md);
+    }
+
+    .knowledge-overall-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .knowledge-overall-label {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+    }
+
+    .knowledge-overall-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+    }
+
+    .knowledge-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .knowledge-item {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .knowledge-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-1);
+    }
+
+    .knowledge-item-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+    }
+
+    .knowledge-item-score {
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .knowledge-item-score.strong {
+      color: var(--accent-success);
+    }
+
+    .knowledge-item-score.weak {
+      color: var(--accent-danger);
+    }
+
+    .knowledge-item-score.normal {
+      color: var(--accent-warning);
+    }
+
+    .knowledge-item-meta {
+      display: flex;
+      gap: var(--space-3);
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+    }
+
+    .weak-section, .strong-section {
+      margin-bottom: var(--space-md);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+      font-family: var(--font-ui);
+    }
+
+    .section-label.danger {
+      color: var(--accent-danger);
+    }
+
+    .section-label.success {
+      color: var(--accent-success);
+    }
+
+    .ai-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .ai-stat-card {
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .ai-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+      font-family: var(--font-ui);
+    }
+
+    .ai-stat-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      line-height: 1;
+    }
+
+    .ai-stat-value.accent {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .behavior-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+    }
+
+    .behavior-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .behavior-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .behavior-icon.primary {
+      background: var(--accent-primary-light);
+    }
+
+    .behavior-icon.gold {
+      background: var(--accent-gold-light);
+    }
+
+    .behavior-icon.teal {
+      background: var(--accent-teal-light);
+    }
+
+    .behavior-icon.success {
+      background: var(--accent-success-light);
+    }
+
+    .behavior-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .behavior-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .behavior-label {
+      font-size: 0.68rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+    }
+
+    .preferred-time-section {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .preferred-time-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+      font-family: var(--font-ui);
+    }
+
+    .time-distribution {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-2);
+    }
+
+    .time-slot {
+      text-align: center;
+    }
+
+    .time-slot-bar {
+      height: 50px;
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: var(--space-1);
+    }
+
+    .time-slot-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, var(--accent-gold), var(--accent-primary));
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      transition: height var(--transition-slow);
+    }
+
+    .time-slot-fill.active {
+      box-shadow: 0 0 8px var(--accent-primary-glow);
+    }
+
+    .time-slot-label {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+    }
+
+    .time-slot.active .time-slot-label {
+      color: var(--accent-primary);
+      font-weight: 500;
+    }
+
+    .comparison-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--bg-quaternary);
+      border-radius: var(--radius-full);
+      padding: 2px;
+    }
+
+    .comparison-btn {
+      padding: 0.2rem 0.6rem;
+      background: none;
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-ui);
+    }
+
+    .comparison-btn.active {
+      background: var(--accent-primary);
+      color: var(--text-inverse);
+    }
+
+    .tooltip-modal {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: var(--z-modal);
+      padding: var(--space-lg);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .tooltip-modal-content {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 380px;
+      box-shadow: var(--shadow-xl);
+      animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .tooltip-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tooltip-modal-title {
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--font-display);
+      color: var(--text-primary);
+    }
+
+    .tooltip-modal-close {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .tooltip-modal-close:hover {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .tooltip-modal-body {
+      padding: var(--space-lg);
+    }
+
+    .tooltip-meta {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .tooltip-meta-item {
+      padding: 0.2rem 0.6rem;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+    }
+
+    .tooltip-desc {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+    }
+
+    .scrollable-content {
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .student-list-section {
+      margin-top: var(--space-lg);
+    }
+
+    .student-list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .student-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .student-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .student-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .student-card-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-inverse);
+      flex-shrink: 0;
+    }
+
+    .student-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .student-card-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .student-card-stage {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+    }
+
+    .student-card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .student-card-stat {
+      text-align: center;
+    }
+
+    .student-card-stat-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      font-family: var(--font-display);
+      line-height: 1;
+    }
+
+    .student-card-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: var(--font-ui);
+    }
+
+    .student-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: var(--space-sm);
+    }
+
+    .student-card-tag {
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: 0.65rem;
+      font-weight: 500;
+      font-family: var(--font-ui);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-state-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+    }
+
+    .radar-toggle {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .radar-legend {
+      display: flex;
+      gap: var(--space-3);
+      font-size: 0.72rem;
+      font-family: var(--font-ui);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.student {
+      background: var(--accent-primary);
+    }
+
+    .legend-dot.average {
+      background: var(--text-tertiary);
+    }
+  </style>
 </head>
 <body class="min-h-screen" style="background: var(--bg-primary);">
   
@@ -30,125 +1219,690 @@
 
   <!-- Main Content -->
   <main class="page-content">
-    
-    <!-- Overview Cards -->
-    <div class="stats-overview mb-6">
-      <div class="stat-item">
-        <div class="stat-value" id="overall-progress">--%</div>
-        <div class="stat-label">总体进度</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="completed-hours">--/54</div>
-        <div class="stat-label">已完成课时</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="test-passed">--</div>
-        <div class="stat-label">测试通过</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="avg-score">--</div>
-        <div class="stat-label">平均成绩</div>
-      </div>
-    </div>
-
-    <!-- Behavior Metrics -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h2 class="card-title">学习行为分析</h2>
-      </div>
-      <div class="card-body">
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">AI依赖指数</div>
-            <div class="metric-value" id="ai-dependency">--</div>
-            <div class="progress mt-2">
-              <div class="progress-bar" id="ai-dependency-bar" style="width: 0%;"></div>
-            </div>
-            <div class="text-xs mt-2" id="ai-dependency-warning" style="color: var(--accent-red);"></div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">自我纠正率</div>
-            <div class="metric-value" id="self-correction">--</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">总学习时长</div>
-            <div class="metric-value" id="total-time">--</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">会话次数</div>
-            <div class="metric-value" id="session-count">--</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stage Progress -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h2 class="card-title">阶段进度</h2>
-      </div>
-      <div class="card-body">
-        <div id="stage-progress-chart" style="height: 300px;"></div>
-      </div>
-    </div>
-
-    <!-- Test Scores -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h2 class="card-title">测试成绩</h2>
-      </div>
-      <div class="card-body">
-        <div id="test-scores-chart" style="height: 250px;"></div>
-      </div>
-    </div>
-
-    <!-- AI Dependency Analysis -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h2 class="card-title">AI依赖分析</h2>
-      </div>
-      <div class="card-body">
-        <div id="ai-analysis-chart" style="height: 250px;"></div>
-      </div>
-    </div>
-
-    <!-- Timeline -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h2 class="card-title">学习轨迹</h2>
-      </div>
-      <div class="card-body">
-        <div id="timeline" class="space-y-4">
-          <!-- Timeline items will be rendered here -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Alert Panel -->
-    <div class="card mb-6" id="alert-panel" style="display: none;">
-      <div class="card-header">
-        <h2 class="card-title flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Tabs Navigation -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="records" onclick="switchTab('records')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
           </svg>
-          异常预警
-        </h2>
+          学习记录
+        </button>
+        <button class="tab-btn" data-tab="profile" onclick="switchTab('profile')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          学生画像
+        </button>
+        <button class="tab-btn" data-tab="grading" onclick="switchTab('grading')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M9 15l2 2 4-4"/>
+          </svg>
+          评阅记录
+        </button>
       </div>
-      <div class="card-body" id="alert-content">
-        <!-- Alerts will be rendered here -->
+
+      <!-- Tab Content: Learning Records -->
+      <div class="tab-content active" id="tab-records">
+        <div class="tab-wrapper">
+          <!-- Overview Cards -->
+          <div class="stats-overview mb-6">
+            <div class="stat-item">
+              <div class="stat-value" id="overall-progress">--%</div>
+              <div class="stat-label">总体进度</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="completed-hours">--/54</div>
+              <div class="stat-label">已完成课时</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="test-passed">--</div>
+              <div class="stat-label">测试通过</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="avg-score">--</div>
+              <div class="stat-label">平均成绩</div>
+            </div>
+          </div>
+
+          <!-- Behavior Metrics -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <h2 class="card-title">学习行为分析</h2>
+            </div>
+            <div class="card-body">
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-label">AI依赖指数</div>
+                  <div class="metric-value" id="ai-dependency">--</div>
+                  <div class="progress mt-2">
+                    <div class="progress-bar" id="ai-dependency-bar" style="width: 0%;"></div>
+                  </div>
+                  <div class="text-xs mt-2" id="ai-dependency-warning" style="color: var(--accent-red);"></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">自我纠正率</div>
+                  <div class="metric-value" id="self-correction">--</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">总学习时长</div>
+                  <div class="metric-value" id="total-time">--</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">会话次数</div>
+                  <div class="metric-value" id="session-count">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage Progress -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <h2 class="card-title">阶段进度</h2>
+            </div>
+            <div class="card-body">
+              <div id="stage-progress-chart" style="height: 300px;"></div>
+            </div>
+          </div>
+
+          <!-- Test Scores -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <h2 class="card-title">测试成绩</h2>
+            </div>
+            <div class="card-body">
+              <div id="test-scores-chart" style="height: 250px;"></div>
+            </div>
+          </div>
+
+          <!-- AI Dependency Analysis -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <h2 class="card-title">AI依赖分析</h2>
+            </div>
+            <div class="card-body">
+              <div id="ai-analysis-chart" style="height: 250px;"></div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <h2 class="card-title">学习轨迹</h2>
+            </div>
+            <div class="card-body">
+              <div id="timeline" class="space-y-4">
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert Panel -->
+          <div class="card mb-6" id="alert-panel" style="display: none;">
+            <div class="card-header">
+              <h2 class="card-title flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                异常预警
+              </h2>
+            </div>
+            <div class="card-body" id="alert-content">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Student Profile -->
+      <div class="tab-content" id="tab-profile">
+        <div class="tab-wrapper">
+          <!-- Student Info Bar -->
+          <div class="student-info-bar">
+            <div class="student-avatar-lg" id="profile-avatar">?</div>
+            <div class="student-detail-info">
+              <h2 class="student-name-lg" id="profile-name">加载中...</h2>
+              <div class="student-meta-row">
+                <span class="stage-badge" id="profile-stage">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <span id="profile-stage-text">当前阶段</span>
+                </span>
+                <span style="font-size: 0.78rem; color: var(--text-tertiary); font-family: var(--font-ui);">
+                  累计学习: <span id="profile-total-time" style="color: var(--text-secondary);">0</span>
+                </span>
+                <span style="font-size: 0.78rem; color: var(--text-tertiary); font-family: var(--font-ui);">
+                  学习天数: <span id="profile-study-days" style="color: var(--text-secondary);">0</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tag Filter Bar -->
+          <div class="tag-filter-bar">
+            <span class="tag-filter-label">标签筛选：</span>
+            <div class="tag-filter-group" id="tag-filter-group">
+            </div>
+          </div>
+
+          <!-- 6 Dimension Cards -->
+          <div class="dimension-cards">
+            <div class="dimension-card" id="dim-engagement">
+              <div class="dimension-label">学习投入度</div>
+              <div class="dimension-score" id="dim-engagement-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-engagement-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="dimension-card" id="dim-knowledge">
+              <div class="dimension-label">知识掌握度</div>
+              <div class="dimension-score" id="dim-knowledge-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-knowledge-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="dimension-card" id="dim-ability">
+              <div class="dimension-label">综合能力</div>
+              <div class="dimension-score" id="dim-ability-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-ability-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="dimension-card" id="dim-style">
+              <div class="dimension-label">学习风格匹配</div>
+              <div class="dimension-score" id="dim-style-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-style-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="dimension-card" id="dim-ai">
+              <div class="dimension-label">AI协作效率</div>
+              <div class="dimension-score" id="dim-ai-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-ai-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="dimension-card" id="dim-health">
+              <div class="dimension-label">学习健康度</div>
+              <div class="dimension-score" id="dim-health-score">--</div>
+              <div class="dimension-bar">
+                <div class="dimension-bar-fill" id="dim-health-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Grid Row 1: Radar + Learning Style -->
+          <div class="profile-grid">
+            <!-- Ability Radar Chart -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">能力雷达图</div>
+                    <div class="card-subtitle-text">五大核心能力评估</div>
+                  </div>
+                </div>
+                <div class="comparison-toggle">
+                  <button class="comparison-btn active" id="compare-off-btn" onclick="toggleComparison(false)">单学生</button>
+                  <button class="comparison-btn" id="compare-on-btn" onclick="toggleComparison(true)">对比平均</button>
+                </div>
+              </div>
+              <div class="chart-container" id="profile-radar-chart"></div>
+              <div class="radar-legend" style="justify-content: center; margin-top: 8px;">
+                <div class="legend-item">
+                  <span class="legend-dot student"></span>
+                  <span>该学生</span>
+                </div>
+                <div class="legend-item" id="avg-legend" style="display: none;">
+                  <span class="legend-dot average"></span>
+                  <span>平均水平</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Style -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">学习风格分析</div>
+                    <div class="card-subtitle-text">个性化学习方式识别</div>
+                  </div>
+                </div>
+              </div>
+              <div class="scrollable-content">
+                <div class="vark-grid" id="profile-vark-grid">
+                </div>
+
+                <div class="felder-section">
+                  <div style="font-size: 0.8rem; font-weight: 500; color: var(--text-primary); margin-bottom: var(--space-sm); font-family: var(--font-ui);">Felder-Silverman 维度</div>
+                  <div id="profile-felder-container">
+                  </div>
+                </div>
+
+                <div class="style-confidence-row">
+                  <span class="confidence-label">置信度</span>
+                  <span class="confidence-value" id="profile-style-confidence">0%</span>
+                </div>
+
+                <div style="margin-top: var(--space-sm);">
+                  <span class="primary-style-tag" id="profile-primary-style">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                      <path d="M2 17l10 5 10-5"/>
+                      <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    <span id="profile-primary-style-text">主导风格</span>
+                  </span>
+                </div>
+
+                <div class="style-desc" id="profile-style-description">
+                  加载中...
+                </div>
+
+                <div class="teaching-tips">
+                  <h4>教学建议</h4>
+                  <ul class="tips-list" id="profile-teaching-tips">
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Grid Row 2: Tag Cloud + Knowledge Mastery -->
+          <div class="profile-grid">
+            <!-- Tag Cloud -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">自动标签云</div>
+                    <div class="card-subtitle-text">基于学习行为自动生成</div>
+                  </div>
+                </div>
+                <span class="badge badge-primary" id="profile-tag-count">0 个标签</span>
+              </div>
+              <div class="scrollable-content" id="profile-tag-cloud-container">
+              </div>
+            </div>
+
+            <!-- Knowledge Mastery -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">知识掌握度</div>
+                    <div class="card-subtitle-text">各知识点掌握情况</div>
+                  </div>
+                </div>
+              </div>
+              <div class="scrollable-content">
+                <div class="knowledge-overall">
+                  <div class="knowledge-overall-header">
+                    <span class="knowledge-overall-label">总体掌握度</span>
+                    <span class="knowledge-overall-value" id="profile-overall-knowledge">0%</span>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar" id="profile-overall-knowledge-bar" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="weak-section">
+                  <div class="section-label danger">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    薄弱知识点
+                  </div>
+                  <div id="profile-weak-topics">
+                  </div>
+                </div>
+
+                <div class="strong-section">
+                  <div class="section-label success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    强项知识点
+                  </div>
+                  <div id="profile-strong-topics">
+                  </div>
+                </div>
+
+                <div id="profile-no-knowledge" style="display: none; text-align: center; padding: var(--space-lg) 0;">
+                  <div style="font-size: 2rem; margin-bottom: var(--space-2); opacity: 0.5;">📊</div>
+                  <div style="font-size: 0.82rem; color: var(--text-tertiary);">暂无测验数据</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Grid Row 3: AI Interaction + Learning Behavior -->
+          <div class="profile-grid">
+            <!-- AI Interaction -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">AI 交互分析</div>
+                    <div class="card-subtitle-text">与 AI 助教的互动分析</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-stats-grid">
+                <div class="ai-stat-card">
+                  <div class="ai-stat-label">AI 依赖度</div>
+                  <div class="ai-stat-value accent" id="profile-ai-dependency">0%</div>
+                </div>
+                <div class="ai-stat-card">
+                  <div class="ai-stat-label">平均提问深度</div>
+                  <div class="ai-stat-value" id="profile-avg-depth">0</div>
+                </div>
+                <div class="ai-stat-card">
+                  <div class="ai-stat-label">反馈满意度</div>
+                  <div class="ai-stat-value" style="color: var(--accent-success);" id="profile-feedback-sat">0%</div>
+                </div>
+                <div class="ai-stat-card">
+                  <div class="ai-stat-label">配图生成</div>
+                  <div class="ai-stat-value" id="profile-image-count">0</div>
+                </div>
+              </div>
+              <div style="margin-top: var(--space-sm);">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--text-primary); margin-bottom: var(--space-2); font-family: var(--font-ui);">模式使用分布</div>
+                <div class="chart-container" id="profile-mode-chart" style="height: 180px;"></div>
+              </div>
+            </div>
+
+            <!-- Learning Behavior -->
+            <div class="profile-card">
+              <div class="card-header-row">
+                <div class="card-title-row">
+                  <div class="card-title-accent"></div>
+                  <div>
+                    <div class="card-title-text">学习行为统计</div>
+                    <div class="card-subtitle-text">学习习惯与行为模式</div>
+                  </div>
+                </div>
+              </div>
+              <div class="behavior-stats">
+                <div class="behavior-item">
+                  <div class="behavior-icon primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div class="behavior-info">
+                    <div class="behavior-value" id="profile-avg-daily">0</div>
+                    <div class="behavior-label">日均学习时长</div>
+                  </div>
+                </div>
+                <div class="behavior-item">
+                  <div class="behavior-icon gold">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                  </div>
+                  <div class="behavior-info">
+                    <div class="behavior-value" id="profile-avg-session">0</div>
+                    <div class="behavior-label">平均单次时长</div>
+                  </div>
+                </div>
+                <div class="behavior-item">
+                  <div class="behavior-icon teal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                  </div>
+                  <div class="behavior-info">
+                    <div class="behavior-value" id="profile-avg-depth">0%</div>
+                    <div class="behavior-label">平均阅读深度</div>
+                  </div>
+                </div>
+                <div class="behavior-item">
+                  <div class="behavior-icon success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2">
+                      <polyline points="9 11 12 14 22 4"/>
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                  </div>
+                  <div class="behavior-info">
+                    <div class="behavior-value" id="profile-completion-rate">0%</div>
+                    <div class="behavior-label">课程完成率</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preferred-time-section">
+                <div class="preferred-time-title">偏好学习时段</div>
+                <div class="time-distribution" id="profile-time-dist">
+                </div>
+                <div style="margin-top: var(--space-sm); display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.75rem; color: var(--text-tertiary); font-family: var(--font-ui);">回访率</span>
+                  <span style="font-size: 0.85rem; font-weight: 600; color: var(--accent-primary); font-family: var(--font-mono);" id="profile-revisit-rate">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Grading Records -->
+      <div class="tab-content" id="tab-grading">
+        <div class="tab-wrapper">
+          <!-- Grading Stats Overview -->
+          <div class="stats-overview mb-6">
+            <div class="stat-item">
+              <div class="stat-value" id="grading-total-count">0</div>
+              <div class="stat-label">总评阅次数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="grading-avg-score">--</div>
+              <div class="stat-label">平均分</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="grading-max-score">--</div>
+              <div class="stat-label">最高分</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="grading-min-score">--</div>
+              <div class="stat-label">最低分</div>
+            </div>
+          </div>
+
+          <!-- Grade Distribution & Trend -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title text-sm">等级分布</h3>
+              </div>
+              <div class="card-body">
+                <div class="flex items-end justify-around h-32 mb-4">
+                  <div class="text-center">
+                    <div id="grade-dist-a" style="width: 40px; background: linear-gradient(180deg, #6a9e6e, #5a9e8f); border-radius: 4px 4px 0 0; height: 0%; margin: 0 auto;"></div>
+                    <div class="text-xs mt-2" style="color: var(--text-tertiary);">A</div>
+                    <div class="text-sm font-medium" id="grade-count-a" style="color: var(--text-primary);">0</div>
+                  </div>
+                  <div class="text-center">
+                    <div id="grade-dist-b" style="width: 40px; background: linear-gradient(180deg, #6b8caf, #5a9e8f); border-radius: 4px 4px 0 0; height: 0%; margin: 0 auto;"></div>
+                    <div class="text-xs mt-2" style="color: var(--text-tertiary);">B</div>
+                    <div class="text-sm font-medium" id="grade-count-b" style="color: var(--text-primary);">0</div>
+                  </div>
+                  <div class="text-center">
+                    <div id="grade-dist-c" style="width: 40px; background: linear-gradient(180deg, #d48c52, #c99a4a); border-radius: 4px 4px 0 0; height: 0%; margin: 0 auto;"></div>
+                    <div class="text-xs mt-2" style="color: var(--text-tertiary);">C</div>
+                    <div class="text-sm font-medium" id="grade-count-c" style="color: var(--text-primary);">0</div>
+                  </div>
+                  <div class="text-center">
+                    <div id="grade-dist-d" style="width: 40px; background: linear-gradient(180deg, #c45e4b, #c4653e); border-radius: 4px 4px 0 0; height: 0%; margin: 0 auto;"></div>
+                    <div class="text-xs mt-2" style="color: var(--text-tertiary);">D</div>
+                    <div class="text-sm font-medium" id="grade-count-d" style="color: var(--text-primary);">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title text-sm">能力趋势</h3>
+              </div>
+              <div class="card-body">
+                <div id="grading-trend-chart" style="height: 160px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grading List Header -->
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-base" style="color: var(--text-primary); font-family: var(--font-display);">
+              评阅历史
+            </h3>
+            <button onclick="exportStudentGradings()" class="batch-export-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              导出评阅结果
+            </button>
+          </div>
+
+          <!-- Grading List Container -->
+          <div id="grading-list-container">
+            <div class="empty-state">
+              <div class="loading-skeleton" style="height: 60px; width: 200px; margin: 0 auto 16px;"></div>
+              <div class="loading-skeleton" style="height: 20px; width: 300px; margin: 0 auto;"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
-  <script>
-    // Current record data
-    let record = null;
+  <!-- Tag Detail Modal -->
+  <div id="tag-modal" class="tooltip-modal" style="display: none;">
+    <div class="tooltip-modal-content">
+      <div class="tooltip-modal-header">
+        <h3 class="tooltip-modal-title" id="tag-modal-title">标签详情</h3>
+        <button class="tooltip-modal-close" onclick="closeTagModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="tooltip-modal-body">
+        <div class="tooltip-meta" id="tag-modal-meta">
+        </div>
+        <div class="tooltip-desc" id="tag-modal-desc">
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Initialize
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../js/student-profile-service.js"></script>
+  <script src="../js/teacher-grading.js"></script>
+
+  <script>
+    let record = null;
+    let profileData = null;
+    let showComparison = false;
+    let activeTagFilter = null;
+
+    let stageProgressChart = null;
+    let testScoresChart = null;
+    let aiAnalysisChart = null;
+    let profileRadarChart = null;
+    let profileModeChart = null;
+
+    const STAGE_NAMES = {
+      1: '入门阶段',
+      2: '基础阶段',
+      3: '进阶阶段',
+      4: '实战阶段',
+      5: '综合阶段',
+      6: '高阶阶段'
+    };
+
+    const TAG_CATEGORY_NAMES = {
+      stage: '学习阶段',
+      habit: '学习习惯',
+      ability: '能力特点',
+      style: '学习风格',
+      progress: '学习进度'
+    };
+
+    const TAG_CATEGORY_COLORS = {
+      stage: 'tag-category-stage',
+      habit: 'tag-category-habit',
+      ability: 'tag-category-ability',
+      style: 'tag-category-style',
+      progress: 'tag-category-progress'
+    };
+
+    const TAG_DESCRIPTIONS = {
+      beginner: '学生刚刚开始学习，处于入门阶段，需要更多基础指导和鼓励。',
+      intermediate: '学生已掌握一定基础知识，正在进阶学习中，可以适当增加难度。',
+      advanced: '学生已完成大部分课程，学习能力较强，可以进行拓展性学习。',
+      explorer: '学生喜欢浏览不同的课程内容，但完成率较低，需要引导聚焦学习。',
+      night_owl: '学生习惯在深夜学习，可能影响作息，建议适当调整学习时间。',
+      early_bird: '学生习惯早起学习，学习效率高，保持良好作息习惯。',
+      fragmented: '学生学习时间比较分散，碎片化学习较多，建议安排完整学习时段。',
+      marathon: '学生能够长时间专注学习，耐力强，但要注意劳逸结合。',
+      diligent: '学生学习非常勤奋，每周学习天数多，保持良好的学习节奏。',
+      casual: '学生学习频率较低，比较随意，需要建立更规律的学习习惯。',
+      logical_thinker: '学生逻辑思维能力强，善于分析问题，可以提供更有深度的思考题目。',
+      data_sensitive: '学生对数据敏感，数字处理能力强，适合数据分析类任务。',
+      good_writer: '学生文字表达能力好，报告撰写能力强，可以安排更多写作练习。',
+      careful: '学生学习细心，答题准确率高，修改次数少，基础扎实。',
+      creative: '学生富有创造力，喜欢提出创意性问题和想法，适合开放性任务。',
+      problem_solver: '学生问题解决能力强，善于独立思考和解决复杂问题。',
+      visual_learner: '学生属于视觉型学习者，通过图像、图表学习效果更好，建议多用可视化教学。',
+      reading_learner: '学生属于阅读型学习者，善于通过阅读吸收知识，适合文字材料学习。',
+      kinesthetic: '学生属于动觉型学习者，通过实操练习学习效果好，建议多安排实践任务。',
+      deep_thinker: '学生属于深度思考型，喜欢深入思考问题，适合探究式学习。',
+      active_learner: '学生属于活跃型学习者，反应快，互动性强，适合讨论式教学。',
+      sequential: '学生属于序列型学习者，习惯按部就班学习，适合循序渐进的课程安排。',
+      global: '学生属于综合型学习者，喜欢先把握整体再深入细节，适合框架式教学。',
+      fast_learner: '学生学习速度快，接受能力强，可以适当加快教学进度。',
+      steady: '学生学习稳扎稳打，完成率高，学习顺序规律，基础扎实。',
+      reviewer: '学生喜欢反复回看学习内容，复习习惯好，知识巩固程度高。',
+      ai_dependent: '学生对AI依赖度较高，需要引导培养独立思考能力，减少直接寻求答案的习惯。',
+      independent: '学生独立思考能力强，对AI依赖低，知识掌握扎实，学习自主性高。',
+      curious: '学生好奇心强，喜欢提问，求知欲旺盛，适合拓展性学习内容。'
+    };
+
+    const TIME_SLOTS = [
+      { key: 'earlyMorning', label: '清晨', icon: '🌅' },
+      { key: 'morning', label: '上午', icon: '☀️' },
+      { key: 'afternoon', label: '下午', icon: '🌤️' },
+      { key: 'evening', label: '晚上', icon: '🌆' },
+      { key: 'night', label: '深夜', icon: '🌙' }
+    ];
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Load record from session storage
       const recordData = sessionStorage.getItem('teacherRecord');
       
       if (!recordData) {
@@ -160,25 +1914,60 @@
       try {
         record = JSON.parse(recordData);
         renderReport();
+        calculateProfileFromRecord();
       } catch (e) {
         alert('数据解析失败');
         window.location.href = 'index.html';
       }
+
+      window.addEventListener('resize', handleResize);
     });
 
+    function handleResize() {
+      if (stageProgressChart) stageProgressChart.resize();
+      if (testScoresChart) testScoresChart.resize();
+      if (aiAnalysisChart) aiAnalysisChart.resize();
+      if (profileRadarChart) profileRadarChart.resize();
+      if (profileModeChart) profileModeChart.resize();
+      if (gradingTrendChart) gradingTrendChart.resize();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `tab-${tabName}`);
+      });
+
+      if (tabName === 'profile') {
+        setTimeout(() => {
+          if (profileRadarChart) profileRadarChart.resize();
+          if (profileModeChart) profileModeChart.resize();
+        }, 100);
+      } else if (tabName === 'grading') {
+        setTimeout(() => {
+          loadGradingTab();
+        }, 100);
+      } else {
+        setTimeout(() => {
+          if (stageProgressChart) stageProgressChart.resize();
+          if (testScoresChart) testScoresChart.resize();
+          if (aiAnalysisChart) aiAnalysisChart.resize();
+        }, 100);
+      }
+    }
+
     function renderReport() {
-      // Header info
       document.getElementById('student-id').textContent = record.studentId.slice(0, 8) + '...';
       document.getElementById('export-date').textContent = new Date(record.exportDate).toLocaleDateString('zh-CN');
       
-      // Overview stats
       const courseInfo = record.courseInfo || {};
       document.getElementById('overall-progress').textContent = 
         Math.round((courseInfo.completedHours || 0) / (courseInfo.totalHours || 54) * 100) + '%';
       document.getElementById('completed-hours').textContent = 
         `${courseInfo.completedHours || 0}/${courseInfo.totalHours || 54}`;
       
-      // Test scores
       const assessments = record.assessments || [];
       const passedTests = assessments.filter(a => a.passed).length;
       document.getElementById('test-passed').textContent = `${passedTests}/6`;
@@ -188,7 +1977,6 @@
         document.getElementById('avg-score').textContent = Math.round(avgScore) + '%';
       }
       
-      // Behavior metrics
       const behaviors = record.learning_behaviors || {};
       const aiDep = behaviors.ai_dependency_index || 0;
       document.getElementById('ai-dependency').textContent = aiDep.toFixed(2);
@@ -203,20 +1991,16 @@
       document.getElementById('total-time').textContent = formatDuration(behaviors.totalLearningMinutes || 0);
       document.getElementById('session-count').textContent = behaviors.totalSessions || 0;
       
-      // Render charts
       renderStageProgressChart();
       renderTestScoresChart();
       renderAIAnalysisChart();
-      
-      // Render timeline
       renderTimeline();
-      
-      // Check alerts
       checkAlerts();
     }
 
     function renderStageProgressChart() {
       const chart = echarts.init(document.getElementById('stage-progress-chart'));
+      stageProgressChart = chart;
       
       const stages = record.stages || [];
       const stageNames = stages.map(s => s.stageId.replace('stage-', '阶段'));
@@ -231,8 +2015,8 @@
           data: completedCounts,
           itemStyle: {
             color: (params) => {
-              const maxLessons = [6, 10, 10, 14, 8, 6]; // Expected lessons per stage
-              return params.value >= maxLessons[params.dataIndex] ? '#3fb950' : '#58a6ff';
+              const maxLessons = [6, 10, 10, 14, 8, 6];
+              return params.value >= maxLessons[params.dataIndex] ? '#6a9e6e' : '#d48c52';
             }
           }
         }]
@@ -241,6 +2025,7 @@
 
     function renderTestScoresChart() {
       const chart = echarts.init(document.getElementById('test-scores-chart'));
+      testScoresChart = chart;
       
       const assessments = record.assessments || [];
       const testNames = assessments.map(a => a.testId.replace('-test', '').replace('stage-', 'S'));
@@ -254,7 +2039,7 @@
           type: 'bar',
           data: scores,
           itemStyle: {
-            color: (params) => params.value >= 60 ? '#3fb950' : '#f85149'
+            color: (params) => params.value >= 60 ? '#6a9e6e' : '#c45e4b'
           },
           label: { show: true, position: 'top', formatter: '{c}%' }
         }]
@@ -263,11 +2048,10 @@
 
     function renderAIAnalysisChart() {
       const chart = echarts.init(document.getElementById('ai-analysis-chart'));
+      aiAnalysisChart = chart;
       
-      const behaviors = record.learning_behaviors || {};
       const convSummary = record.conversations_summary || {};
       
-      // Data by stage
       const byStage = convSummary.by_stage || {};
       const stageNames = Object.keys(byStage).map(k => k.replace('stage-', 'S'));
       const convCounts = Object.values(byStage);
@@ -280,7 +2064,9 @@
           type: 'line',
           data: convCounts,
           areaStyle: {},
-          smooth: true
+          smooth: true,
+          lineStyle: { color: '#d48c52' },
+          areaStyle: { color: 'rgba(212, 140, 82, 0.2)' }
         }]
       });
     }
@@ -298,7 +2084,7 @@
         html += `
           <div class="flex items-start gap-4 pb-4" style="border-bottom: 1px solid var(--border-color);">
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-medium"
-                 style="background: ${stage.testScore >= 60 ? 'var(--accent-green)' : 'var(--accent-orange)'}; color: white;">
+                 style="background: ${stage.testScore >= 60 ? 'var(--accent-success)' : 'var(--accent-warning)'}; color: white;">
               ${index + 1}
             </div>
             <div class="flex-1">
@@ -331,7 +2117,6 @@
       const behaviors = record.learning_behaviors || {};
       const assessments = record.assessments || [];
       
-      // AI dependency check
       if (behaviors.ai_dependency_index > 0.5) {
         alerts.push({
           type: 'danger',
@@ -340,7 +2125,6 @@
         });
       }
       
-      // Low scores check
       const lowScores = assessments.filter(a => a.score / a.totalScore < 0.6);
       if (lowScores.length > 0) {
         alerts.push({
@@ -350,7 +2134,6 @@
         });
       }
       
-      // Progress check
       const courseInfo = record.courseInfo || {};
       if (courseInfo.completedHours < 20) {
         alerts.push({
@@ -360,14 +2143,13 @@
         });
       }
       
-      // Show alerts panel
       if (alerts.length > 0) {
         const panel = document.getElementById('alert-panel');
         const content = document.getElementById('alert-content');
         
         content.innerHTML = alerts.map(alert => `
-          <div class="p-4 rounded-lg mb-3" style="background: ${alert.type === 'danger' ? 'rgba(248, 81, 73, 0.1)' : 'rgba(210, 153, 34, 0.1)'}; border: 1px solid ${alert.type === 'danger' ? 'rgba(248, 81, 73, 0.3)' : 'rgba(210, 153, 34, 0.3)'};">
-            <div class="font-medium mb-1" style="color: ${alert.type === 'danger' ? 'var(--accent-red)' : 'var(--accent-orange)'};">
+          <div class="p-4 rounded-lg mb-3" style="background: ${alert.type === 'danger' ? 'rgba(196, 94, 75, 0.1)' : 'rgba(201, 154, 74, 0.1)'}; border: 1px solid ${alert.type === 'danger' ? 'rgba(196, 94, 75, 0.3)' : 'rgba(201, 154, 74, 0.3)'};">
+            <div class="font-medium mb-1" style="color: ${alert.type === 'danger' ? 'var(--accent-danger)' : 'var(--accent-warning)'};">
               ${alert.title}
             </div>
             <div class="text-sm" style="color: var(--text-secondary);">${alert.message}</div>
@@ -378,12 +2160,906 @@
       }
     }
 
+    let gradingTrendChart = null;
+    let gradingLoaded = false;
+    let studentGradings = [];
+
+    async function loadGradingTab() {
+      if (gradingLoaded) {
+        if (gradingTrendChart) gradingTrendChart.resize();
+        return;
+      }
+
+      try {
+        const manager = window.TeacherGradingManager;
+        if (!manager) {
+          renderGradingEmpty();
+          return;
+        }
+
+        const studentId = record.studentId;
+        const gradings = await manager.loadStudentGradings(studentId);
+        studentGradings = gradings;
+
+        if (!gradings || gradings.length === 0) {
+          renderGradingEmpty();
+          gradingLoaded = true;
+          return;
+        }
+
+        const stats = manager.getGradingStats(studentId);
+        renderGradingStats(stats);
+        renderGradeDistribution(stats.gradeDistribution);
+        renderGradingTrendChart(gradings);
+        manager.renderGradingList('#grading-list-container', gradings);
+
+        gradingLoaded = true;
+      } catch (e) {
+        console.error('Load grading tab error:', e);
+        renderGradingEmpty();
+      }
+    }
+
+    function renderGradingEmpty() {
+      const container = document.getElementById('grading-list-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-title">暂无评阅记录</div>
+            <div class="empty-state-desc">该学生暂无文件评阅记录</div>
+          </div>
+        `;
+      }
+    }
+
+    function renderGradingStats(stats) {
+      document.getElementById('grading-total-count').textContent = stats.totalCount || 0;
+      document.getElementById('grading-avg-score').textContent = stats.avgScore ? stats.avgScore.toFixed(1) : '--';
+      document.getElementById('grading-max-score').textContent = stats.maxScore || '--';
+      document.getElementById('grading-min-score').textContent = stats.minScore || '--';
+    }
+
+    function renderGradeDistribution(distribution) {
+      const total = Object.values(distribution).reduce((a, b) => a + b, 0);
+      const maxCount = Math.max(...Object.values(distribution), 1);
+
+      ['A', 'B', 'C', 'D'].forEach(grade => {
+        const count = distribution[grade] || 0;
+        const height = total > 0 ? (count / maxCount) * 100 : 0;
+        const gradeLower = grade.toLowerCase();
+
+        const barEl = document.getElementById(`grade-dist-${gradeLower}`);
+        const countEl = document.getElementById(`grade-count-${gradeLower}`);
+
+        if (barEl) barEl.style.height = Math.max(height, 4) + '%';
+        if (countEl) countEl.textContent = count;
+      });
+    }
+
+    function renderGradingTrendChart(gradings) {
+      const chartDom = document.getElementById('grading-trend-chart');
+      if (!chartDom || !window.echarts) return;
+
+      const chart = echarts.init(chartDom);
+      gradingTrendChart = chart;
+
+      const sortedGradings = [...gradings].sort((a, b) => new Date(a.gradedAt) - new Date(b.gradedAt));
+      const dates = sortedGradings.map((g, i) => `第${i + 1}次`);
+      const scores = sortedGradings.map(g => g.teacherScore || g.overallScore || 0);
+
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          formatter: '{b}: {c}分'
+        },
+        grid: {
+          left: '10%',
+          right: '5%',
+          top: '10%',
+          bottom: '15%'
+        },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          axisLabel: {
+            fontSize: 10,
+            color: '#a8a095'
+          },
+          axisLine: {
+            lineStyle: { color: '#2d2a28' }
+          }
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          max: 100,
+          axisLabel: {
+            fontSize: 10,
+            color: '#a8a095'
+          },
+          splitLine: {
+            lineStyle: { color: '#2d2a28' }
+          }
+        },
+        series: [{
+          type: 'line',
+          data: scores,
+          smooth: true,
+          lineStyle: {
+            color: '#d48c52',
+            width: 2
+          },
+          itemStyle: {
+            color: '#d48c52'
+          },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(212, 140, 82, 0.3)' },
+                { offset: 1, color: 'rgba(212, 140, 82, 0.02)' }
+              ]
+            }
+          }
+        }]
+      });
+    }
+
+    function exportStudentGradings() {
+      const manager = window.TeacherGradingManager;
+      if (!manager) {
+        showToast('error', '错误', '评阅管理模块不可用');
+        return;
+      }
+
+      manager.exportGradings(record.studentId, record.studentName || 'student');
+    }
+
+    window.addEventListener('grading-updated', () => {
+      if (gradingLoaded) {
+        gradingLoaded = false;
+        loadGradingTab();
+      }
+    });
+
     function formatDuration(minutes) {
       if (!minutes) return '0分钟';
       if (minutes < 60) return `${minutes}分钟`;
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
       return mins > 0 ? `${hours}小时${mins}分钟` : `${hours}小时`;
+    }
+
+    function calculateProfileFromRecord() {
+      const readingRecords = (record.readingRecords || []).map(r => ({
+        ...r,
+        startTime: r.startTime || r.createdAt,
+        endTime: r.endTime,
+        totalDuration: r.duration || r.totalDuration || 0,
+        scrollEvents: r.scrollEvents || 0,
+        maxScrollDepth: r.maxScrollDepth || 0,
+        lessonId: r.lessonId
+      }));
+
+      const examRecords = (record.examRecords || []).map(e => ({
+        ...e,
+        lessonId: e.lessonId,
+        isCorrect: e.isCorrect,
+        topic: e.topic,
+        duration: e.duration || 0,
+        modifications: e.modifications || 0
+      }));
+
+      const conversations = (record.conversations || []).map(c => ({
+        ...c,
+        role: c.role,
+        content: c.content || c.message || '',
+        messageLength: (c.content || c.message || '').length,
+        questionDepth: c.questionDepth || 3,
+        feedback: c.feedback,
+        imageCount: c.imageCount || 0,
+        agentMode: c.agentMode || c.mode || 'default'
+      }));
+
+      const progress = (record.stages || []).flatMap(s => 
+        (s.lessons || []).map(l => ({
+          lessonId: l.lessonId,
+          stageId: s.stageId,
+          status: 'completed',
+          completed: true,
+          completedAt: l.completedAt
+        }))
+      );
+
+      const topicStats = {};
+      examRecords.forEach(e => {
+        const topic = e.topic || '其他';
+        if (!topicStats[topic]) {
+          topicStats[topic] = { total: 0, correct: 0, totalDuration: 0 };
+        }
+        topicStats[topic].total++;
+        if (e.isCorrect) topicStats[topic].correct++;
+        topicStats[topic].totalDuration += e.duration || 0;
+      });
+
+      const readingStats = calcReadingStats(readingRecords);
+      const examStats = {
+        totalQuestions: examRecords.length,
+        correctCount: examRecords.filter(e => e.isCorrect).length,
+        totalDuration: examRecords.reduce((s, e) => s + (e.duration || 0), 0),
+        avgDuration: examRecords.length > 0 ? examRecords.reduce((s, e) => s + (e.duration || 0), 0) / examRecords.length : 0,
+        totalModifications: examRecords.reduce((s, e) => s + (e.modifications || 0), 0),
+        avgModifications: examRecords.length > 0 ? examRecords.reduce((s, e) => s + (e.modifications || 0), 0) / examRecords.length : 0,
+        topicStats: topicStats,
+        totalLessons: new Set(examRecords.map(r => r.lessonId).filter(Boolean)).size
+      };
+
+      const eventLogs = record.eventLogs || [];
+
+      const service = window.StudentProfileService;
+      if (!service) {
+        console.warn('StudentProfileService not available');
+        return;
+      }
+
+      const ProfileService = service.ProfileService;
+
+      const totalLessons = 54;
+      const basics = ProfileService._calcBasics(
+        { ...readingStats, records: readingRecords },
+        examStats,
+        progress,
+        totalLessons,
+        eventLogs
+      );
+
+      const learningBehavior = ProfileService._calcLearningBehavior(
+        { ...readingStats, records: readingRecords },
+        progress,
+        eventLogs,
+        totalLessons
+      );
+
+      const knowledgeMastery = ProfileService._calcKnowledgeMastery(examStats);
+
+      const abilities = ProfileService._calcAbilities(
+        examStats,
+        conversations,
+        [],
+        { ...readingStats, records: readingRecords }
+      );
+
+      const styleInput = {
+        reading: { ...readingStats, records: readingRecords },
+        conversations: conversations,
+        exam: examStats
+      };
+      const learningStyle = service.LearningStyleAnalyzer.calculateLearningStyle(styleInput);
+
+      const aiInteraction = ProfileService._calcAIInteraction(conversations, progress);
+
+      const partialProfile = {
+        basics,
+        learningBehavior,
+        knowledgeMastery,
+        abilities,
+        learningStyle,
+        aiInteraction
+      };
+
+      const tags = service.TagEngine.generateTags(partialProfile);
+
+      profileData = {
+        ...partialProfile,
+        tags,
+        calculatedAt: Date.now(),
+        studentId: record.studentId,
+        totalLessons
+      };
+
+      renderProfilePanel(profileData);
+    }
+
+    function calcReadingStats(records) {
+      const totalSessions = records.length;
+      const totalDuration = records.reduce((s, r) => s + (r.totalDuration || r.duration || 0), 0);
+      const totalScrollEvents = records.reduce((s, r) => s + (r.scrollEvents || 0), 0);
+      const totalCopyCount = 0;
+      const totalActiveDuration = totalDuration * 0.7;
+      
+      const depths = records.map(r => r.maxScrollDepth || r.scrollDepth || 0).filter(d => d > 0);
+      const avgScrollDepth = depths.length > 0 ? depths.reduce((s, d) => s + d, 0) / depths.length : 50;
+
+      const lessonMap = new Map();
+      records.forEach(r => {
+        const lid = r.lessonId;
+        if (lid) lessonMap.set(lid, (lessonMap.get(lid) || 0) + 1);
+      });
+      let revisited = 0;
+      lessonMap.forEach(count => { if (count > 1) revisited++; });
+      const revisitRate = lessonMap.size > 0 ? (revisited / lessonMap.size) * 100 : 0;
+
+      let jumpCount = 0;
+      records.forEach(r => {
+        if (r.scrollEvents && r.maxScrollDepth) {
+          const rate = r.scrollEvents / Math.max(1, r.maxScrollDepth);
+          if (rate > 2) jumpCount++;
+        }
+      });
+
+      return {
+        totalSessions,
+        totalDuration,
+        totalActiveDuration,
+        totalScrollEvents,
+        totalCopyCount,
+        avgScrollDepth,
+        revisitRate,
+        jumpCount,
+        records
+      };
+    }
+
+    function renderProfilePanel(data) {
+      renderStudentInfo(data);
+      renderDimensionScores(data);
+      renderTagFilters(data.tags);
+      renderProfileRadarChart(data.abilities);
+      renderLearningStyle(data.learningStyle);
+      renderTagCloud(data.tags);
+      renderKnowledgeMastery(data.knowledgeMastery);
+      renderAIInteraction(data.aiInteraction);
+      renderLearningBehavior(data.learningBehavior);
+    }
+
+    function renderStudentInfo(data) {
+      const basics = data.basics || {};
+      
+      const firstChar = (record.studentId || '?').charAt(0).toUpperCase();
+      document.getElementById('profile-avatar').textContent = firstChar;
+      document.getElementById('profile-name').textContent = '学习者 ' + (record.studentId || '').slice(0, 8);
+
+      const stageNum = basics.currentStage || 1;
+      document.getElementById('profile-stage-text').textContent = STAGE_NAMES[stageNum] || `第${stageNum}阶段`;
+
+      const totalMinutes = Math.round((basics.totalStudyTime || 0) / 60000);
+      document.getElementById('profile-total-time').textContent = formatDuration(totalMinutes);
+      document.getElementById('profile-study-days').textContent = basics.totalStudyDays || 0;
+    }
+
+    function renderDimensionScores(data) {
+      const basics = data.basics || {};
+      const behavior = data.learningBehavior || {};
+      const knowledge = data.knowledgeMastery || {};
+      const abilities = data.abilities || {};
+      const style = data.learningStyle || {};
+      const ai = data.aiInteraction || {};
+
+      const engagementScore = calculateEngagementScore(basics, behavior);
+      const knowledgeScore = knowledge.overallScore || 0;
+      const abilityScores = Object.values(abilities).filter(v => typeof v === 'number');
+      const abilityScore = abilityScores.length > 0 ? abilityScores.reduce((s, v) => s + v, 0) / abilityScores.length : 0;
+      const styleScore = style.confidence || 0;
+      const aiScore = calculateAIScore(ai);
+      const healthScore = calculateHealthScore(basics, behavior, ai);
+
+      setDimensionCard('engagement', engagementScore);
+      setDimensionCard('knowledge', knowledgeScore);
+      setDimensionCard('ability', abilityScore);
+      setDimensionCard('style', styleScore);
+      setDimensionCard('ai', aiScore);
+      setDimensionCard('health', healthScore);
+    }
+
+    function calculateEngagementScore(basics, behavior) {
+      const studyDays = basics.totalStudyDays || 0;
+      const completionRate = behavior.completionRate || 0;
+      const weeklyDays = behavior.weeklyStudyDays || 0;
+      const avgDaily = behavior.avgDailyDuration || 0;
+      
+      const dayScore = Math.min(100, studyDays * 5);
+      const completionScore = completionRate;
+      const weeklyScore = (weeklyDays / 7) * 100;
+      const durationScore = Math.min(100, (avgDaily / 3600000) * 50);
+      
+      return Math.round((dayScore + completionScore + weeklyScore + durationScore) / 4);
+    }
+
+    function calculateAIScore(ai) {
+      const dependency = ai.dependencyScore || 0;
+      const depth = ai.avgQuestionDepth || 0;
+      const satisfaction = ai.feedbackSatisfaction || 0;
+      
+      const dependencyScore = 100 - dependency;
+      const depthScore = (depth / 5) * 100;
+      
+      return Math.round((dependencyScore * 0.4 + depthScore * 0.3 + satisfaction * 0.3));
+    }
+
+    function calculateHealthScore(basics, behavior, ai) {
+      const nightRatio = behavior.nightRatio || 0;
+      const fragmented = behavior.fragmentedRatio || 0;
+      const marathon = behavior.marathonRatio || 0;
+      const aiDep = ai.dependencyScore || 0;
+      const revisitRate = behavior.revisitRate || 0;
+      
+      const nightPenalty = nightRatio * 30;
+      const fragmentedPenalty = fragmented * 20;
+      const marathonBonus = marathon * 15;
+      const aiPenalty = (aiDep / 100) * 25;
+      const revisitBonus = Math.min(15, revisitRate / 3);
+      
+      let score = 100 - nightPenalty - fragmentedPenalty - aiPenalty + marathonBonus + revisitBonus;
+      return Math.max(0, Math.min(100, Math.round(score)));
+    }
+
+    function setDimensionCard(id, score) {
+      const scoreEl = document.getElementById(`dim-${id}-score`);
+      const barEl = document.getElementById(`dim-${id}-bar`);
+      const cardEl = document.getElementById(`dim-${id}`);
+      
+      scoreEl.textContent = Math.round(score) + '%';
+      barEl.style.width = score + '%';
+      
+      let level = 'low';
+      if (score >= 70) level = 'high';
+      else if (score >= 40) level = 'medium';
+      
+      scoreEl.className = `dimension-score ${level}`;
+      barEl.className = `dimension-bar-fill ${level}`;
+      cardEl.className = `dimension-card score-${level}`;
+    }
+
+    function renderTagFilters(tags) {
+      const container = document.getElementById('tag-filter-group');
+      const categories = {};
+      
+      tags.forEach(tag => {
+        if (!categories[tag.category]) {
+          categories[tag.category] = [];
+        }
+        categories[tag.category].push(tag);
+      });
+
+      let html = '<span class="tag-filter-item ' + (!activeTagFilter ? 'active' : '') + '" onclick="filterByTag(null)">全部</span>';
+      
+      Object.entries(categories).forEach(([category, categoryTags]) => {
+        categoryTags.forEach(tag => {
+          const colorClass = TAG_CATEGORY_COLORS[category] || '';
+          const isActive = activeTagFilter === tag.id;
+          html += `<span class="tag-filter-item ${isActive ? 'active' : ''}" onclick="filterByTag('${tag.id}')">${tag.name}</span>`;
+        });
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filterByTag(tagId) {
+      activeTagFilter = tagId;
+      if (profileData) {
+        renderTagFilters(profileData.tags);
+        renderTagCloud(profileData.tags);
+      }
+      showToast('info', '标签筛选', tagId ? `已筛选标签：${tagId}` : '显示全部标签');
+    }
+
+    function renderProfileRadarChart(abilities) {
+      const dom = document.getElementById('profile-radar-chart');
+      if (!dom) return;
+      
+      if (!profileRadarChart) {
+        profileRadarChart = echarts.init(dom);
+      }
+
+      const indicator = [
+        { name: '逻辑分析', max: 100 },
+        { name: '数据处理', max: 100 },
+        { name: '报告撰写', max: 100 },
+        { name: '沟通表达', max: 100 },
+        { name: '问题解决', max: 100 }
+      ];
+
+      const studentValues = [
+        abilities.logicalAnalysis || 0,
+        abilities.dataProcessing || 0,
+        abilities.reportWriting || 0,
+        abilities.communication || 0,
+        abilities.problemSolving || 0
+      ];
+
+      const avgValues = [65, 60, 55, 60, 62];
+
+      const series = [{
+        type: 'radar',
+        data: [{
+          value: studentValues,
+          name: '该学生',
+          itemStyle: { color: '#d48c52' },
+          areaStyle: { color: 'rgba(212, 140, 82, 0.3)' },
+          lineStyle: { color: '#d48c52', width: 2 }
+        }]
+      }];
+
+      if (showComparison) {
+        series[0].data.push({
+          value: avgValues,
+          name: '平均水平',
+          itemStyle: { color: '#6e665d' },
+          areaStyle: { color: 'rgba(110, 102, 93, 0.2)' },
+          lineStyle: { color: '#6e665d', width: 2, type: 'dashed' }
+        });
+        document.getElementById('avg-legend').style.display = 'flex';
+      } else {
+        document.getElementById('avg-legend').style.display = 'none';
+      }
+
+      profileRadarChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item' },
+        legend: { show: false },
+        radar: {
+          indicator: indicator,
+          shape: 'polygon',
+          splitNumber: 5,
+          axisName: {
+            color: 'var(--text-secondary)',
+            fontSize: 12,
+            fontFamily: 'var(--font-ui)'
+          },
+          splitLine: {
+            lineStyle: { color: 'var(--border-color)' }
+          },
+          splitArea: {
+            show: true,
+            areaStyle: {
+              color: ['rgba(31, 29, 28, 0.5)', 'rgba(39, 37, 36, 0.5)']
+            }
+          },
+          axisLine: {
+            lineStyle: { color: 'var(--border-color)' }
+          }
+        },
+        series: series
+      });
+    }
+
+    function toggleComparison(show) {
+      showComparison = show;
+      document.getElementById('compare-off-btn').classList.toggle('active', !show);
+      document.getElementById('compare-on-btn').classList.toggle('active', show);
+      
+      if (profileData && profileData.abilities) {
+        renderProfileRadarChart(profileData.abilities);
+      }
+    }
+
+    function renderLearningStyle(styleData) {
+      if (!styleData) return;
+
+      const vark = styleData.vark || {};
+      const varkGrid = document.getElementById('profile-vark-grid');
+      
+      const varkItems = [
+        { key: 'visual', name: '视觉型' },
+        { key: 'auditory', name: '听觉型' },
+        { key: 'readWrite', name: '阅读型' },
+        { key: 'kinesthetic', name: '动觉型' }
+      ];
+
+      varkGrid.innerHTML = varkItems.map(item => `
+        <div class="vark-item">
+          <div class="vark-item-header">
+            <span class="vark-item-name">${item.name}</span>
+            <span class="vark-item-score">${vark[item.key] || 0}%</span>
+          </div>
+          <div class="vark-progress">
+            <div class="vark-progress-fill" style="width: ${vark[item.key] || 0}%;"></div>
+          </div>
+        </div>
+      `).join('');
+
+      const felder = styleData.felderSilverman || {};
+      const felderContainer = document.getElementById('profile-felder-container');
+      
+      const felderItems = [
+        { left: '感觉型', right: '直觉型', value: felder.sensingIntuitive || 0 },
+        { left: '序列型', right: '综合型', value: felder.sequentialGlobal || 0 },
+        { left: '活跃型', right: '沉思型', value: felder.activeReflective || 0 },
+        { left: '视觉型', right: '言语型', value: felder.visualVerbal || 0 }
+      ];
+
+      felderContainer.innerHTML = felderItems.map(item => {
+        const isLeft = item.value < 0;
+        const absValue = Math.abs(item.value);
+        const fillWidth = Math.min(50, absValue / 2);
+        const side = isLeft ? 'left' : 'right';
+        
+        return `
+          <div class="felder-item">
+            <div class="felder-labels">
+              <span class="felder-left">${item.left}</span>
+              <span class="felder-right">${item.right}</span>
+            </div>
+            <div class="felder-slider">
+              <div class="felder-center-marker"></div>
+              <div class="felder-slider-fill ${side}" style="width: ${fillWidth}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('profile-style-confidence').textContent = (styleData.confidence || 0) + '%';
+      document.getElementById('profile-primary-style-text').textContent = styleData.primaryStyle || '未知';
+      document.getElementById('profile-style-description').textContent = styleData.styleDescription || '暂无数据';
+
+      const service = window.StudentProfileService;
+      if (service && service.LearningStyleAnalyzer) {
+        const tips = service.LearningStyleAnalyzer.getLearningTips(styleData);
+        const tipsList = document.getElementById('profile-teaching-tips');
+        tipsList.innerHTML = tips.map(tip => `<li>${tip}</li>`).join('');
+      }
+    }
+
+    function renderTagCloud(tags) {
+      const container = document.getElementById('profile-tag-cloud-container');
+      
+      if (!tags || tags.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🏷️</div>
+            <div class="empty-state-title">暂无标签</div>
+            <div class="empty-state-desc">学习数据不足，无法生成标签</div>
+          </div>
+        `;
+        document.getElementById('profile-tag-count').textContent = '0 个标签';
+        return;
+      }
+
+      let filteredTags = tags;
+      if (activeTagFilter) {
+        filteredTags = tags.filter(t => t.id === activeTagFilter);
+      }
+
+      document.getElementById('profile-tag-count').textContent = `${filteredTags.length} 个标签`;
+
+      const categories = {};
+      filteredTags.forEach(tag => {
+        if (!categories[tag.category]) {
+          categories[tag.category] = [];
+        }
+        categories[tag.category].push(tag);
+      });
+
+      let html = '';
+      Object.entries(categories).forEach(([category, categoryTags]) => {
+        html += `
+          <div class="tag-group-section">
+            <div class="tag-group-title">${TAG_CATEGORY_NAMES[category] || category}</div>
+            <div class="tag-cloud">
+              ${categoryTags.map(tag => {
+                const weightClass = 'tag-weight-' + Math.ceil((tag.weight || 0.5) * 5);
+                const colorClass = TAG_CATEGORY_COLORS[category] || '';
+                return `<span class="tag-item ${colorClass} ${weightClass}" onclick="showTagDetail('${tag.id}', '${tag.name}', '${category}', ${tag.weight})">${tag.name}</span>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function showTagDetail(tagId, tagName, category, weight) {
+      document.getElementById('tag-modal-title').textContent = tagName;
+      
+      const metaHtml = `
+        <span class="tooltip-meta-item">${TAG_CATEGORY_NAMES[category] || category}</span>
+        <span class="tooltip-meta-item">权重: ${Math.round((weight || 0) * 100)}%</span>
+      `;
+      document.getElementById('tag-modal-meta').innerHTML = metaHtml;
+      
+      const desc = TAG_DESCRIPTIONS[tagId] || '暂无详细说明';
+      document.getElementById('tag-modal-desc').textContent = desc;
+      
+      document.getElementById('tag-modal').style.display = 'flex';
+    }
+
+    function closeTagModal() {
+      document.getElementById('tag-modal').style.display = 'none';
+    }
+
+    document.getElementById('tag-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'tag-modal') {
+        closeTagModal();
+      }
+    });
+
+    function renderKnowledgeMastery(knowledge) {
+      if (!knowledge) return;
+
+      const overallScore = knowledge.overallScore || 0;
+      document.getElementById('profile-overall-knowledge').textContent = Math.round(overallScore) + '%';
+      document.getElementById('profile-overall-knowledge-bar').style.width = overallScore + '%';
+
+      const topics = knowledge.topics || {};
+      const topicEntries = Object.entries(topics);
+
+      if (topicEntries.length === 0) {
+        document.getElementById('profile-no-knowledge').style.display = 'block';
+        document.getElementById('profile-weak-topics').innerHTML = '';
+        document.getElementById('profile-strong-topics').innerHTML = '';
+        return;
+      }
+
+      document.getElementById('profile-no-knowledge').style.display = 'none';
+
+      const weakTopics = topicEntries
+        .filter(([_, t]) => t.score < 60)
+        .sort((a, b) => a[1].score - b[1].score)
+        .slice(0, 5);
+
+      const strongTopics = topicEntries
+        .filter(([_, t]) => t.score >= 85)
+        .sort((a, b) => b[1].score - a[1].score)
+        .slice(0, 5);
+
+      document.getElementById('profile-weak-topics').innerHTML = weakTopics.length > 0 
+        ? weakTopics.map(([name, data]) => renderKnowledgeItem(name, data, 'weak')).join('')
+        : '<div style="font-size: 0.78rem; color: var(--text-tertiary); padding: 8px 0;">暂无薄弱知识点</div>';
+
+      document.getElementById('profile-strong-topics').innerHTML = strongTopics.length > 0
+        ? strongTopics.map(([name, data]) => renderKnowledgeItem(name, data, 'strong')).join('')
+        : '<div style="font-size: 0.78rem; color: var(--text-tertiary); padding: 8px 0;">暂无强项知识点</div>';
+    }
+
+    function renderKnowledgeItem(name, data, type) {
+      const score = data.score || 0;
+      const scoreClass = type === 'strong' ? 'strong' : (score < 60 ? 'weak' : 'normal');
+      
+      return `
+        <div class="knowledge-item">
+          <div class="knowledge-item-header">
+            <span class="knowledge-item-name">${name}</span>
+            <span class="knowledge-item-score ${scoreClass}">${Math.round(score)}%</span>
+          </div>
+          <div class="knowledge-item-meta">
+            <span>${data.total || 0} 题</span>
+            <span>${data.correct || 0} 正确</span>
+          </div>
+          <div class="progress" style="margin-top: 6px; height: 4px;">
+            <div class="progress-bar" style="width: ${score}%; background: ${type === 'strong' ? 'var(--accent-success)' : 'var(--accent-danger)'};"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAIInteraction(ai) {
+      if (!ai) return;
+
+      document.getElementById('profile-ai-dependency').textContent = Math.round(ai.dependencyScore || 0) + '%';
+      document.getElementById('profile-avg-depth').textContent = (ai.avgQuestionDepth || 0).toFixed(1);
+      document.getElementById('profile-feedback-sat').textContent = Math.round(ai.feedbackSatisfaction || 0) + '%';
+      document.getElementById('profile-image-count').textContent = ai.imageGenerationCount || 0;
+
+      const modeDist = ai.modeDistribution || {};
+      const modeData = Object.entries(modeDist).map(([mode, count]) => ({
+        name: getModeName(mode),
+        value: count
+      }));
+
+      const chartDom = document.getElementById('profile-mode-chart');
+      if (!chartDom) return;
+      
+      if (!profileModeChart) {
+        profileModeChart = echarts.init(chartDom);
+      }
+
+      profileModeChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: {
+          orient: 'vertical',
+          right: 10,
+          top: 'center',
+          textStyle: { color: 'var(--text-secondary)', fontSize: 11 },
+          itemWidth: 12,
+          itemHeight: 12
+        },
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['35%', '50%'],
+          avoidLabelOverlap: false,
+          label: { show: false },
+          emphasis: {
+            label: { show: true, fontSize: 14, fontWeight: 'bold' }
+          },
+          labelLine: { show: false },
+          data: modeData.length > 0 ? modeData : [{ name: '暂无数据', value: 1 }],
+          color: ['#d48c52', '#e6b455', '#5a9e8f', '#6b8caf', '#c4653e', '#6a9e6e']
+        }]
+      });
+    }
+
+    function getModeName(mode) {
+      const names = {
+        knowledge: '知识讲解',
+        socratic: '苏格拉底',
+        reviewer: '作业批改',
+        examiner: '考试测评',
+        assistant: '助手模式',
+        default: '默认模式'
+      };
+      return names[mode] || mode;
+    }
+
+    function renderLearningBehavior(behavior) {
+      if (!behavior) return;
+
+      document.getElementById('profile-avg-daily').textContent = formatMsDuration(behavior.avgDailyDuration || 0);
+      document.getElementById('profile-avg-session').textContent = formatMsDuration(behavior.avgSessionDuration || 0);
+      document.getElementById('profile-avg-depth').textContent = Math.round(behavior.avgReadingDepth || 0) + '%';
+      document.getElementById('profile-completion-rate').textContent = Math.round(behavior.completionRate || 0) + '%';
+      document.getElementById('profile-revisit-rate').textContent = Math.round(behavior.revisitRate || 0) + '%';
+
+      const timeDist = behavior.timeDistribution || {};
+      const preferred = behavior.preferredTimeOfDay || 'evening';
+      
+      const distContainer = document.getElementById('profile-time-dist');
+      const maxVal = Math.max(...TIME_SLOTS.map(s => timeDist[s.key] || 0), 1);
+
+      distContainer.innerHTML = TIME_SLOTS.map(slot => {
+        const value = timeDist[slot.key] || 0;
+        const heightPercent = (value / maxVal) * 100;
+        const isActive = slot.key === preferred;
+        
+        return `
+          <div class="time-slot ${isActive ? 'active' : ''}">
+            <div class="time-slot-bar">
+              <div class="time-slot-fill ${isActive ? 'active' : ''}" style="height: ${heightPercent}%;"></div>
+            </div>
+            <div class="time-slot-label">${slot.icon} ${slot.label}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatMsDuration(ms) {
+      const minutes = Math.round(ms / 60000);
+      if (minutes < 60) return minutes + '分钟';
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours}h${mins}m` : `${hours}h`;
+    }
+
+    function showToast(type, title, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-info)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-warning)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      };
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
     }
   </script>
 </body>
