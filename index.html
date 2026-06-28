@@ -341,6 +341,135 @@
       box-shadow: 0 0 8px var(--accent-teal);
     }
 
+    .video-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-2xl);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+    }
+
+    .video-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      opacity: 0.3;
+    }
+
+    .video-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+      position: relative;
+    }
+
+    .video-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .video-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .video-subtitle {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-top: var(--space-sm);
+      font-style: italic;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .video-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      background: 
+        radial-gradient(ellipse at 30% 30%, rgba(212, 140, 82, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(107, 140, 175, 0.08) 0%, transparent 50%),
+        var(--bg-tertiary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .video-placeholder:hover {
+      background: 
+        radial-gradient(ellipse at 30% 30%, rgba(212, 140, 82, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(107, 140, 175, 0.12) 0%, transparent 50%),
+        var(--bg-tertiary);
+    }
+
+    .play-button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(212, 140, 82, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .video-placeholder:hover .play-button {
+      transform: scale(1.1);
+      box-shadow: 0 12px 40px rgba(212, 140, 82, 0.5);
+    }
+
+    .play-button::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 20px solid white;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      margin-left: 6px;
+    }
+
+    .video-placeholder-text {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-top: var(--space-sm);
+    }
+
     .features-section {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
@@ -620,6 +749,20 @@
         </div>
       </div>
 
+      <div class="video-section">
+        <div class="video-header">
+          <div class="video-eyebrow">Intro Video</div>
+          <h2 class="video-title">30秒了解AI伴学平台</h2>
+          <p class="video-subtitle">从零基础到独立完成电商数据分析全流程</p>
+        </div>
+        <div class="video-container" id="video-container">
+          <div class="video-placeholder" id="video-placeholder" onclick="playPromoVideo()">
+            <div class="play-button"></div>
+            <div class="video-placeholder-text">点击播放宣传视频</div>
+          </div>
+        </div>
+      </div>
+
       <div class="features-section">
         <div class="features-header">
           <div class="features-eyebrow">Why It Works</div>
@@ -668,7 +811,27 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="js/student-manager.js"></script>
+  <script src="js/db.js"></script>
   <script>
+    // 宣传视频播放
+    let promoVideoPlaying = false;
+
+    function playPromoVideo() {
+      if (promoVideoPlaying) return;
+      promoVideoPlaying = true;
+
+      const container = document.getElementById('video-container');
+      const placeholder = document.getElementById('video-placeholder');
+
+      const iframe = document.createElement('iframe');
+      iframe.src = 'hyperframes/promo.html';
+      iframe.setAttribute('allow', 'autoplay');
+      iframe.style.cssText = 'width: 100%; height: 100%; border: none; display: block;';
+
+      container.replaceChild(iframe, placeholder);
+    }
+
     // Generate UUID for student identification
     function generateUUID() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -808,6 +971,10 @@
       
       if (action === 'teacher') {
         window.location.href = 'teacher/index.html';
+      }
+      
+      if (window.StudentManager && typeof window.StudentManager.initUI === 'function') {
+        window.StudentManager.initUI();
       }
     });
   </script>
