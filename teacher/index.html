@@ -990,11 +990,17 @@
     function filterByGrade(grade) {
       activeGradeFilter = grade;
 
+      // 更新按钮样式
       document.querySelectorAll('[data-grade-filter]').forEach(el => {
         el.classList.toggle('active', el.dataset.gradeFilter === grade);
       });
 
-      renderStudentList();
+      // 根据当前模式调用对应的渲染函数
+      if (hasImportedData) {
+        renderStudentList();
+      } else {
+        renderDemoStudentList();
+      }
     }
 
     // 渲染演示数据学生列表
@@ -1027,13 +1033,30 @@
       const statsCard = document.getElementById('grading-stats-card');
       if (statsCard) statsCard.style.display = 'none';
 
-      // 隐藏标签筛选（演示数据不支持筛选）
+      // 显示/隐藏标签筛选（演示数据不支持标签筛选，但支持等级筛选）
       const tagFilter = document.querySelector('.tag-filter-section');
-      if (tagFilter) tagFilter.style.display = 'none';
+      if (tagFilter) tagFilter.style.display = hasImportedData ? '' : 'none';
 
       let html = demoBanner + '<div class="student-list-grid">';
       
-      DEMO_STUDENTS.forEach(student => {
+      // 根据等级筛选过滤学生
+      const filteredStudents = DEMO_STUDENTS.filter(student => {
+        if (activeGradeFilter === 'all') return true;
+        const gradingStats = DEMO_GRADING_STATS[student.id] || { totalCount: 0, avgScore: 0 };
+        const topGrade = getTopGrade(gradingStats.gradeDistribution);
+        return topGrade === activeGradeFilter;
+      });
+
+      if (filteredStudents.length === 0) {
+        html += `
+          <div class="empty-state" style="grid-column: 1/-1; padding: 60px 20px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+            <div style="color: #666; font-size: 16px;">没有${activeGradeFilter}等级的学生</div>
+          </div>
+        `;
+      }
+
+      filteredStudents.forEach(student => {
         const gradingStats = DEMO_GRADING_STATS[student.id] || { totalCount: 0, avgScore: 0 };
         
         const stageNum = student.basics?.currentStage || 1;
