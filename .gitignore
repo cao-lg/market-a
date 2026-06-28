@@ -2,9 +2,13 @@ node_modules/
 .trae/
 test-screenshots/
 scripts/__pycache__/
+test/__pycache__/
 *.log
 .DS_Store
 screenshot-*.png
 e2e_test.py
 TESTING_GUIDE.md
 package-lock.json
+*.wav
+hyperframes/narrations/*.wav
+hyperframes/narrations/promo-text.txt
