@@ -563,6 +563,73 @@
     let studentGradingStats = {};
     let activeGradeFilter = 'all';
     let currentSort = 'name';
+    let hasImportedData = false; // 是否导入了真实数据
+
+    // 虚拟演示数据（无导入数据时显示）
+    const DEMO_STUDENTS = [
+      {
+        id: 'demo-001',
+        name: '张小明',
+        avatar: '张',
+        basics: { currentStage: 2, completedLessons: 12, totalStudyTime: 7200000, totalConversations: 45 },
+        tags: [
+          { id: 'visual_learner', name: '视觉型学习者', category: 'style', weight: 0.8 },
+          { id: 'active_learner', name: '主动学习者', category: 'habit', weight: 0.7 },
+          { id: 'data_perfectionist', name: '数据洁癖', category: 'ability', weight: 0.85 }
+        ]
+      },
+      {
+        id: 'demo-002',
+        name: '李婷婷',
+        avatar: '李',
+        basics: { currentStage: 3, completedLessons: 28, totalStudyTime: 14400000, totalConversations: 89 },
+        tags: [
+          { id: 'logical_rigor', name: '逻辑严谨', category: 'ability', weight: 0.9 },
+          { id: 'reading_lover', name: '阅读爱好者', category: 'habit', weight: 0.85 },
+          { id: 'insightful', name: '洞察敏锐', category: 'ability', weight: 0.75 }
+        ]
+      },
+      {
+        id: 'demo-003',
+        name: '王建国',
+        avatar: '王',
+        basics: { currentStage: 1, completedLessons: 5, totalStudyTime: 1800000, totalConversations: 22 },
+        tags: [
+          { id: 'beginner', name: '入门学习者', category: 'stage', weight: 0.9 },
+          { id: 'kinesthetic_learner', name: '动手型学习者', category: 'style', weight: 0.8 }
+        ]
+      },
+      {
+        id: 'demo-004',
+        name: '陈思思',
+        avatar: '陈',
+        basics: { currentStage: 4, completedLessons: 38, totalStudyTime: 21600000, totalConversations: 112 },
+        tags: [
+          { id: 'sequential_learner', name: '序列型学习者', category: 'style', weight: 0.85 },
+          { id: 'pragmatic', name: '实干派', category: 'ability', weight: 0.88 },
+          { id: 'good_writer', name: '笔杆子', category: 'ability', weight: 0.82 }
+        ]
+      },
+      {
+        id: 'demo-005',
+        name: '刘洋',
+        avatar: '刘',
+        basics: { currentStage: 2, completedLessons: 15, totalStudyTime: 5400000, totalConversations: 38 },
+        tags: [
+          { id: 'detail_oriented', name: '细节控', category: 'ability', weight: 0.78 },
+          { id: '随缘学习', name: '随缘学习', category: 'habit', weight: 0.6 }
+        ]
+      }
+    ];
+
+    // 演示数据的评阅统计
+    const DEMO_GRADING_STATS = {
+      'demo-001': { totalCount: 4, avgScore: 86.5, gradeDistribution: { A: 1, B: 2, C: 1, D: 0 }, reviewedCount: 3 },
+      'demo-002': { totalCount: 6, avgScore: 91.2, gradeDistribution: { A: 3, B: 2, C: 1, D: 0 }, reviewedCount: 5 },
+      'demo-003': { totalCount: 2, avgScore: 72.0, gradeDistribution: { A: 0, B: 1, C: 1, D: 0 }, reviewedCount: 2 },
+      'demo-004': { totalCount: 8, avgScore: 88.8, gradeDistribution: { A: 4, B: 3, C: 1, D: 0 }, reviewedCount: 6 },
+      'demo-005': { totalCount: 3, avgScore: 79.3, gradeDistribution: { A: 0, B: 2, C: 1, D: 0 }, reviewedCount: 3 }
+    };
 
     const STAGE_NAMES = {
       1: '入门阶段',
@@ -587,14 +654,33 @@
 
     async function loadLocalStudents() {
       try {
-        const students = await window.StudentManager.listStudents();
+        // 添加超时保护，如果3秒内没有响应则切换到演示数据
+        const studentsPromise = window.StudentManager.listStudents();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('加载超时')), 3000)
+        );
+        
+        let students;
+        try {
+          students = await Promise.race([studentsPromise, timeoutPromise]);
+        } catch (e) {
+          console.warn('加载学生数据超时或失败，显示演示数据:', e.message);
+          hasImportedData = false;
+          renderDemoStudentList();
+          return;
+        }
+        
         localStudents = students;
 
         if (students.length === 0) {
-          renderEmptyStudentList();
+          // 无真实数据，显示演示数据
+          hasImportedData = false;
+          renderDemoStudentList();
           return;
         }
 
+        // 有真实数据，标记并显示
+        hasImportedData = true;
         await loadStudentProfiles(students);
         await loadAllStudentGradingStats(students);
         collectAllTags();
@@ -608,7 +694,9 @@
         }
       } catch (e) {
         console.error('Load students error:', e);
-        renderEmptyStudentList();
+        // 出错时也显示演示数据
+        hasImportedData = false;
+        renderDemoStudentList();
       }
     }
 
@@ -909,6 +997,116 @@
       renderStudentList();
     }
 
+    // 渲染演示数据学生列表
+    function renderDemoStudentList() {
+      const container = document.getElementById('student-list-container');
+      
+      // 显示演示数据提示
+      const demoBanner = `
+        <div class="demo-notice" style="
+          background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+          border: 1px solid rgba(255, 152, 0, 0.3);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        ">
+          <span style="font-size: 24px;">📊</span>
+          <div>
+            <div style="font-weight: 600; color: #ff9800; margin-bottom: 4px;">演示数据模式</div>
+            <div style="color: #666; font-size: 14px;">
+              当前显示的是<b>虚拟演示数据</b>。导入真实学生学习记录后，将自动切换显示真实数据。
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 隐藏评阅统计概览（因为演示数据不计入）
+      const statsCard = document.getElementById('grading-stats-card');
+      if (statsCard) statsCard.style.display = 'none';
+
+      // 隐藏标签筛选（演示数据不支持筛选）
+      const tagFilter = document.querySelector('.tag-filter-section');
+      if (tagFilter) tagFilter.style.display = 'none';
+
+      let html = demoBanner + '<div class="student-list-grid">';
+      
+      DEMO_STUDENTS.forEach(student => {
+        const gradingStats = DEMO_GRADING_STATS[student.id] || { totalCount: 0, avgScore: 0 };
+        
+        const stageNum = student.basics?.currentStage || 1;
+        const stageName = STAGE_NAMES[stageNum] || `第${stageNum}阶段`;
+        const completedLessons = student.basics?.completedLessons || 0;
+        const totalLessons = student.basics?.totalLessons || 54;
+        const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        
+        const totalMinutes = Math.round((student.basics?.totalStudyTime || 0) / 60000);
+        const studyTimeStr = formatDuration(totalMinutes);
+        
+        const displayTags = (student.tags || []).slice(0, 3);
+        const firstChar = (student.name || '?').charAt(0).toUpperCase();
+
+        const topGrade = getTopGrade(gradingStats.gradeDistribution);
+        const gradeBadge = topGrade ? `<span class="student-card-tag" style="background: ${
+          topGrade === 'A' ? 'rgba(106, 158, 110, 0.2)' :
+          topGrade === 'B' ? 'rgba(107, 140, 175, 0.2)' :
+          topGrade === 'C' ? 'rgba(212, 140, 82, 0.2)' :
+          'rgba(196, 94, 75, 0.2)'
+        }; color: ${
+          topGrade === 'A' ? '#6a9e6e' :
+          topGrade === 'B' ? '#6b8caf' :
+          topGrade === 'C' ? '#d48c52' :
+          '#c45e4b'
+        };">${topGrade}级</span>` : '';
+
+        // 演示数据学生卡片（点击无响应）
+        html += `
+          <div class="student-card demo-card" style="opacity: 0.9; cursor: default;" title="演示数据，点击无效">
+            <div class="student-card-header">
+              <div class="student-card-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">${student.avatar || firstChar}</div>
+              <div class="student-card-info">
+                <div class="student-card-name">${escapeHtml(student.name)}</div>
+                <div class="student-card-stage">${stageName}</div>
+              </div>
+              <span class="demo-badge" style="
+                background: rgba(156, 39, 176, 0.1);
+                color: #9c27b0;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 11px;
+                margin-left: auto;
+              ">演示</span>
+            </div>
+            <div class="student-card-stats">
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${progress}%</div>
+                <div class="student-card-stat-label">课程进度</div>
+              </div>
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${gradingStats.totalCount || 0}</div>
+                <div class="student-card-stat-label">评阅次数</div>
+              </div>
+              <div class="student-card-stat">
+                <div class="student-card-stat-value">${gradingStats.avgScore ? gradingStats.avgScore.toFixed(1) : '--'}</div>
+                <div class="student-card-stat-label">平均分</div>
+              </div>
+            </div>
+            ${displayTags.length > 0 || gradeBadge ? `
+              <div class="student-card-tags">
+                ${gradeBadge}
+                ${displayTags.map(t => `<span class="student-card-tag">${t.name}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
     function sortStudents() {
       const select = document.getElementById('sort-select');
       currentSort = select?.value || 'name';
@@ -1141,7 +1339,7 @@
       }
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = JSON.parse(e.target.result);
           
@@ -1150,20 +1348,80 @@
           }
           
           currentRecord = data;
+
+          // 真正导入到本地数据库
+          await importStudentRecord(data);
           
           document.getElementById('file-preview').classList.remove('hidden');
           document.getElementById('file-name').textContent = file.name;
           document.getElementById('file-info').textContent = 
             `学生ID: ${data.studentId.slice(0, 8)}... | 导出时间: ${new Date(data.exportDate).toLocaleDateString('zh-CN')}`;
           
-          showToast('success', '文件加载成功', '点击"查看详情"查看完整报告');
+          showToast('success', '导入成功', '已导入学生数据，正在刷新列表...');
+          
+          // 重新加载本地学生列表
+          setTimeout(() => {
+            hasImportedData = true;
+            loadLocalStudents();
+          }, 500);
           
         } catch (error) {
-          showToast('error', '解析失败', error.message);
+          showToast('error', '导入失败', error.message);
         }
       };
       
       reader.readAsText(file);
+    }
+
+    // 将学生记录导入到本地数据库
+    async function importStudentRecord(data) {
+      try {
+        const studentManager = window.StudentManager;
+        if (!studentManager) {
+          throw new Error('StudentManager 未初始化');
+        }
+
+        // 提取学生基本信息
+        const studentInfo = data.studentInfo || {
+          id: data.studentId,
+          name: data.studentName || '未知学生',
+          avatar: (data.studentName || '?').charAt(0).toUpperCase()
+        };
+
+        // 保存学生记录
+        await studentManager.saveStudent(studentInfo);
+
+        // 如果有画像数据，也保存
+        if (data.profile) {
+          const profileService = window.StudentProfileService;
+          if (profileService && profileService.saveProfile) {
+            await profileService.saveProfile(data.studentId, data.profile);
+          }
+        }
+
+        // 如果有评阅记录，也保存
+        if (data.gradings && Array.isArray(data.gradings)) {
+          const gradingManager = window.TeacherGradingManager;
+          if (gradingManager && gradingManager.loadStudentGradings) {
+            // TeacherGradingManager 内部会从 DB 读取
+            // 这里我们通过 DB 直接保存
+            const db = window.DB;
+            if (db && db.grading) {
+              for (const grading of data.gradings) {
+                await db.grading.save({
+                  ...grading,
+                  studentId: data.studentId
+                });
+              }
+            }
+          }
+        }
+
+        return true;
+      } catch (e) {
+        console.error('Import student record error:', e);
+        throw e;
+      }
     }
 
     function viewRecord() {
