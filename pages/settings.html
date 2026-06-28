@@ -847,6 +847,9 @@
         <div class="progress">
           <div class="progress-bar" id="storage-bar" style="width: 0%;"></div>
         </div>
+        <div class="text-xs mt-2" style="color: var(--text-tertiary);">
+          各表数据量: <span id="table-counts">加载中...</span>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4 mb-6">
@@ -870,6 +873,42 @@
         </button>
       </div>
 
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <button class="btn btn-secondary" onclick="exportAllData()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          完整数据导出
+        </button>
+        <label class="btn btn-secondary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          导入数据
+          <input type="file" accept=".json" style="display:none" onchange="importDataFile(this)">
+        </label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <button class="btn btn-secondary" onclick="openDevPanel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+          开发者面板
+        </button>
+        <button class="btn btn-secondary" onclick="runQualityCheck()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          数据质量检查
+        </button>
+      </div>
+
       <div class="danger-zone">
         <div class="danger-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -880,15 +919,16 @@
           危险区域
         </div>
         <p class="danger-text">
-          清除所有本地存储数据，包括学习进度、AI对话记录、提交内容等。此操作不可恢复，请谨慎操作。
+          清除本地存储数据，包括学习进度、AI对话记录、提交内容等。此操作不可恢复，请谨慎操作。
         </p>
-        <button class="btn btn-danger" onclick="confirmClearData()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          清除所有数据
-        </button>
+        <div class="grid grid-cols-2 gap-4">
+          <button class="btn btn-danger" onclick="confirmClearCurrentStudent()">
+            清除当前学生数据
+          </button>
+          <button class="btn btn-danger" onclick="confirmClearAllData()">
+            清除所有数据
+          </button>
+        </div>
       </div>
     </section>
 
@@ -946,11 +986,18 @@
     </div>
   </div>
 
+  <script src="../js/student-manager.js"></script>
   <script src="../js/db.js"></script>
   <script src="../js/ai.js?v=20250726"></script>
   <script src="../js/export.js"></script>
+  <script src="../js/dialog-logger.js"></script>
+  <script src="../js/student-profile-service.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      if (window.StudentManager && typeof window.StudentManager.initUI === 'function') {
+        window.StudentManager.initUI();
+      }
+      
       const studentId = localStorage.getItem('studentId') || '未登录';
       document.getElementById('student-id').textContent = studentId.slice(0, 8) + '...';
       
@@ -1268,8 +1315,257 @@
       }
     }
 
+    // ==================== Data Management Functions ====================
+
+    async function updateTableCounts() {
+      try {
+        const tables = [
+          { name: 'event_logs', label: '事件' },
+          { name: 'reading_behavior', label: '阅读' },
+          { name: 'exam_behavior', label: '答题' },
+          { name: 'ai_conversations', label: '对话' },
+          { name: 'learning_progress', label: '进度' }
+        ];
+
+        const counts = [];
+        for (const table of tables) {
+          try {
+            const count = await getTableCount(table.name);
+            counts.push(`${table.label}:${count}`);
+          } catch (e) {}
+        }
+
+        const tableCountsEl = document.getElementById('table-counts');
+        if (tableCountsEl) {
+          tableCountsEl.textContent = counts.join(' | ');
+        }
+      } catch (e) {}
+    }
+
+    function getTableCount(tableName) {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('MarketDataAnalysisDB', 3);
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(tableName)) {
+            resolve(0);
+            return;
+          }
+          const tx = db.transaction(tableName, 'readonly');
+          const store = tx.objectStore(tableName);
+          const countReq = store.count();
+          countReq.onsuccess = () => resolve(countReq.result);
+          countReq.onerror = () => reject(countReq.error);
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function exportAllData() {
+      if (window.LogService && typeof window.LogService.exportAllData === 'function') {
+        window.LogService.exportAllData('current');
+      } else {
+        showToast('error', '导出失败', '导出功能暂不可用');
+      }
+    }
+
+    let pendingImportData = null;
+
+    async function importDataFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        if (!data.tables || !data.exportVersion) {
+          throw new Error('无效的数据文件格式');
+        }
+
+        pendingImportData = data;
+
+        const tableSummaries = Object.entries(data.tables)
+          .map(([name, records]) => `${name}: ${records.length}条`)
+          .join('\n');
+
+        showConfirmModal(
+          `导入数据预览:\n\n${tableSummaries}\n\n请选择导入方式:\n- 合并: 保留现有数据，添加新数据\n- 覆盖: 删除所有现有数据后导入`,
+          async () => {
+            await doImport('merge');
+          }
+        );
+
+        setTimeout(() => {
+          const modalFooter = document.querySelector('#confirm-modal .modal-footer');
+          if (modalFooter) {
+            const existingBtns = modalFooter.querySelectorAll('.btn');
+            existingBtns.forEach(btn => {
+              if (btn.textContent === '确认') {
+                btn.textContent = '合并导入';
+              }
+            });
+            
+            const overwriteBtn = document.createElement('button');
+            overwriteBtn.className = 'btn btn-danger';
+            overwriteBtn.textContent = '覆盖导入';
+            overwriteBtn.onclick = async () => {
+              closeConfirmModal();
+              if (confirm('确定要覆盖所有现有数据吗？此操作不可恢复！')) {
+                await doImport('overwrite');
+              }
+            };
+            modalFooter.insertBefore(overwriteBtn, modalFooter.firstChild);
+          }
+        }, 50);
+
+      } catch (e) {
+        showToast('error', '导入失败', '无效的 JSON 文件: ' + e.message);
+      }
+
+      input.value = '';
+    }
+
+    async function doImport(mode) {
+      if (!pendingImportData) return;
+
+      try {
+        const data = pendingImportData;
+
+        if (mode === 'overwrite') {
+          await clearAllTables();
+        }
+
+        for (const [tableName, records] of Object.entries(data.tables)) {
+          await bulkAddToTable(tableName, records);
+        }
+
+        pendingImportData = null;
+        showToast('success', '导入成功', '数据已成功导入');
+        await updateStorageUsage();
+        await updateTableCounts();
+      } catch (e) {
+        showToast('error', '导入失败', e.message);
+      }
+    }
+
+    function clearAllTables() {
+      const tables = [
+        'students', 'learning_progress', 'ai_conversations', 'submissions',
+        'assessments', 'behavior_metrics', 'reading_behavior', 'exam_behavior',
+        'event_logs', 'student_profiles'
+      ];
+
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('MarketDataAnalysisDB', 3);
+        req.onsuccess = () => {
+          const db = req.result;
+          const existingTables = tables.filter(t => db.objectStoreNames.contains(t));
+          const tx = db.transaction(existingTables, 'readwrite');
+          
+          existingTables.forEach(tableName => {
+            tx.objectStore(tableName).clear();
+          });
+
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function bulkAddToTable(tableName, records) {
+      if (!records || records.length === 0) return Promise.resolve();
+
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('MarketDataAnalysisDB', 3);
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(tableName)) {
+            resolve();
+            return;
+          }
+          const tx = db.transaction(tableName, 'readwrite');
+          const store = tx.objectStore(tableName);
+
+          let completed = 0;
+          records.forEach(record => {
+            const addReq = store.put(record);
+            addReq.onsuccess = () => {
+              completed++;
+              if (completed === records.length) {
+                resolve();
+              }
+            };
+            addReq.onerror = () => {
+              completed++;
+              if (completed === records.length) {
+                resolve();
+              }
+            };
+          });
+
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function openDevPanel() {
+      if (window.LogService && typeof window.LogService.togglePanel === 'function') {
+        if (!window.LogService.isDeveloperMode) {
+          window.LogService.togglePanel();
+        }
+        showToast('success', '已打开', '开发者面板已打开');
+      } else {
+        showToast('error', '功能不可用', '开发者面板加载失败');
+      }
+    }
+
+    function runQualityCheck() {
+      if (window.LogService && typeof window.LogService.togglePanel === 'function') {
+        if (!window.LogService.isDeveloperMode) {
+          window.LogService.togglePanel();
+        }
+        setTimeout(() => {
+          window.LogService.switchTab('quality');
+        }, 100);
+        showToast('info', '检查中', '正在进行数据质量检查...');
+      } else {
+        showToast('error', '功能不可用', '数据质量检查功能加载失败');
+      }
+    }
+
+    function confirmClearCurrentStudent() {
+      showConfirmModal('确定要清除当前学生数据吗？此操作不可恢复！', async () => {
+        const studentId = localStorage.getItem('current_student_id') || localStorage.getItem('default_student_id');
+        if (studentId && window.DB?.clearStudentData) {
+          await window.DB.clearStudentData(studentId);
+        }
+        showToast('success', '已清除', '当前学生数据已清除');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      });
+    }
+
+    function confirmClearAllData() {
+      showConfirmModal('确定要清除所有数据吗？此操作不可恢复！', async () => {
+        if (window.DB?.clearAll) {
+          await window.DB.clearAll();
+        }
+        localStorage.clear();
+        showToast('success', '已清除', '所有数据已清除');
+        setTimeout(() => {
+          window.location.href = '../index.html';
+        }, 1500);
+      });
+    }
+
     // Init stats on page load
     initAIStats();
+    updateTableCounts();
   </script>
 </body>
 </html>
